@@ -1,6 +1,4 @@
-# TODO: {product} - {summary}
-
-TODO: `product` is a stylized product name. `{summary}` is a short one-sentence description.
+# argapp - A Python package for CLI application development
 
 # Overview
 
