@@ -16,14 +16,30 @@ Limitations:
 
 ### OS
 
-TODO: A bullet list of supported OS.
+ * Linux, tested with:
+    * Ubuntu 18.04
+    * Ubuntu 19.10
+    * Ubuntu 20.04
+    * Ubuntu 21.10
+    * Ubuntu 22.04
 
-### TODO: {language} versions
+### Python versions
 
-TODO: A bullet list of supported language versions. `{language}` must be replaced with the language name.
+ * 3.6
+ * 3.7
+ * 3.8
+ * 3.9
+ * 3.10
+ * 3.11
 
 ## Steps
 
-TODO: Installation steps for a simple case. May be split into several sub-sections.
+To install, run the following:
+```bash
+pip3 install argapp
+```
+
+To enable the completion, install [argcomplete](https://pypi.org/project/argcomplete).<br>
+Refer to its documentation for the details on installation and usage.
 
 # API
