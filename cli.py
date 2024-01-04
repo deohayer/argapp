@@ -13,8 +13,6 @@ import sys
 from argparse import ArgumentParser, RawTextHelpFormatter
 from typing import Any, Iterable, Iterator, overload
 
-from .log import logc, loge
-
 try:
     from argcomplete import autocomplete
     from argcomplete.completers import ChoicesCompleter
@@ -1139,14 +1137,10 @@ class Main(App):
         parser = Parser.construct(self)
         Parser.complete(parser)
         bundle = Parser.parse(parser, self, argv)
-        logc(
-            verbose=bundle[self.arg_verbose],
-            detailed=bundle[self.arg_detailed],
-        )
         try:
             for i in range(len(bundle)):
                 bundle[i](bundle)
         except Exception as e:
-            loge(e)
+            print(e.with_traceback(), file=sys.stderr, flush=True)
             sys.exit(1)
         sys.exit(0)
