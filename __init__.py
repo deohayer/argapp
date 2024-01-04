@@ -28,7 +28,6 @@ except:
 __all__ = [
     'Arg',
     'App',
-    'Bundle',
     'Main',
 ]
 
@@ -764,7 +763,11 @@ class App:
         self.__init_prolog()
         self.__init_epilog()
 
-    def __call__(self, bundle: 'Bundle') -> 'None':
+    def __call__(
+        self,
+        args: 'list[str] | dict[Arg, Any]' = sys.argv,
+        apps: 'list[App]' = None,
+    ) -> 'None':
         '''
         This method is called in Main.__call__() on the Main itself and all its
         sub-commands that are mentioned in the command line. App sub-classes
@@ -810,99 +813,6 @@ class App:
         if self.epilog == None:
             return
         _check_type(self, 'epilog', str)
-
-
-class Bundle:
-    '''
-    A parsed command line, offers access to:
-     * Args and their values, via dict-like interface.
-     * Apps that are called, via list-like interface.
-    '''
-
-    def __init__(
-        self,
-        args: 'dict[Arg, Any]',
-        apps: 'list[App]',
-    ) -> 'None':
-        self.__args = args
-        self.__apps = apps
-
-    @overload
-    def __getitem__(self, key: 'Arg') -> 'Any':
-        '''
-        Get the command line value of the specific Arg.
-
-        Parameters:
-         * key - Arg that serves as a key.
-
-        Raises:
-         * TypeError if key is not Arg.
-
-        Return:
-         * None, if Arg is not present.
-         * Value that was parsed from the command line.
-        '''
-
-    @overload
-    def __getitem__(self, key: 'int') -> 'App':
-        '''
-        Get an application from the call stack.
-
-        Parameters:
-         * key - index of the App in the call stack. The root App is 0.
-
-        Raises:
-         * TypeError if key is not int.
-         * ValueError if key is out of bounds.
-
-        Return:
-         * App at the specified index.
-        '''
-
-    def __getitem__(self, key: 'Arg') -> 'Any':
-        if not isinstance(key, (Arg, int)):
-            raise TypeError(
-                f'Bundle[]: key must be Arg or int. '
-                f'Actual type: {type(key).__name__}.')
-        if isinstance(key, int):
-            l = len(self)
-            if key not in range(-l, l):
-                raise ValueError(
-                    f'Bundle[]: int key must be from {-l} to {l - 1}. '
-                    f'Actual value: {key}.')
-            return self.__apps[key]
-        else:
-            return self.__args.get(key, None)
-
-    def __len__(self) -> 'int':
-        '''
-        Number of Apps in the call stack.
-        '''
-        return len(self.__apps)
-
-    def __iter__(self) -> 'Iterator[App]':
-        '''
-        Iterator over Apps in the call stack.
-        '''
-        return iter(self.__apps)
-
-    def keys(self) -> 'Iterable[Arg]':
-        '''
-        Iterable of all Args in the command line.
-        '''
-        return self.__args.keys()
-
-    def values(self) -> 'Iterable[Any]':
-        '''
-        Iterable of all Arg values in the command line.
-        '''
-        return self.__args.values()
-
-    def items(self) -> 'Iterable[tuple[Arg, Any]]':
-        '''
-        Iterable of all Arg-value pairs in the command line.
-        '''
-        return self.__args.items()
 
 
 class Formatter(RawTextHelpFormatter):
@@ -963,7 +873,7 @@ class Parser:
         parser: 'ArgumentParser',
         app: 'App',
         argv: 'list[str]',
-    ) -> 'Bundle':
+    ) -> 'tuple[dict[Arg, Any], list[App]]':
         parsed = parser.parse_args(argv)
         apps: 'list[App]' = []
         args: 'dict[Arg, Any]' = {}
@@ -985,7 +895,7 @@ class Parser:
                 if name == x.name:
                     app = x
                     break
-        return Bundle(args, apps)
+        return (args, apps)
 
     @staticmethod
     def arg(o: 'Arg') -> 'dict[str, Any]':
@@ -1100,46 +1010,24 @@ class Main(App):
         )
         self.add(self.arg_detailed)
 
-    @overload
-    def __call__(self, bundle: 'Bundle') -> 'None':
-        pass
-
-    @overload
-    def __call__(self, args: 'Iterable' = sys.argv) -> 'None':
-        '''
-        Overload specific to class Main. Parses the command line and executes
-        it accodingly. Note that it always calls sys.exit() with 0 if there
-        was no issues, and 1 if there is an Exception. All exceptions raised
-        after the command line parsing are catched and printed via pykit.log.
-
-        Parameters:
-         * argv - a list of individual command line tokens. The first item is
-                  assumed to be the name of the executable, and is ignored.
-
-        Raises:
-         * TypeError, if argv is not Iterable.
-
-        Returns:
-         * None.
-        '''
-
     def __call__(
         self,
-        argv: 'Bundle | Iterable' = sys.argv,
+        args: 'list[str] | dict[Arg, Any]' = sys.argv,
+        apps: 'list[App]' = None,
     ) -> 'None':
-        if isinstance(argv, Bundle):
+        if not isinstance(args, type(sys.argv)):
             return
-        if not isinstance(argv, Iterable):
+        if not isinstance(args, Iterable):
             raise TypeError(
                 f'Main.__call__(): argv must be Iterable. '
-                f'Actual type: {type(argv).__name__}.')
-        argv = [str(x) for x in argv][1:]
+                f'Actual type: {type(args).__name__}.')
+        args = [str(x) for x in args][1:]
         parser = Parser.construct(self)
         Parser.complete(parser)
-        bundle = Parser.parse(parser, self, argv)
+        args, apps = Parser.parse(parser, self, args)
         try:
-            for i in range(len(bundle)):
-                bundle[i](bundle)
+            for i in range(len(apps)):
+                apps[i](args, apps)
         except Exception as e:
             print(e.with_traceback(), file=sys.stderr, flush=True)
             sys.exit(1)
