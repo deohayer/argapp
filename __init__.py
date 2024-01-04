@@ -783,6 +783,23 @@ class App:
         Returns:
          * None.
         '''
+        if not isinstance(args, type(sys.argv)):
+            return
+        if not isinstance(args, Iterable):
+            raise TypeError(
+                f'Main.__call__(): argv must be Iterable. '
+                f'Actual type: {type(args).__name__}.')
+        args = [str(x) for x in args][1:]
+        parser = Parser.construct(self)
+        Parser.complete(parser)
+        args, apps = Parser.parse(parser, self, args)
+        try:
+            for i in range(len(apps)):
+                apps[i](args, apps)
+        except Exception as e:
+            print(e.with_traceback(), file=sys.stderr, flush=True)
+            sys.exit(1)
+        sys.exit(0)
 
     def __init_name(self) -> 'None':
         _check_type(self, 'name', str)
@@ -972,63 +989,3 @@ class Parser:
         Get a unique id for the object.
         '''
         return str(id(o))
-
-
-class Main(App):
-    '''
-    A sub-class of App that represent the root App.
-    Its __call__() method is overloaded to accept Bundle (as App does) and
-    list[str] - a list of command line arguments.
-    In the first case it behaves like a normal App.
-    In the second case it parses and executes the provided command line.
-
-    Main also provides flags that control pykit.log verbosity:
-     * arg_verbose  - configures logc(verbose), -v, --verbose.
-     * arg_detailed - configures logc(detailed), -d, --detailed.
-    '''
-
-    def __init__(
-        self,
-        name: 'str',
-        help: 'str' = None,
-        prolog: 'str' = None,
-        epilog: 'str' = None,
-    ) -> 'None':
-        super().__init__(name, help, prolog, epilog)
-        self.arg_verbose = Arg(
-            sopt='v',
-            lopt='verbose',
-            help='Print debug and trace logs.',
-            count=0,
-        )
-        self.add(self.arg_verbose)
-        self.arg_detailed = Arg(
-            sopt='d',
-            lopt='detailed',
-            help='Print timestamp, process, thread, level, path.',
-            count=0,
-        )
-        self.add(self.arg_detailed)
-
-    def __call__(
-        self,
-        args: 'list[str] | dict[Arg, Any]' = sys.argv,
-        apps: 'list[App]' = None,
-    ) -> 'None':
-        if not isinstance(args, type(sys.argv)):
-            return
-        if not isinstance(args, Iterable):
-            raise TypeError(
-                f'Main.__call__(): argv must be Iterable. '
-                f'Actual type: {type(args).__name__}.')
-        args = [str(x) for x in args][1:]
-        parser = Parser.construct(self)
-        Parser.complete(parser)
-        args, apps = Parser.parse(parser, self, args)
-        try:
-            for i in range(len(apps)):
-                apps[i](args, apps)
-        except Exception as e:
-            print(e.with_traceback(), file=sys.stderr, flush=True)
-            sys.exit(1)
-        sys.exit(0)
