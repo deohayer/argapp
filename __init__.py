@@ -1,17 +1,7 @@
-'''
-Wrapper for argparse and argcomplete.
-
-Features the following:
- - Arg, a command line argument.
- - App, a command line application or sub-command.
- - Bundle, parsed Args and an actual list of called Apps.
- - Main, a root App with verbose and detailed flags.
-'''
-
-import re
+import os
 import sys
-from argparse import ArgumentParser, RawTextHelpFormatter
-from typing import Any, Iterable, Iterator, overload
+from argparse import ArgumentParser
+from typing import Iterable
 
 try:
     from argcomplete import autocomplete
@@ -25,241 +15,81 @@ except:
             return
 
 
-__all__ = [
-    'Arg',
-    'App',
-    'Main',
-]
-
-
-def _check_type(o, v, t) -> 'None':
-    c = type(o).__name__
-    if type(t) != tuple:
-        t = (t,)
-    _v = getattr(o, v)
-    if not isinstance(_v, t):
-        _t = type(_v).__name__
-        ts = ', '.join(x.__name__ for x in t)
-        raise TypeError(f'{c}.{v} must be {ts}. Actual type: {_t}.')
-
-
 class Arg:
     '''
-    Class that represents a command line argument, optional or positional.
-
-    All the fields are read-only, some of them depend on the others. They can
-    only be set during the object construction, and are thoroughly validated.
+    See the pyi.
     '''
+
+    @property
+    def app(self) -> 'App':
+        return self.__app
 
     @property
     def name(self) -> 'str':
-        '''
-        The value name: "URI" in "--uri URI, -u URI".
-        Can be lowercase.
-
-        Restrictions:
-         * Type is str.
-         * len(self.name) > 0.
-         * Can contain: 'a-z', 'A-Z', '0-9', '-', '_'.
-         * Must start with: 'a-z', 'A-Z', '0-9'.
-
-        Deduction:
-         * self.lopt.upper().
-         * self.sopt.upper().
-         * 'ARGS' if self.is_multi.
-         * 'ARG'.
-        '''
         return self.__name
 
     @property
-    def sopt(self) -> 'str':
-        '''
-        The short option name: "-u" in "--uri URI, -u URI".
-
-        Restrictions:
-         * Type is str.
-         * len(self.sopt) == 1.
-         * Can be 'a-z', 'A-Z', '0-9'.
-
-        Deduction:
-         * None.
-        '''
+    def sopt(self) -> 'str | None':
         return self.__sopt
 
     @property
-    def lopt(self) -> 'str':
-        '''
-        The long option name: "--uri" in "--uri URI, -u URI".
-
-        Restrictions:
-         * Type is str.
-         * len(self.lopt) > 0.
-         * Can contain: 'a-z', 'A-Z', '0-9', '-', '_'.
-         * Must start with: 'a-z', 'A-Z', '0-9'.
-
-        Deduction:
-         * None.
-        '''
+    def lopt(self) -> 'str | None':
         return self.__lopt
 
     @property
-    def help(self) -> 'str':
-        '''
-        Help message text.
-
-        If self.choices is not None, the following will be appended:
-        Possible values:
-         * value1 - help1
-         * value2 - help2
-         * (...)
-
-        value1 and value2 are always defined.
-        help1 and help2 are available if self.choices is dict.
-
-        If self.default is not None, the following will be appended:
-        Defaults to: value1, value2, (...).
-        Multiple values will be printed only if self.is_multi.
-
-        Restrictions:
-         * Type is str.
-
-        Deduction:
-         * str().
-        '''
+    def help(self) -> 'str | None':
         return self.__help
 
     @property
     def count(self) -> 'int | str':
-        '''
-        Number of values consumed by this argument from the command line:
-
-        Restrictions:
-         * Type is int or str.
-         * Can be any positive int.
-         * Can be 0, if self.is_optional.
-         * Can be '?' (0 or 1), '*' (0 and more), '+' (1 and more).
-
-        Deduction:
-         * '*' if self.default is non-str Iterable.
-         * 1.
-        '''
         return self.__count
 
     @property
     def type(self) -> 'type':
-        '''
-        Type of individual values.
-
-        Restrictions:
-         * Type is type.
-         * Can be str, int, float, bool.
-         * Must be bool or None, if self.is_flag.
-
-        Deduction:
-         * bool, if self.is_flag.
-         * type(self.choices[0]).
-         * type(self.default[0]), if self.is_multi.
-         * type(self.default), if self.is_single.
-         * str.
-        '''
         return self.__type
 
     @property
-    def choices(self) -> 'list':
-        '''
-        List of allowed argument values.
-        Can be dict, in this case:
-         * dict.keys are allowed argument values.
-         * dict.values are converted to str and treated as a help text.
-
-        Restrictions:
-         * Must be None, if self.is_flag.
-         * Type is Iterable (not str).
-         * Type of each item is self.type.
-         * Each item must be unique.
-
-        Deduction:
-         * None.
-        '''
+    def choices(self) -> 'list | dict | None':
         return self.__choices
 
     @property
-    def default(self) -> 'Any':
-        '''
-        Default value, if not specified.
-
-        Restrictions:
-         * Must be None, if self.is_flag.
-         * Type is self.type, if self.is_single.
-
-        Restrictions (self.is_multi):
-         * Type is non-str Iterable.
-         * Type of each item is self.type.
-         * Each item is in self.choices.
-         * len(self.default) == self.count, if self.count is int.
-         * len(self.default) > 0, if self.count == '+'.
-
-        Deduction:
-         * None.
-        '''
+    def default(self) -> 'object | None':
         return self.__default
 
     @property
     def is_optional(self) -> 'bool':
-        '''
-        True if self.sopt or self.lopt is not None.
-        Mutually exclusive with Arg.is_positional.
-        '''
-        return self.sopt or self.lopt
+        return bool(self.sopt or self.lopt)
 
     @property
     def is_positional(self) -> 'bool':
-        '''
-        True if self.sopt and self.lopt are None.
-        Mutually exclusive with self.is_optional.
-        '''
         return not self.is_optional
 
     @property
     def is_flag(self) -> 'bool':
-        '''
-        True if self.count is 0.
-        Mutually exclusive with self.is_single and self.is_multi.
-        '''
         return self.count == 0
 
     @property
     def is_single(self) -> 'bool':
-        '''
-        True if self.count is 1 or '?'.
-        Mutually exclusive with self.is_flag and self.is_multi.
-        '''
         return self.count == 1 or self.count == '?'
 
     @property
     def is_multi(self) -> 'bool':
-        '''
-        True if self.count is greater than 1, '*' or '+'.
-        Mutually exclusive with self.is_flag and self.is_single.
-        '''
         return not (self.is_flag or self.is_single)
 
     def __init__(
         self,
-        name: 'str' = None,
-        sopt: 'str' = None,
-        lopt: 'str' = None,
-        help: 'str' = None,
-        type: 'type' = None,
-        count: 'int | str' = None,
-        choices: 'Iterable' = None,
-        default: 'Any' = None,
+        app: 'App',
+        name: 'str | None' = None,
+        sopt: 'str | None' = None,
+        lopt: 'str | None' = None,
+        help: 'str | None' = None,
+        type: 'type | None' = None,
+        count: 'int | str | None' = None,
+        choices: 'list | dict | None' = None,
+        default: 'object | None' = None,
     ) -> 'None':
-        '''
-        Constructs Arg with the given fields.
-        Refer to the corresponding fields for restrictions and deductions.
-        '''
         # Set immediately, so there is no need to pass the parameters.
+        self.__app = app
         self.__name = name
         self.__sopt = sopt
         self.__lopt = lopt
@@ -277,147 +107,64 @@ class Arg:
         self.__init_default()
         self.__init_name()
         self.__init_help()
-
-    def __call__(
-        self,
-        v: 'bool | list[str] | None',
-    ) -> 'str | int | float | bool | list | None':
-        '''
-        Parse command line values into an actual value. This method is
-        supposed to be called in two cases:
-         * By this module, to obtain the actual values.
-           The values will be associated with the Arg object in the Bundle.
-         * By a sub-class of Arg, in the overridden method.
-           This way basic types in the command line can be parse into more
-           complex objects.
-
-        Parameters:
-         * v - value from the command line, depends on self.count.
-           If self.is_flag, it is True (present) or False (absent).
-           Otherwise, it is list[str] (present) or None (absent).
-           This parameter is guaranteed to be valid: compatible with self.type,
-           be present in choices, correct number of values, and so on.
-
-        Raises:
-         * ValueError if v is not in self.choices.
-
-        Returns:
-         * v, if self.is_flag.
-         * [], if self.is_multi and self.is_positional and bool(v) is False.
-         * self.default, if v was None.
-         * A list of values converted to self.type, if self.is_multi.
-         * self.type(v).
-        '''
-        if self.is_flag:
-            return v
-        if self.is_multi and self.is_positional and not v:
-            return self.default or []
-        if v == None:
-            return self.default
-        v = [self.type(x) for x in v]
-        if self.choices:
-            for x in v:
-                if x not in self.choices:
-                    choices = '\n * '.join(str(x) for x in self.choices)
-                    raise ValueError(
-                        f'Invalid value for argument {self.name}: {x}. '
-                        f'The value must be in choices:\n * {choices}')
-        return v if self.is_multi else v[0]
+        self.__init_app()
 
     def __init_sopt(self) -> 'None':
         if self.sopt == None:
             return
-        _check_type(self, 'sopt', str)
-        if self.sopt == str():
-            raise ValueError('Arg.sopt must not be empty.')
-        if len(self.sopt) != 1:
-            raise ValueError(
-                f'Arg.sopt must be a single character. '
-                f'Actual length: {len(self.sopt)}.')
-        if not re.match(r'^[a-zA-Z0-9]$', self.sopt):
-            raise ValueError(
-                f'Arg.sopt must be one of: a-z, A-Z, 0-9. '
-                f'Actual value: {self.sopt}.')
+        name = 'Arg.sopt'
+        _check_type(self.sopt,
+                    name,
+                    (str, None))
+        _check_value(self.sopt,
+                     name,
+                     len(self.sopt) == 1,
+                     'Must be a single character.')
 
     def __init_lopt(self) -> 'None':
         if self.lopt == None:
             return
-        _check_type(self, 'lopt', str)
-        if self.lopt == str():
-            raise ValueError('Arg.lopt must not be empty.')
-        if not re.match(r'^[a-zA-Z0-9]$', self.lopt[0]):
-            raise ValueError(
-                f'Arg.lopt must start with a-z, A-Z, 0-9. '
-                f'Found an invalid character: {self.lopt[0]}.')
-        chars = re.findall(r'[^a-zA-Z0-9_-]', self.lopt)
-        if chars:
-            raise ValueError(
-                f'Arg.lopt must contain only a-z, A-Z, 0-9, _, -. '
-                f'Found an invalid character: {chars[0]}.')
+        name = 'Arg.lopt'
+        _check_type(self.lopt,
+                    name,
+                    (str, None))
+        _check_value(self.lopt,
+                     name,
+                     len(self.lopt) != 0,
+                     'Must be a non-empty str.')
 
     def __init_count(self) -> 'None':
         if self.count == None:
-            self.__count = '*' if Arg.__is_container(self.default) else 1
-            return
-        _check_type(self, 'count', (int, str))
-        if isinstance(self.count, int) and self.count > 0:
-            return
-        if self.count in ['?', '+', '*']:
-            return
-        if self.count == 0:
-            if self.is_optional:
-                return
-            raise ValueError(
-                'Arg.count must not be 0 if Arg.is_positional.')
-        raise ValueError(
-            f'Arg.count must be non-negative int, "?", "*", "+". '
-            f'Actual value: {self.count}.')
-
-    def __init_name(self) -> 'None':
-        if self.name == None:
-            if self.lopt != None:
-                self.__name = self.lopt.upper()
-            elif self.sopt != None:
-                self.__name = self.sopt.upper()
-            elif self.is_multi:
-                self.__name = 'ARGS'
+            is_iterable = isinstance(self.default, Iterable)
+            is_str = isinstance(self.default, str)
+            if is_iterable and not is_str:
+                self.__count = '*'
             else:
-                self.__name = 'ARG'
+                self.__count = 1
             return
-        _check_type(self, 'name', str)
-        if self.name == str():
-            raise ValueError('Arg.name must not be empty.')
-        if not re.match(r'^[a-zA-Z0-9]$', self.name[0]):
-            raise ValueError(
-                f'Arg.name must start with a-z, A-Z, 0-9. '
-                f'Found an invalid character: {self.name[0]}.')
-        chars = re.findall(r'[^a-zA-Z0-9_-]', self.name)
-        if chars:
-            raise ValueError(
-                f'Arg.name must contain only a-z, A-Z, 0-9, _, -. '
-                f'Found an invalid character: {chars[0]}.')
-
-    def __init_help(self) -> 'None':
-        if self.help == None:
-            self.__help = str()
-        _check_type(self, 'help', str)
-        if self.choices:
-            self.__help += '\nPossible values:'
-            if not isinstance(self.choices, dict):
-                self.__help += '\n * '
-                self.__help += '\n * '.join(str(x) for x in self.choices)
-            else:
-                w = max(len(str(x)) for x in self.choices)
-                for x in self.choices:
-                    self.__help += f'\n * {str(x):{w}} - {self.choices[x]}'
-        if self.default:
-            self.__help += '\nDefaults to: '
-            if self.is_single:
-                self.__help += str(self.default)
-            else:
-                self.__help += ' '.join(str(x) for x in self.default)
+        name = 'Arg.count'
+        info = 'Must be non-negative int, "?", "*", "+".'
+        _check_type(self.count,
+                    name,
+                    (int, str, None))
+        if isinstance(self.count, int):
+            if self.is_positional:
+                _check_value(self.count,
+                             name,
+                             self.count != 0,
+                             'Must not be 0 for positional arguments.')
+            _check_value(self.count,
+                         name,
+                         self.count >= 0,
+                         info)
+        if isinstance(self.count, str):
+            _check_value(self.count,
+                         name,
+                         self.count in ['?', '+', '*'],
+                         info)
 
     def __init_type(self) -> 'None':
+        name = 'Arg.type'
         if self.type == None:
             if self.is_flag:
                 self.__type = bool
@@ -430,482 +177,379 @@ class Arg:
                     self.__type = type(self.default)
             else:
                 self.__type = str
-        _check_type(self, 'type', type)
-        if not issubclass(self.type, (str, int, float, bool)):
-            raise ValueError(
-                f'Arg.type value must be str, int, float or bool. '
-                f'Actual value: {self.type.__name__}.')
-        if self.is_flag and not issubclass(self.type, bool):
-            raise ValueError(
-                f'Arg.type must be bool or None if Arg.is_flag. '
-                f'Actual value: {self.type.__name__}.')
+        _check_type(self.type,
+                    name,
+                    (type, None))
+        if self.is_flag:
+            _check_value(self.type,
+                         name,
+                         issubclass(self.type, bool),
+                         'Must be bool or None for flag argument.')
+        else:
+            _check_value(self.type,
+                         name,
+                         issubclass(self.type, (str, int, float, bool)),
+                         'Must be str, int, float, bool or None.')
 
     def __init_choices(self) -> 'None':
         if self.choices == None:
             return
-        t = type(self.choices).__name__
+        name = 'Arg.choices'
         if self.is_flag:
-            raise ValueError(
-                f'Arg.choices must be None if Arg.is_flag. '
-                f'Actual type: {t}.')
-        if not Arg.__is_container(self.choices):
-            raise TypeError(
-                f'Arg.choices must be Iterable (not str). '
-                f'Actual type: {t}.')
-        if not self.choices:
-            raise ValueError('Arg.choices must not be empty.')
+            _check_type(self.choices,
+                        f'{name} for flag',
+                        (None,))
+        else:
+            _check_type(self.choices,
+                        name,
+                        (Iterable, None))
+        _check_value(self.choices,
+                     name,
+                     len(self.choices) != 0,
+                     'Must not be empty.')
         seen = set()
+        name = f'item in {name}'
         for x in self.choices:
-            if not isinstance(x, self.type):
-                raise ValueError(
-                    f'Arg.choices values must be {self.type.__name__}. '
-                    f'Found {type(x).__name__}: {x}.')
-            if x in seen:
-                raise ValueError(
-                    f'Arg.choices must not have duplicates. '
-                    f'Duplicate value: {x}.')
+            _check_type(x,
+                        name,
+                        (self.type,))
+            _check_value(x,
+                         name,
+                         x not in seen,
+                         'Must be unique.')
             seen.add(x)
 
     def __init_default(self) -> 'None':
+        name = 'Arg.default'
+        if self.is_flag:
+            _check_type(self.default,
+                        name,
+                        (bool, None))
+            self.__default = bool(self.default)
+            return
         if self.default == None:
             return
-        t = type(self.default).__name__
-        if self.is_flag:
-            raise ValueError(
-                f'Arg.default must be None if Arg.is_flag. '
-                f'Actual type: {t}.')
-        elif self.is_single:
-            _check_type(self, 'default', self.type)
-            if self.choices:
-                if self.default not in self.choices:
-                    raise ValueError(
-                        f'Arg.default must be in Arg.choices. '
-                        f'Actual value: {self.default}.')
-        else:
-            if not Arg.__is_container(self.default):
-                raise TypeError(
-                    f'Arg.default must be Iterable (not str). '
-                    f'Actual type: {t}.')
-            if self.count == '+' and len(self.default) == 0:
-                raise ValueError(
-                    'Arg.default must not be empty if Arg.count is "+".')
-            if isinstance(self.count, int) and len(self.default) != self.count:
-                raise ValueError(
-                    f'Arg.default must have {self.count} values. '
-                    f'Actual number of values: {len(self.default)}.')
+        if self.choices:
+            choices_info = ', '.join(str(x) for x in self.choices)
+            choices_info = f'Must be in Arg.choices: {choices_info}.'
+        if self.is_single:
+            _check_type(self.default,
+                        name,
+                        (self.type, None))
+            if self.default != None and self.choices:
+                _check_value(self.default,
+                             name,
+                             self.default in self.choices,
+                             choices_info)
+            return
+        if self.is_multi:
+            _check_type(self.default,
+                        name,
+                        (Iterable, None))
             if self.choices:
                 for x in self.default:
-                    if x not in self.choices:
-                        raise ValueError(
-                            f'Arg.default values must be in Arg.choices. '
-                            f'Found unknown value: {x}.')
+                    _check_value(x,
+                                 f'item in {name}',
+                                 x in self.choices,
+                                 choices_info)
             else:
                 for x in self.default:
-                    if not isinstance(x, self.type):
-                        raise TypeError(
-                            f'Arg.default values must be {self.type.__name__}. '
-                            f'Found {type(x).__name__}: {x}.')
+                    _check_type(x,
+                                f'item in {name}',
+                                (self.type,))
+            if self.count == '+':
+                _check_value(self.default,
+                             f'{name} with Arg.count "+"',
+                             len(self.default) > 0,
+                             'Must not be empty.')
+            if isinstance(self.count, int):
+                _check_value(self.default,
+                             name,
+                             len(self.default) == self.count,
+                             f'Must have exactly {self.count} items.')
+            return
 
-    @staticmethod
-    def __is_container(o) -> 'bool':
-        return isinstance(o, Iterable) and not isinstance(o, str)
+    def __init_help(self) -> 'None':
+        name = 'Arg.help'
+        _check_type(self.help,
+                    name,
+                    (str, None))
+        self.__help = self.help or ''
+        if self.is_flag:
+            return
+        if self.choices:
+            if self.help:
+                self.__help += '\n'
+            self.__help += f'Possible values:{_choices(self.choices)}'
+        if self.default != None:
+            if self.help:
+                self.__help += '\n'
+            self.__help += 'Defaults to: '
+            if self.is_single:
+                self.__help += str(self.default)
+            else:
+                self.__help += ' '.join(str(x) for x in self.default)
+
+    def __init_name(self) -> 'None':
+        name = 'Arg.name'
+        _check_type(self.name,
+                    name,
+                    (str, None))
+        if self.name == None:
+            if self.lopt != None:
+                self.__name = self.lopt.upper()
+            elif self.sopt != None:
+                self.__name = self.sopt.upper()
+            else:
+                self.__name = 'ARG'
+            return
+        _check_value(self.name,
+                     name,
+                     self.name != '',
+                     'Must not be empty.')
+
+    def __init_app(self) -> 'None':
+        name = 'Arg.app'
+        _check_type(self.app,
+                    name,
+                    (App,))
+        for x in self.app.args:
+            name = self.app.name or 'main'
+            if self.is_optional and x.is_optional:
+                if self.lopt != None:
+                    _check_value(self.lopt,
+                                 'Arg.lopt',
+                                 x.lopt != self.lopt,
+                                 f'Must not repeat other Arg.lopt in {name} App.')
+                if self.sopt != None:
+                    _check_value(self.sopt,
+                                 'Arg.sopt',
+                                 x.sopt != self.sopt,
+                                 f'Must not repeat other Arg.sopt in {name} App.')
+            if self.is_positional and x.is_positional:
+                _check_value(self.name,
+                             'Arg.name',
+                             x.name != self.name,
+                             f'Must not repeat other Arg.name in {name} App.')
+        self.app.args.append(self)
+
+    def __call__(
+        self,
+        v: 'bool | str | list | None',
+    ) -> 'str | int | float | bool | list | None':
+        if self.is_flag:
+            return self.__call_flag(v)
+        if self.is_single:
+            return self.__call_single(v)
+        if self.is_multi:
+            return self.__call_multi(v)
+
+    def __call_flag(self, v: 'bool') -> 'bool':
+        return v
+
+    def __call_single(self, v: 'str | None') -> 'str | int | float | bool | None':
+        if v == None:
+            return self.default
+        v = self.type(v)
+        if not self.choices:
+            return v
+        if v in self.choices:
+            return v
+        name = self.lopt or self.sopt or self.name
+        raise RuntimeError(
+            f'Invalid value of argument {name}: {_str(v)}. '
+            f'Must be one of:{_choices(self.choices)}')
+
+    def __call_multi(self, v: 'list[str]') -> 'list[str | int | float | bool]':
+        if not v:
+            return self.default
+        v = [self.type(x) for x in v]
+        if not self.choices:
+            return v
+        for x in v:
+            if x not in self.choices:
+                name = self.lopt or self.sopt or self.name
+                raise RuntimeError(
+                    f'Invalid item in argument {name}: {_str(x)}. '
+                    f'Must be one of:{_choices(self.choices)}')
+        return v
 
 
 class App:
     '''
-    Class that represents a command line application.
-    App is a also a container for:
-     * App.args - App's command line arguments.
-     * App.apps - App's sub-commands.
-
-    All the fields are read-only. They can only be set during the object
-    construction, and are thoroughly validated. App.args and App.apps can
-    be altered via the corresponding methods.
+    See the pyi.
     '''
 
     @property
-    def name(self) -> 'str':
-        '''
-        The app name.
+    def app(self) -> 'App | None':
+        return self.__app
 
-        Restrictions:
-         * Must be set.
-         * Type is str.
-         * len(self.name) > 0.
-         * Can contain: 'a-z', 'A-Z', '0-9', '-', '_'.
-         * Must start with: 'a-z', 'A-Z', '0-9'.
-        '''
+    @property
+    def name(self) -> 'str | None':
         return self.__name
 
     @property
-    def help(self) -> 'str':
-        '''
-        A short help for sub-command.
-
-        Restrictions:
-         * Type is str.
-
-        Deduction:
-         * None.
-        '''
+    def help(self) -> 'str | None':
         return self.__help
 
     @property
-    def prolog(self) -> 'str':
-        '''
-        A detailed help before the option list.
-
-        Restrictions:
-         * Type is str.
-
-        Deduction:
-         * self.help.
-        '''
+    def prolog(self) -> 'str | None':
         return self.__prolog
 
     @property
-    def epilog(self) -> 'str':
-        '''
-        A detailed help after the option list.
-
-        Restrictions:
-         * Type is str.
-
-        Deduction:
-         * None.
-        '''
+    def epilog(self) -> 'str | None':
         return self.__epilog
 
     @property
-    def args(self) -> 'Iterable[Arg]':
-        '''
-        An Iterable over this App's Args.
-        Can be modified via the dedicated methods:
-         * self.add(Arg)
-         * self.pop(Arg)
-        '''
+    def is_main(self) -> 'bool':
+        return not self.is_sub
+
+    @property
+    def is_sub(self) -> 'bool':
+        return bool(self.app)
+
+    @property
+    def args(self) -> 'list[Arg]':
         return self.__args
 
     @property
-    def apps(self) -> 'Iterable[App]':
-        '''
-        An Iterable over this App's sub-commands (also Apps).
-        Can be modified via the dedicated methods:
-         * self.add(App)
-         * self.pop(App)
-        '''
+    def apps(self) -> 'list[App]':
         return self.__apps
-
-    @property
-    def parent(self) -> 'App | None':
-        '''
-        A parent App.
-        None if self.is_root.
-        '''
-        return self.__parent
-
-    @property
-    def root(self) -> 'App':
-        '''
-        The root App.
-        '''
-        o = self
-        while o.parent:
-            o = o.parent
-        return o
-
-    @property
-    def is_root(self) -> 'bool':
-        '''
-        True if the App is a root App (not a sub-command).
-        '''
-        return not self.__parent
-
-    @overload
-    def add(self, o: 'Arg') -> 'None':
-        '''
-        Adds Arg to self.args.
-
-        Parameters:
-         * o - Arg to add.
-
-        Raises:
-         * TypeError, if o is not Arg.
-         * ValueError, if Arg with the same sopt or lopt is already added.
-
-        Returns:
-         * None.
-        '''
-
-    @overload
-    def add(self, o: 'App') -> 'None':
-        '''
-        Adds App to self.apps, making it a sub-command.
-
-        Parameters:
-         * o - App to add.
-
-        Raises:
-         * TypeError, if o is not App.
-         * ValueError, if o.parent is not None (already a sub-command).
-         * ValueError, if App with the same name is already added.
-
-        Returns:
-         * None.
-        '''
-
-    def add(self, o: 'Arg | App') -> 'None':
-        if not isinstance(o, (Arg, App)):
-            raise TypeError(
-                f'App.add(): Cannot add object of type {type(o).__name__}.')
-        if isinstance(o, Arg):
-            for x in self.args:
-                if x.sopt == o.sopt and x.sopt:
-                    raise ValueError(
-                        f'App.add(): Cannot add Arg. '
-                        f'Another Arg already has the same sopt: {x.sopt}.')
-                if x.lopt == o.lopt and x.lopt:
-                    raise ValueError(
-                        f'App.add(): Cannot add Arg. '
-                        f'Another Arg already has the same lopt: {x.lopt}.')
-            self.__args.append(o)
-        else:
-            if o.parent:
-                raise ValueError(
-                    f'App.add(): Cannot add App: {o.name}. '
-                    f'Already has a parent: {o.parent.name}.')
-            for x in self.apps:
-                if x.name == o.name:
-                    raise ValueError(
-                        f'App.add(): Cannot add App: {o.name}. '
-                        f'Another App already has the same name.')
-            self.__apps.append(o)
-            o.__parent = self
-
-    @overload
-    def pop(self, o: 'Arg') -> 'None':
-        '''
-        Removes Arg from self.args.
-
-        Parameters:
-         * o - Arg to remove.
-
-        Raises:
-         * TypeError, if o is not Arg.
-         * ValueError, if o is not in self.args.
-         * ValueError, if self.args is empty.
-
-        Returns:
-         * None.
-        '''
-
-    @overload
-    def pop(self, o: 'App') -> 'None':
-        '''
-        Removes App from self.apps.
-
-        Parameters:
-         * o - App to remove.
-
-        Raises:
-         * TypeError, if o is not App.
-         * ValueError, if o is not in self.apps.
-         * ValueError, if self.apps is empty.
-
-        Returns:
-         * None.
-        '''
-
-    def pop(self, o: 'Arg | App') -> 'None':
-        if o != None and not isinstance(o, (Arg, App)):
-            raise TypeError(
-                f'App.pop(): Cannot pop object of type {type(o).__name__}.')
-        if isinstance(o, Arg):
-            _list = self.__args
-            _type = 'Arg'
-            _name = o.lopt or o.sopt or o.name
-        else:
-            _list = self.__apps
-            _type = 'App'
-            _name = o.name
-        if not _list:
-            raise ValueError(
-                f'App.pop(): Cannot pop {_type}. '
-                f'App.{_type.lower()}s is empty.')
-        if o not in _list:
-            raise ValueError(
-                f'App.pop(): Cannot pop {_type}. '
-                f'{_type} is not in App.{_type.lower()}s: {_name}.')
-        _list.remove(o)
 
     def __init__(
         self,
-        name: 'str',
-        help: 'str' = None,
-        prolog: 'str' = None,
-        epilog: 'str' = None,
+        app: 'App | None' = None,
+        name: 'str | None' = None,
+        help: 'str | None' = None,
+        prolog: 'str | None' = None,
+        epilog: 'str | None' = None,
     ) -> 'None':
         '''
-        Constructs App with the given fields.
-        Refer to the corresponding fields for restrictions and deductions.
+        Construct the App and:
+         * Initialize the fields.
+         * Add the instance to app.apps.
+
+        Parameters match the corresponding fields.
+
+        Exceptions:
+        1. TypeError, if the type of some parameter is invalid (see the corresponding field).
+        2. ValueError, if the value of some parameter is invalid (see the corresponding field).
         '''
         # Set immediately, so there is no need to pass the parameters.
+        self.__app = app
         self.__name = name
         self.__help = help
         self.__prolog = prolog
         self.__epilog = epilog
         self.__args: 'list[Arg]' = []
         self.__apps: 'list[App]' = []
-        self.__parent: 'App' = None
         # The order matters, some fields may depend on the others.
-        self.__init_name()
         self.__init_help()
         self.__init_prolog()
         self.__init_epilog()
+        self.__init_name()
+        self.__init_app()
+
+    def __init_help(self) -> 'None':
+        _check_type(self.help,
+                    'App.help',
+                    (str, None))
+
+    def __init_prolog(self) -> 'None':
+        _check_type(self.prolog,
+                    'App.prolog',
+                    (str, None))
+        if self.prolog == None:
+            self.__prolog = self.help
+
+    def __init_epilog(self) -> 'None':
+        _check_type(self.epilog,
+                    'App.epilog',
+                    (str, None))
+
+    def __init_name(self) -> 'None':
+        name = 'App.name'
+        _check_type(self.name,
+                    name,
+                    (str, None))
+        if self.is_sub:
+            _check_type(self.name,
+                        name + ' for sub-command',
+                        (str,))
+        _check_value(self.name,
+                     name,
+                     self.name != '',
+                     'Must not be empty.')
+
+    def __init_app(self) -> 'None':
+        name = 'Arg.app'
+        _check_type(self.app,
+                    name,
+                    (App, None))
+        if self.app == None:
+            return
+        for x in self.app.apps:
+            name = self.app.name or 'main'
+            _check_value(self.name,
+                         'App.name',
+                         x.name != self.name,
+                         f'Must not repeat other App.name in {name} App.')
+        self.app.apps.append(self)
 
     def __call__(
         self,
-        args: 'list[str] | dict[Arg, Any]' = sys.argv,
+        args: 'list[str] | dict[Arg]' = None,
         apps: 'list[App]' = None,
     ) -> 'None':
-        '''
-        This method is called in Main.__call__() on the Main itself and all its
-        sub-commands that are mentioned in the command line. App sub-classes
-        are expected to override this method and perform some actions based
-        on the arguments stored in the Bundle. All the arguments from the
-        command line are available, not just the ones from the current App.
-        In case of errors, an Exception should be raised, it will be handled
-        by Main.__call__().
-
-        Parameters:
-         * bundle - a valid Bundle object.
-
-        Returns:
-         * None.
-        '''
-        if not isinstance(args, type(sys.argv)):
+        if args == None:
+            args = sys.argv
+        if apps:
             return
-        if not isinstance(args, Iterable):
-            raise TypeError(
-                f'Main.__call__(): argv must be Iterable. '
-                f'Actual type: {type(args).__name__}.')
-        args = [str(x) for x in args][1:]
-        parser = Parser.construct(self)
-        Parser.complete(parser)
-        args, apps = Parser.parse(parser, self, args)
+        args = [str(x) for x in args]
+        args, apps = Parser(self, args)()
         try:
-            for i in range(len(apps)):
-                apps[i](args, apps)
+            for x in apps:
+                x(args, apps)
         except Exception as e:
-            print(e.with_traceback(), file=sys.stderr, flush=True)
+            print(e, file=sys.stderr, flush=True)
             sys.exit(1)
         sys.exit(0)
-
-    def __init_name(self) -> 'None':
-        _check_type(self, 'name', str)
-        if self.name == str():
-            raise ValueError('App.name must not be empty.')
-        if not re.match(r'^[a-zA-Z0-9]$', self.name[0]):
-            raise ValueError(
-                f'App.name must start with a-z, A-Z, 0-9. '
-                f'Found an invalid character: {self.name[0]}.')
-        chars = re.findall(r'[^a-zA-Z0-9_-]', self.name)
-        if chars:
-            raise ValueError(
-                f'App.name must contain only a-z, A-Z, 0-9, _, -. '
-                f'Found an invalid character: {chars[0]}.')
-
-    def __init_help(self) -> 'None':
-        if self.help == None:
-            return
-        _check_type(self, 'help', str)
-
-    def __init_prolog(self) -> 'None':
-        if self.prolog == None:
-            self.__prolog = self.help
-            return
-        _check_type(self, 'prolog', str)
-
-    def __init_epilog(self) -> 'None':
-        if self.epilog == None:
-            return
-        _check_type(self, 'epilog', str)
-
-
-class Formatter(RawTextHelpFormatter):
-    '''
-    ArgumentParser formatter that preserves the text layout.
-    '''
-
-    def __init__(self, *args, **kwds) -> 'None':
-        # This is an undocumented option, might stop working.
-        kwds['max_help_position'] = 255
-        super().__init__(*args, **kwds)
 
 
 class Parser:
     '''
-    A collection of static functions, actually encapsulates argparse
-    and argcomplete. This class is not exposed to the user.
+    Encapsulates argparse and argcomplete. Not exposed to the user.
     '''
 
-    @staticmethod
-    def construct(
-        app: 'App',
-        parser: 'ArgumentParser' = None,
-    ) -> 'ArgumentParser':
-        # This is only for the root App.
-        parser = parser or ArgumentParser(add_help=False)
-        # Set fields of the ArgumentParser.
-        kwargs = Parser.app(app)
-        for k, v in kwargs.items():
-            setattr(parser, k, v)
-        # Add arguments to the ArgumentParser.
-        parser.add_argument(
-            '-h', '--help',
-            action='help',
-            help=f'Show this help message and exit.')
-        for arg in app.args:
-            kwargs = Parser.arg(arg)
-            args = kwargs.pop('args')
-            completer = kwargs.pop('completer')
-            o = parser.add_argument(*args, **kwargs)
-            setattr(o, 'completer', completer)
-        # Recursively construct the sub-commands.
-        if app.apps:
-            sub = parser.add_subparsers(**Parser.sub(app))
-            for x in app.apps:
-                Parser.construct(x, sub.add_parser(x.name, add_help=False))
-        return parser
+    def __init__(self, app: 'App', argv: 'list[str]') -> 'None':
+        self.app = app
+        self.argv = argv
+        self.parser = Parser._construct(app, ArgumentParser(add_help=False))
+        self.parser.prog = self.app.name or os.path.basename(self.argv[0])
 
-    @staticmethod
-    def complete(parser: 'ArgumentParser') -> 'None':
+    def __call__(self) -> 'tuple[dict[Arg], list[App]]':
         autocomplete(
-            argument_parser=parser,
+            argument_parser=self.parser,
             always_complete_options=False,
         )
-
-    @staticmethod
-    def parse(
-        parser: 'ArgumentParser',
-        app: 'App',
-        argv: 'list[str]',
-    ) -> 'tuple[dict[Arg, Any], list[App]]':
-        parsed = parser.parse_args(argv)
+        parsed = self.parser.parse_args(self.argv[1:])
         apps: 'list[App]' = []
-        args: 'dict[Arg, Any]' = {}
+        args: 'dict[Arg]' = {}
+        app = self.app
         while True:
             apps.append(app)
             # Parse arguments.
             for x in app.args:
-                values = getattr(parsed, Parser.uid(x), None)
+                value = getattr(parsed, str(id(x)), None)
                 if x.is_flag:
-                    values = bool(values)
-                if x.count == '?' and values != None:
-                    values = [values]
-                args[x] = x(values)
+                    value = bool(value)
+                    if x.default:
+                        value = not value
+                if x.count == 1 and value:
+                    value = value[0]
+                args[x] = x(value)
             # Continue with a sub-command.
-            name = getattr(parsed, Parser.uid(app), None)
+            name = getattr(parsed, str(id(app)), None)
             if name == None:
                 break
             for x in app.apps:
@@ -915,7 +559,32 @@ class Parser:
         return (args, apps)
 
     @staticmethod
-    def arg(o: 'Arg') -> 'dict[str, Any]':
+    def _construct(
+        app: 'App',
+        parser: 'ArgumentParser',
+    ) -> 'ArgumentParser':
+        # Set fields of the ArgumentParser.
+        kwargs = Parser._app(app)
+        for k, v in kwargs.items():
+            setattr(parser, k, v)
+        # Add arguments to the ArgumentParser.
+        parser.add_argument('-h', '--help', action='help')
+        for arg in app.args:
+            kwargs = Parser._arg(arg)
+            args = kwargs.pop('args')
+            completer = kwargs.pop('completer')
+            o = parser.add_argument(*args, **kwargs)
+            setattr(o, 'completer', completer)
+        # Recursively construct the sub-commands.
+        if app.apps:
+            sub = parser.add_subparsers(**Parser._sub(app))
+            for x in app.apps:
+                Parser._construct(x, sub.add_parser(
+                    x.name, add_help=False))
+        return parser
+
+    @staticmethod
+    def _arg(o: 'Arg') -> 'dict[str]':
         '''
         Translate Arg to args and kwargs for ArgumentParser.add_argument().
         Note that the result contains two keys that must be used separately:
@@ -926,7 +595,7 @@ class Parser:
         args = []
         kwargs = {
             'args': args,
-            'dest': Parser.uid(o),
+            'dest': str(id(o)),
             'metavar': o.name,
             'nargs': o.count,
             'help': o.help,
@@ -946,7 +615,7 @@ class Parser:
         return kwargs
 
     @staticmethod
-    def app(o: 'App') -> 'dict[str, Any]':
+    def _app(o: 'App') -> 'dict[str]':
         '''
         Translate App to kwargs for ArgumentParser.
         '''
@@ -954,11 +623,10 @@ class Parser:
             'prog': o.name,
             'description': o.prolog,
             'epilog': o.epilog,
-            'formatter_class': Formatter,
         }
 
     @staticmethod
-    def sub(o: 'App') -> 'dict[str, Any]':
+    def _sub(o: 'App') -> 'dict[str]':
         '''
         Translate App to kwargs for ArgumentParser.add_subparsers().
         Supposed to be used only for Apps with sub-commands.
@@ -975,7 +643,7 @@ class Parser:
                 help += f'\n * {x.name}'
         # Return kwargs.
         kwargs = {
-            'dest': Parser.uid(o),
+            'dest': str(id(o)),
             'help': help,
             'metavar': 'APP',
         }
@@ -983,9 +651,54 @@ class Parser:
             kwargs['required'] = True
         return kwargs
 
-    @staticmethod
-    def uid(o: 'Arg | App') -> 'str':
-        '''
-        Get a unique id for the object.
-        '''
-        return str(id(o))
+
+def _check_type(
+    var: 'object',
+    name: 'str',
+    expected: 'Iterable[type]',
+) -> 'None':
+    types = []
+    for x in expected:
+        if x is None:
+            x = type(None)
+        if isinstance(var, x):
+            return
+        types.append('None' if x is type(None) else x.__name__)
+    info = ", ".join(types)
+    t = type(var).__name__ if var != None else 'None'
+    raise TypeError(f'Invalid type of {name}: {t}. Expected: {info}.')
+
+
+def _check_value(
+    var: 'object',
+    name: 'str',
+    expected: 'bool',
+    info: 'str',
+) -> 'None':
+    if expected:
+        return
+    raise ValueError(f'Invalid value of {name}: {_str(var)}. {info}')
+
+
+def _str(v: 'object') -> 'str':
+    if isinstance(v, str):
+        return f'"{v}"'
+    if isinstance(v, type):
+        return v.__name__
+    return str(v)
+
+
+def _choices(choices: 'list | dict') -> 'str':
+    result = ''
+    if isinstance(choices, dict):
+        w = max(len(str(x)) for x in choices)
+        for x in choices:
+            if choices[x]:
+                help = '\n   '.join(str(choices[x]).split('\n'))
+                result += f'\n * {str(x):{w}} - {help}'
+            else:
+                result += f'\n * {str(x):{w}}'
+    else:
+        result += '\n * '
+        result += '\n * '.join(str(x) for x in choices)
+    return result
