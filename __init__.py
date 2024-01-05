@@ -1,6 +1,6 @@
 import os
 import sys
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Action
 from typing import Iterable
 
 try:
@@ -516,6 +516,102 @@ class App:
         sys.exit(0)
 
 
+class HelpFormatter:
+    '''
+    Generates help and usage.
+    '''
+
+    def __init__(self,  app: 'App', argv: 'list[str]') -> 'None':
+        self._app = app
+        self._argv = argv
+        self._app_dummy = App()
+        self._apps = app.apps
+        self._args_opt = [x for x in app.args if x.is_optional]
+        self._args_opt.insert(0, Arg(app=self._app_dummy,
+                                     count=0,
+                                     help='Show the help message and exit.',
+                                     sopt='h',
+                                     lopt='help'))
+        self._args_pos = [x for x in app.args if x.is_positional]
+        if app.apps:
+            choices = {x.name: x.help for x in app.apps}
+            self._args_pos.append(Arg(app=self._app_dummy,
+                                      help=f'A sub-command to run.',
+                                      choices=choices,
+                                      name='CMD'))
+        self.usage = self._format_usage()
+        self.help = self._format_help()
+
+    def _format_usage(self) -> 'str':
+        result = ''
+        app = self._app
+        main = os.path.basename(self._argv[0])
+        while app:
+            result = f'{app.name or main} {result}'
+            app = app.app
+        result = result.rstrip()
+        for x in self._args_pos:
+            result = f'{result} {self._format_arg(x)}'
+        if self._app.apps:
+            result = f'{result} ...'
+        return result
+
+    def _format_help(self) -> 'str':
+        usage = self.usage
+        prolog = f'\n\n{self._app.prolog}' if self._app.prolog else ''
+        argspos = f'\n\npositional arguments:{self._format_args(self._args_pos)}'
+        argsopt = f'\n\noptional arguments:{self._format_args(self._args_opt)}'
+        epilog = f'\n\n{self._app.epilog}' if self._app.epilog else ''
+        if not self._args_pos:
+            argspos = ''
+        return f'{usage}{prolog}{argspos}{argsopt}{epilog}\n'
+
+    def _format_arg(self, arg: 'Arg') -> 'str':
+        result = ''
+        if isinstance(arg.count, int):
+            result = ' '.join([arg.name] * arg.count)
+        if arg.count == '?':
+            result = f'[{arg.name}]'
+        if arg.count == '*':
+            result = f'[{arg.name}...]'
+        if arg.count == '+':
+            result = f'{arg.name} [{arg.name}...]'
+        if arg.is_optional:
+            opts = []
+            if arg.sopt:
+                opts.append(f'-{arg.sopt}')
+            if arg.lopt:
+                opts.append(f'--{arg.lopt}')
+            result = ', '.join(opts) + f' {result}'
+        return result
+
+    def _format_args(self, args: 'list[Arg]') -> 'str':
+        result = ''
+        if not args:
+            return result
+        if args[0].is_optional:
+            w = max(len(self._format_arg(x)) for x in args)
+        else:
+            w = max(len(x.name) for x in args)
+        for x in args:
+            name = self._format_arg(x) if x.is_optional else x.name
+            if x.help:
+                pad = ' ' * (w + 6)
+                lines = x.help.split('\n')
+                result += f'\n  {name:{w}}    {lines[0]}'
+                for i in range(1, len(lines)):
+                    result += f'\n{pad}{lines[i]}'
+            else:
+                result += f'\n  {name:{w}}'
+        return result
+
+
+class HelpAction(Action):
+    def __call__(self, *args: 'list', **kwargs: 'dict') -> 'None':
+        print(self.help)
+        exit(0)
+
+
 class Parser:
     '''
     Encapsulates argparse and argcomplete. Not exposed to the user.
@@ -524,7 +620,7 @@ class Parser:
     def __init__(self, app: 'App', argv: 'list[str]') -> 'None':
         self.app = app
         self.argv = argv
-        self.parser = Parser._construct(app, ArgumentParser(add_help=False))
+        self.parser = self._construct(app, ArgumentParser(add_help=False))
         self.parser.prog = self.app.name or os.path.basename(self.argv[0])
 
     def __call__(self) -> 'tuple[dict[Arg], list[App]]':
@@ -558,17 +654,22 @@ class Parser:
                     break
         return (args, apps)
 
-    @staticmethod
     def _construct(
+        self,
         app: 'App',
         parser: 'ArgumentParser',
     ) -> 'ArgumentParser':
         # Set fields of the ArgumentParser.
         kwargs = Parser._app(app)
+        formatter = HelpFormatter(app, self.argv)
+        parser.usage = formatter.usage
         for k, v in kwargs.items():
             setattr(parser, k, v)
         # Add arguments to the ArgumentParser.
-        parser.add_argument('-h', '--help', action='help')
+        parser.add_argument('-h', '--help',
+                            action=HelpAction,
+                            help=formatter.help,
+                            nargs=0)
         for arg in app.args:
             kwargs = Parser._arg(arg)
             args = kwargs.pop('args')
@@ -579,8 +680,7 @@ class Parser:
         if app.apps:
             sub = parser.add_subparsers(**Parser._sub(app))
             for x in app.apps:
-                Parser._construct(x, sub.add_parser(
-                    x.name, add_help=False))
+                self._construct(x, sub.add_parser(x.name, add_help=False))
         return parser
 
     @staticmethod
@@ -598,7 +698,6 @@ class Parser:
             'dest': str(id(o)),
             'metavar': o.name,
             'nargs': o.count,
-            'help': o.help,
             'completer': None,
         }
         if o.choices:
@@ -621,8 +720,6 @@ class Parser:
         '''
         return {
             'prog': o.name,
-            'description': o.prolog,
-            'epilog': o.epilog,
         }
 
     @staticmethod
@@ -631,21 +728,10 @@ class Parser:
         Translate App to kwargs for ArgumentParser.add_subparsers().
         Supposed to be used only for Apps with sub-commands.
         '''
-        # Generate help.
-        width = max([len(x.name) for x in o.apps])
-        nline = '\n' + ' ' * (width + 6)  # Padded newline for the items.
-        help = 'Sub-command:'
-        for x in o.apps:
-            if x.help:
-                brief = x.help.replace('\n', nline)
-                help += f'\n * {x.name:{width}} - {brief}'
-            else:
-                help += f'\n * {x.name}'
         # Return kwargs.
         kwargs = {
             'dest': str(id(o)),
-            'help': help,
-            'metavar': 'APP',
+            'metavar': 'CMD',
         }
         if sys.version_info.minor >= 7:
             kwargs['required'] = True
