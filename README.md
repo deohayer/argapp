@@ -292,3 +292,53 @@ class ExampleApp(App):
         self.arg2 = Arg(app=self,
                         lopt='a')
 ```
+
+### `Arg.name`
+
+The value name: `"URI"` in `"-u URI, --uri URI"`.
+
+May be set via `Arg.__init__` as `name`:
+ * `type(name)` must be `str` or `None` (`TypeError`).
+ * `len(name)` must be greater than 0 (`ValueError`).
+
+Defaults:
+1. `Arg.lopt.upper()`, if `Arg.lopt` is not `None`.
+2. `Arg.sopt.upper()`, if `Arg.sopt` is not `None`.
+3. `"ARG"`, if none of the above applies.
+
+#### Declaration
+
+```python
+@property
+def name(self) -> str:
+    ...
+```
+
+#### Example
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK, the trivial case.
+        self.arg = Arg(app=self,
+                       name='arg')
+        # OK, the name defaults to "ARG".
+        self.arg = Arg(app=self)
+        # OK, the name defaults to "O".
+        self.arg = Arg(app=self,
+                       sopt='o')
+        # OK, the name defaults to "OPT".
+        self.arg = Arg(app=self,
+                       lopt='opt')
+        # OK, the name defaults to "OPT" (lopt prioritized).
+        self.arg = Arg(app=self,
+                       sopt='o',
+                       lopt='opt')
+        # TypeError: Invalid type of Arg.name: bool. Expected: str, None.
+        self.arg = Arg(app=self,
+                       name=False)
+        # ValueError: Invalid value of Arg.name: "". Must not be empty.
+        self.arg = Arg(app=self,
+                       name='')
+```
