@@ -2108,3 +2108,109 @@ RuntimeError: Invalid item in argument ARG: 4. Must be one of:
  * 2 - 65535
  * 3 - 65536
 ```
+
+### `App`
+
+Represents a command line application (main or sub-command).
+
+The instance:
+ * Works only with both the raw and the parsed command line if it is a main `App`.
+ * Works only with the parsed command line if it is a sub-command `App`.
+ * Is an item in `apps` in `App.__call__`.
+
+The fields:
+ * Are read-only and can be set once, via `App.__init__`.
+ * Are validated during `App.__init__`.
+ * May depend on other fields.
+
+Instances of this class are internally converted to `argparse.ArgumentParser`:
+ * Any `App` will provide the help message mechanism via an automatic argument `"-h, --help"`.<br>
+   The default generation from argparse is not used, but the differences are small and mostly related to style.
+ * If `apps` not empty, the `App` will provide the sub-commands mechanism via an automatic argument `"CMD"`.<br>
+   Under the hood, `argparse.ArgumentParser.add_subparsers` is used to add the commands.
+
+#### Example
+
+There are several best practices to follow:
+ * Sub-class `App` to customize the construction or execution.
+ * Create `App` instances inside the `App` that will contain it (that is, in `App.__init__`).
+
+Below is `argapp.py` which features a main application with two sub-commands.
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleSub(App):
+    def __init__(self, app: App, name: str) -> None:
+        super().__init__(app=app,
+                         name=name,
+                         help=f'An example sub-command: {name}.')
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+        # Print the name.
+        print(f'I am {self.name}.')
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(help='The main app.')
+        # Construct the Apps.
+        ExampleSub(self, 'sub_a')
+        ExampleSub(self, 'sub_b')
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py CMD ...
+
+The main app.
+
+positional arguments:
+  CMD    A sub-command to run.
+         Possible values:
+          * sub_a - An example sub-command: sub_a.
+          * sub_b - An example sub-command: sub_b.
+
+optional arguments:
+  -h, --help     Show the help message and exit.
+```
+
+The usage:
+
+```shell
+./argapp.py sub_a
+# The output:
+I am sub_a.
+
+#--------------------------------------------------------
+
+./argapp.py sub_b
+# The output:
+I am sub_b.
+```
+
+The completion:
+
+```shell
+./argapp.py
+# Upon pressing TAB, the command line is filled:
+./argapp.py sub_
+# Upon pressing TAB, the following is displayed:
+sub_a  sub_b
+```
