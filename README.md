@@ -39,7 +39,12 @@ argapp is an OOP wrapper for [argparse](https://docs.python.org/3/library/argpar
 
 # Installation
 
-TODO: A bullet list of installation steps for a simple case.<br>
-TODO: May be split into several sub-sections.
+ * The package can be installed globally by running:
+   ```shell
+   pip3 install argapp
+   ```
+ * The Git [repository](https://github.com/deohayer/argapp) can be used directly if a specific version is needed.<br>
+   The repository layout is designed with exactly this use case in mind.
+ * For the argcomplete installation, please follow the official [documentation](https://pypi.org/project/argcomplete).
 
 # API
