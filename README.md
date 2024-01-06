@@ -342,3 +342,44 @@ class ExampleApp(App):
         self.arg = Arg(app=self,
                        name='')
 ```
+
+### `Arg.sopt`
+
+The short option name: `"-u"` in `"-u URI, --uri URI"`.
+ * The leading `"-"` must be ommited.
+ * Makes the `Arg` optional.
+
+May be set via `Arg.__init__` as `sopt`:
+ * `type(sopt)` must be `str` or `None` (`TypeError`).
+ * `len(sopt)` must be 1 (`ValueError`).
+
+#### Declaration
+
+```python
+@property
+def sopt(self) -> str | None:
+    ...
+```
+
+#### Example
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK, the trivial case.
+        self.arg = Arg(app=self,
+                       sopt='a')
+        # OK, sopt is None and the Arg is not optional.
+        self.arg = Arg(app=self,
+                       sopt=None)
+        # TypeError: Invalid type of Arg.sopt: bool. Expected: str, None.
+        self.arg = Arg(app=self,
+                       sopt=False)
+        # ValueError: Invalid value of Arg.sopt: "". Must be a single character.
+        self.arg = Arg(app=self,
+                       sopt='')
+        # ValueError: Invalid value of Arg.sopt: "arg". Must be a single character.
+        self.arg = Arg(app=self,
+                       sopt='arg')
+```
