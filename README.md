@@ -383,3 +383,41 @@ class ExampleApp(App):
         self.arg = Arg(app=self,
                        sopt='arg')
 ```
+
+### `Arg.lopt`
+
+The long option name: `"--uri"` in `"-u URI, --uri URI"`.
+ * The leading `"--"` must be ommited.
+ * Makes the `Arg` optional.
+
+May be set via `Arg.__init__` as `lopt`:
+ * `type(lopt)` must be `str` or `None` (`TypeError`).
+ * `len(lopt)` must be greater than 0 (`ValueError`).
+
+#### Declaration
+
+```python
+@property
+def lopt(self) -> str | None:
+    ...
+```
+
+#### Example
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK, the trivial case.
+        self.arg = Arg(app=self,
+                       lopt='arg')
+        # OK, lopt is None and the Arg is not optional.
+        self.arg = Arg(app=self,
+                       lopt=None)
+        # TypeError: Invalid type of Arg.lopt: bool. Expected: str, None.
+        self.arg = Arg(app=self,
+                       lopt=False)
+        # ValueError: Invalid value of Arg.lopt: "". Must be a non-empty str.
+        self.arg = Arg(app=self,
+                       lopt='')
+```
