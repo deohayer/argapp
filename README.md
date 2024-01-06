@@ -2,19 +2,40 @@
 
 # Overview
 
-TODO: The product's purpose, what problem it solves.
+argapp is an OOP wrapper for [argparse](https://docs.python.org/3/library/argparse.html) and [argcomplete](https://pypi.org/project/argcomplete):
+ * Allows writing CLI applications using OOP - encapsulates argparse API.
+ * Optionally supports shell completion via argcomplete - encapsulates its API.
 
 ## Features
 
- * TODO: A bullet list of features.
+ * Offers several classes that allow building a Python CLI application in OOP style.
+    * `Arg` represents optional and positional arguments, with the most essential use cases covered.
+    * `App` represents a main appplication or a sub-command.
+    * Instances of the classes are immutable.
+    * The fields are validated upon construction, raising an `Exception` in case of any issues.
+    * The command line parsing can be overridden to return custom values for a specific `Arg`.
+ * Offers shell completion support if argcomplete is installed:
+    * The required API calls are already in place. It is only required to install argcomplete and add the `PYTHON_ARGCOMPLETE_OK` comment.
+    * Specific completions (like from choices) are added automatically.
 
 ## Dependencies
 
- * TODO: A list of software or hardware.
+ * Linux
+ * Python 3
+    * 3.6
+    * 3.7
+    * 3.8
+    * 3.9
+    * 3.10
+    * 3.11
 
 ## Limitations
 
- * TODO: A bullet list of limitations.
+ * No "required" optional arguments.
+ * No value aggregation (like for compilation flags).
+ * No argument groups of any kind.
+ * Choices are restrictive (cannot be disabled).
+ * Completions cannot be customized.
 
 # Installation
 
