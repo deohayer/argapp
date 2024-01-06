@@ -48,3 +48,86 @@ argapp is an OOP wrapper for [argparse](https://docs.python.org/3/library/argpar
  * For the argcomplete installation, please follow the official [documentation](https://pypi.org/project/argcomplete).
 
 # API
+
+## `argapp`
+
+The package is the module by itself. It only exports its classes to not pollute the namespace.
+
+### Example: Hello, world!
+
+Below is `argapp.py` which prints a hello message with the given argument.
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleApp(App):  # Inherit App to override the construction and the runtime.
+    def __init__(self) -> None:
+        super().__init__(help='A minimalistic App.', epilog='Bottom text.')
+        # Define a positional argument.
+        self.arg = Arg(app=self,         # This is mandatory, adds Arg to App.
+                       count='?',        # Make this argument non-required.
+                       default='world',  # Provide a default value.
+                       name='WHO')       # Provide a unique name (for the help message).
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        # A mandatory call to super(). The default implementation:
+        #  * Parses the raw command line to populate args and apps.
+        #  * Calls this method again with args and apps properly set.
+        super().__call__(args, apps)
+        # Retrieve the value using self.arg as the key, and print the message:
+        print(f'Hello, {args[self.arg]}!')
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py [WHO]
+
+A minimalistic App.
+
+positional arguments:
+  WHO    Defaults to: world
+
+optional arguments:
+  -h, --help     Show the help message and exit.
+
+Bottom text.
+```
+
+The usage:
+
+```shell
+# No argument.
+./argapp.py
+# self.arg defaults to "world":
+Hello, world!
+
+#--------------------------------------------------------
+
+# With argument.
+./argapp.py John
+# self.arg is "John":
+Hello, John!
+```
+
+The completion:
+
+```shell
+./argapp.py -
+# Upon pressing TAB, the following is displayed:
+-h      --help
+```
