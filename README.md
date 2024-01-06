@@ -225,3 +225,70 @@ The usage:
 # The output:
 a + b = 6 + -10 = -4
 ```
+
+### `Arg.app`
+
+The application that contains the argument. The `Arg` is added to `app.args`.
+
+Must be set via `Arg.__init__` as `app`:
+ * `type(app)` must be `App` (`TypeError`).
+ * `app.args` must not contain `Arg` with:
+   1. The same `Arg.lopt` or `Arg.sopt` if `Arg.is_optional` is `True` (`ValueError`).
+   2. The same `Arg.name` if `Arg.is_positional` is `True` (`ValueError`).
+
+#### Declaration
+
+```python
+@property
+def app(self) -> App:
+    ...
+```
+
+#### Example
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK:
+        #  * name of positional Args are different.
+        #  * sopt and lopt of optional Args are different.
+        #  * name of optional Args are not considered.
+        #  * sopt, lopt, name of the same object do not clash.
+        #  * Optional and positional Args cannot clash.
+        self.arg_p1 = Arg(app=self,
+                          name='a')
+        self.arg_p2 = Arg(app=self,
+                          name='b')
+        self.arg_o1 = Arg(app=self,
+                          name='a',
+                          sopt='a',
+                          lopt='a')
+        self.arg_o2 = Arg(app=self,
+                          name='b',
+                          sopt='b',
+                          lopt='b')
+        self.arg_o3 = Arg(app=self,
+                          name='a',
+                          sopt='c',
+                          lopt='c')
+        # TypeError: Invalid type of Arg.app: None. Expected: App.
+        self.arg2 = Arg(app=None)
+        # TypeError: Invalid type of Arg.app: bool. Expected: App.
+        self.arg2 = Arg(app=False)
+        # ValueError: Invalid value of Arg.name: "a". Must not repeat other Arg.name in argapp.py App.
+        self.arg1 = Arg(app=self,
+                        name='a')
+        self.arg2 = Arg(app=self,
+                        name='a')
+        # ValueError: Invalid value of Arg.sopt: "a". Must not repeat other Arg.sopt in argapp.py App.
+        self.arg1 = Arg(app=self,
+                        sopt='a')
+        self.arg2 = Arg(app=self,
+                        sopt='a')
+        # ValueError: Invalid value of Arg.lopt: "a". Must not repeat other Arg.lopt in argapp.py App.
+        self.arg1 = Arg(app=self,
+                        lopt='a')
+        self.arg2 = Arg(app=self,
+                        lopt='a')
+```
