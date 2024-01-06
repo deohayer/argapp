@@ -131,3 +131,97 @@ The completion:
 # Upon pressing TAB, the following is displayed:
 -h      --help
 ```
+
+### `Arg`
+
+Represents a command line argument, optional or positional.
+
+A constructed instance is:
+ * Added to a certain `App.args` as one of its command line arguments.
+ * Used as a key in the dictionary `args` in `App.__call__`.
+
+The fields:
+ * Are read-only and can be set once, via `Arg.__init__`.
+ * Are validated during `Arg.__init__`.
+ * May depend on other fields.
+
+#### Declaration
+
+```python
+class Arg:
+    ...
+```
+
+#### Example
+
+There are several best practices to follow:
+ * Sub-class `Arg` to customize the construction or parsing.
+ * Create `Arg` instances inside the `App` that will contain it (that is, in `App.__init__`).
+ * Save the created `Arg` into an `App` field. In the dictionary of parsed values, `Arg` itself is the key, not its name.
+
+Below is `argapp.py` which adds two integer values and prints the result.
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleArg(Arg):
+    def __init__(self, app: App, name: str) -> None:
+        # Encapsulate the construction.
+        # Note that type is set to int for automatic conversion.
+        super().__init__(app=app,
+                         name=name,
+                         type=int,
+                         help=f'An example Arg: {name}.')
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(help='Add a and b.')
+        # Construct the Args.
+        self.arg_a = ExampleArg(self, 'a')
+        self.arg_b = ExampleArg(self, 'b')
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+        # Print the sum.
+        a = args[self.arg_a]
+        b = args[self.arg_b]
+        print(f'a + b = {a} + {b} = {a + b}')
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py a b
+
+Add a and b.
+
+positional arguments:
+  a    An example Arg: a.
+  b    An example Arg: b.
+
+optional arguments:
+  -h, --help     Show the help message and exit.
+```
+
+The usage:
+
+```shell
+./argapp.py 6 -10
+# The output:
+a + b = 6 + -10 = -4
+```
