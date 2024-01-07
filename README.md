@@ -608,3 +608,82 @@ class ExampleApp(App):
         self.arg = Arg(app=self,
                        count=1.)
 ```
+
+### `Arg.type`
+
+The type of individual values.
+String values from the command line will be converted to this type.
+
+May be set via `Arg.__init__` as `type`:
+ * `type(type)` (type of the parameter) must be `type` (the built-in class) or `None` (`TypeError`).
+ * If `Arg.is_flag` is `True`, `type` must be `bool` or `None` (`ValueError`).
+ * `type` must be one of: `str`, `int`, `float`, `bool`, `None` (`ValueError`).
+
+Defaults:
+1. `bool`, if `Arg.is_flag` is `True`.
+2. `type(Arg.choices[0])`, if `Arg.choices` is not `None`.
+3. `type(Arg.default[0])`, if `Arg.default` is not `[]` and `Arg.is_multi` is `True`.
+4. `type(Arg.default)`, if `Arg.default` is not `None` and `Arg.is_single` is `True`.
+5. `str`, if none of the above applies.
+
+#### Declaration
+
+```python
+@property
+def type(self) -> type:
+    ...
+```
+
+#### Example
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK, all trivial cases.
+        self.arg1 = Arg(app=self,
+                        type=str,
+                        name='arg1')
+        self.arg2 = Arg(app=self,
+                        type=int,
+                        name='arg2')
+        self.arg3 = Arg(app=self,
+                        type=float,
+                        name='arg3')
+        self.arg4 = Arg(app=self,
+                        type=bool,
+                        name='arg4')
+        # OK, bool for flag explicitly.
+        self.arg = Arg(app=self,
+                       count=0,
+                       type=bool,
+                       lopt='arg')
+        # OK, type is bool for flag.
+        self.arg = Arg(app=self,
+                       count=0,
+                       lopt='arg')
+        # OK, type is int - from choices.
+        self.arg = Arg(app=self,
+                       choices=[1, 2, 3])
+        # OK, type is bool - from default (single).
+        self.arg = Arg(app=self,
+                       default=True,
+                       lopt='arg')
+        # OK, type is float - from default (multi).
+        self.arg = Arg(app=self,
+                       default=[1.0, 1.5, 2.0],
+                       lopt='arg')
+        # OK, type is str by default.
+        self.arg = Arg(app=self)
+        # TypeError: Invalid type of Arg.type: bool. Expected: type, None.
+        self.arg = Arg(app=self,
+                       type=False)
+        # ValueError: Invalid value of Arg.type: int. Must be bool or None for flag argument.
+        self.arg = Arg(app=self,
+                       count=0,
+                       type=int,
+                       lopt='arg')
+        # ValueError: Invalid value of Arg.type: list. Must be str, int, float, bool or None.
+        self.arg = Arg(app=self,
+                       type=list)
+```
