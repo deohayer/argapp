@@ -2248,3 +2248,42 @@ app1 = App(app=main,
 app2 = App(app=main,
           name='app1')
 ```
+
+### `App.name`
+
+The command's name, `"git"` in `"git --version"`.
+
+May be set via `App.__init__` as `name`:
+ * `type(name)` must be `str` or `None` (`TypeError`).
+ * If `type(app)` is `App`, name must not be `None` (`TypeError`).
+ * `len(name)` must be greater than 0 (`ValueError`).
+
+If `None`, the command line help displays the first command line value as the application name.
+
+#### Declaration
+
+```python
+@property
+def name(self) -> str | None:
+    ...
+```
+
+#### Example
+
+```python
+# OK, the main App with the name for from the command line.
+main = App()
+# OK, the main App with the custom name.
+main = App(name='argapp.py')
+# OK, a sub-command of main.
+app = App(app=main,
+          name='app')
+# TypeError: Invalid type of App.name: bool. Expected: str, None.
+app = App(app=main,
+          name=False)
+# TypeError: Invalid type of App.name for sub-command: None. Expected: str.
+app = App(app=main)
+# ValueError: Invalid value of App.name: "". Must not be empty.
+app = App(app=main,
+          name='')
+```
