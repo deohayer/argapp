@@ -933,3 +933,113 @@ class ExampleApp(App):
                        default=[1, 2, 3],
                        lopt='arg')
 ```
+
+### `Arg.is_optional`
+
+Whether the argument is optional.
+ * Opposite to `Arg.is_positional`.
+ * Cannot be set.
+ * Not displayed in the usage.
+ * If `Arg.lopt` is set, it is displayed in the help message with the leading `"--"`.
+ * If `Arg.sopt` is set, it is displayed in the help message with the leading `"-"`.
+ * The stylized `Arg.name` is displayed in the help message only if `Arg.is_flag` is `False`.
+
+Defaults:
+1. `True`, if `Arg.sopt` or `Arg.lopt` is not `None`.
+2. `False` otherwise.
+
+#### Declaration
+
+```python
+@property
+def is_optional(self) -> bool:
+    ...
+```
+
+#### Example
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # Flag, does not have name.
+        self.arg_flag = Arg(app=self,
+                            help='A flag argument.',
+                            count=0,
+                            sopt='f',
+                            lopt='flag')
+        # Single-value, only sopt.
+        self.arg_osingle = Arg(app=self,
+                               help='A single-value optional argument.',
+                               sopt='s')
+        # Multi-value, only lopt.
+        self.arg_omulti = Arg(app=self,
+                              help='A multi-value optional argument.',
+                              count='*',
+                              lopt='multi')
+        # Single-value, positional.
+        self.arg_psingle = Arg(app=self,
+                               help='A single-value positional argument.',
+                               count='?',
+                               name='psingle')
+        # Multi-value, positional.
+        self.arg_pmulti = Arg(app=self,
+                              help='A multi-value positional argument.',
+                              count='?',
+                              name='pmulti')
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+        # Alignment for names - pretty output.
+        w = max(len(x.lopt or x.sopt or x.name) for x in args) + 3
+        for arg in args:
+            # Determine and quote the name.
+            name = f'"{arg.lopt or arg.sopt or arg.name}"'
+            # Print whether the arguments are optional using Arg.is_optional.
+            result = "optional" if arg.is_optional else "positional"
+            print(f'Argument {name:{w}}: {result}.')
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py [psingle] [pmulti]
+
+positional arguments:
+  psingle    A single-value positional argument.
+  pmulti     A multi-value positional argument.
+
+optional arguments:
+  -h, --help            Show the help message and exit.
+  -f, --flag            A flag argument.
+  -s S                  A single-value optional argument.
+  --multi [MULTI...]    A multi-value optional argument.
+```
+
+The usage:
+
+```shell
+./argapp.py
+# The output:
+Argument "flag"    : optional.
+Argument "s"       : optional.
+Argument "multi"   : optional.
+Argument "psingle" : positional.
+Argument "pmulti"  : positional.
+```
