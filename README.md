@@ -1860,3 +1860,122 @@ Value of false : TRUE
 Value of true  : TRUE
 Value of false : FALSE
 ```
+
+### `Arg.__call__(str)`
+
+Parse the command line value.
+ * Called if `Arg.is_single` is `True`.
+ * The result is used as a value in the dictionary args in `App.__call__`.
+ * Can be overridden to return a custom value of any other type.<br>
+   In this case, the base version should be called first to obtain the parsed value.
+
+The base version:
+ * Checks if the value is in `Arg.choices`, if `Arg.choices` is not `None`.
+ * Converts the value to `Arg.type`.
+
+Parameters:
+ * v - The command line value. `None`, if the value was not provided.
+
+Exceptions:
+ * `RuntimeError`, if `Arg.choices` is not `None` and `v` is not in `choices`.
+
+Returns:
+1. `None`, if `v` is `None`.
+2. `v` converted to `Arg.type` otherwise.
+
+#### Declaration
+
+```python
+@overload
+def __call__(self, v: str | None) -> str | int | float | bool | None:
+    ...
+```
+
+#### Example
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleObject:
+    def __init__(self, data: str) -> None:
+        self.data = data
+
+
+class ExampleArg(Arg):
+    def __init__(self, app: App) -> None:
+        # Construct a positional argument of int type.
+        super().__init__(app=app,
+                         type=int,
+                         choices={0: 255, 1: 256, 2: 65535, 3: 65536},
+                         help=f'A value to convert to hex.')
+
+    def __call__(self, v: str | None) -> ExampleObject:
+        # Call the base implementation for parsing and checks.
+        v = super().__call__(v)
+        # Return a custom object.
+        return ExampleObject(hex(self.choices[v]))
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        self.arg = ExampleArg(self)
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+        # Retrieve and print the object: args contains ExampleObject, not int.
+        o: ExampleObject = args[self.arg]
+        print(f'Value of {self.arg.name}: {o.data}')
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py ARG
+
+positional arguments:
+  ARG    A value to convert to hex.
+         Possible values:
+          * 0 - 255
+          * 1 - 256
+          * 2 - 65535
+          * 3 - 65536
+
+optional arguments:
+  -h, --help     Show the help message and exit.
+```
+
+The usage:
+
+```shell
+# Valid, in choices.
+./argapp.py 3
+# The output:
+Value of ARG: 0x10000
+
+#--------------------------------------------------------
+
+# Invalid, not in choices.
+./argapp.py 5
+# The output:
+(stack trace)
+RuntimeError: Invalid value of argument ARG: 5. Must be one of:
+ * 0 - 255
+ * 1 - 256
+ * 2 - 65535
+ * 3 - 65536
+```
