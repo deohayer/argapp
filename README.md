@@ -1589,3 +1589,159 @@ Argument "TWO"    : multi.
 Argument "PLUS"   : multi.
 Argument "ASTRA"  : multi.
 ```
+
+### `Arg.__init__`
+
+Construct an `Arg` instance and:
+ * Initialize the fields.
+ * Add the instance to `app.args`.
+
+Parameters match the corresponding fields.
+
+Exceptions:
+1. `TypeError`, if the type of some parameter is invalid (see the corresponding field).
+2. `ValueError`, if the value of some parameter is invalid (see the corresponding field).
+
+#### Declaration
+
+```python
+def __init__(
+    self,
+    app: App,
+    name: str | None = None,
+    sopt: str | None = None,
+    lopt: str | None = None,
+    help: str | None = None,
+    type: type | None = None,
+    count: int | str | None = None,
+    choices: list | dict | None = None,
+    default: object | None = None,
+) -> None:
+    ...
+```
+
+#### Example
+
+Refer to the fields' documentation for the code related to errors.
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # A positional argument with the mandatory app.
+        self.arg_one = Arg(app=self)
+        # An optional argument with all fields set.
+        self.arg_all = Arg(app=self,
+                           name='VAL',
+                           sopt='a',
+                           lopt='argument',
+                           help='This is an optional argument.',
+                           count='+',
+                           type=int,
+                           choices={1: 'The first.', 2: 'The second.'},
+                           default=[1, 2])
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+        # Print all the fields for the parameters.
+        for arg in self.args:
+            # Pick the name.
+            name = arg.lopt or arg.name
+            # Format the help text (padding).
+            pad = ' ' * (len(name) + 17)
+            help = f'\n{pad}'.join(arg.help.split('\n'))
+            # FPrint the values.
+            print('-----------------------------------------------------------')
+            print(f'{name} value         : {args[arg]}')
+            print(f'{name}.app           : {arg.app.name}')
+            print(f'{name}.name          : {arg.name}')
+            print(f'{name}.sopt          : {arg.sopt}')
+            print(f'{name}.lopt          : {arg.lopt}')
+            print(f'{name}.help          : {help}')
+            print(f'{name}.count         : {arg.count}')
+            print(f'{name}.type          : {arg.type.__name__}')
+            print(f'{name}.choices       : {arg.choices}')
+            print(f'{name}.default       : {arg.default}')
+            print(f'{name}.is_optional   : {arg.is_optional}')
+            print(f'{name}.is_positional : {arg.is_positional}')
+            print(f'{name}.is_flag       : {arg.is_flag}')
+            print(f'{name}.is_single     : {arg.is_single}')
+            print(f'{name}.is_multi      : {arg.is_multi}')
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py ARG
+
+positional arguments:
+  ARG
+
+optional arguments:
+  -h, --help                     Show the help message and exit.
+  -a, --argument VAL [VAL...]    This is an optional argument.
+                                 Possible values:
+                                  * 1 - The first.
+                                  * 2 - The second.
+                                 Defaults to: 1 2
+```
+
+The usage:
+
+```shell
+# Supply a value for the positional argument.
+../argapp.py 0
+# The output:
+-----------------------------------------------------------
+ARG value         : 0
+ARG.app           : argapp.py
+ARG.name          : ARG
+ARG.sopt          : None
+ARG.lopt          : None
+ARG.help          : 
+ARG.count         : 1
+ARG.type          : str
+ARG.choices       : None
+ARG.default       : None
+ARG.is_optional   : False
+ARG.is_positional : True
+ARG.is_flag       : False
+ARG.is_single     : True
+ARG.is_multi      : False
+-----------------------------------------------------------
+argument value         : [1, 2]
+argument.app           : argapp.py
+argument.name          : VAL
+argument.sopt          : a
+argument.lopt          : argument
+argument.help          : This is an optional argument.
+                         Possible values:
+                          * 1 - The first.
+                          * 2 - The second.
+                         Defaults to: 1 2
+argument.count         : +
+argument.type          : int
+argument.choices       : {1: 'The first.', 2: 'The second.'}
+argument.default       : [1, 2]
+argument.is_optional   : True
+argument.is_positional : False
+argument.is_flag       : False
+argument.is_single     : False
+argument.is_multi      : True
+```
