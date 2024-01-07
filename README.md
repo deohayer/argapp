@@ -760,3 +760,176 @@ class ExampleApp(App):
                        choices=[1, 1],
                        lopt='arg')
 ```
+
+### `Arg.default`
+
+The default value, if no values are provided for the argument.
+
+If `Arg.is_optional` is `True`, `Arg.default` is applied in both cases:
+ * The argument was not mentioned at all.
+ * The argument was mentioned, but without a value.
+   This could be the case if `Arg.count` is `"?"` or `"*"`.
+
+If `Arg.is_flag` is `True`, setting `Arg.default` to `True` changes the meaning of `v` in `Arg.__call__`:<br>
+`True` means the argument was not mentioned, `False` - it was mentioned.
+
+May be set via `Arg.__init__` as `default`, the restrictions depend on `Arg.count`.
+
+If `Arg.is_flag` is `True`:
+ * `default` must be `bool` or `None` (`TypeError`).
+
+If `Arg.is_single` is `True`:
+ * `type(default)` must be the same as `Arg.type` or `None` (`TypeError`).
+ * If `Arg.choices` is not `None`, `default` is in `Arg.choices` (`ValueError`).
+
+If `Arg.is_multi` is `True`:
+ * `type(default)` must be `Iterable` or `None` (`TypeError`).
+ * Type of each item must be the same as `Arg.type` (`TypeError`).
+ * If `Arg.choices` is not `None`, each item is in `choices` (`ValueError`).
+ * If `Arg.count` is `"+"`, `default` must not be empty (`ValueError`).
+ * If `Arg.count` is `int`, `len(default)` must be equal to `Arg.count` (`ValueError`).
+
+Defaults to:
+1. `False`, if `Arg.is_flag` is `True`.
+2. `[]`, if `Arg.is_multi` is `True`.
+3. `None` otherwise.
+
+#### Declaration
+
+```python
+@property
+def choices(self) -> list | dict | None:
+    ...
+```
+
+#### Example: `Arg.is_flag == True`
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK, default is False.
+        self.arg = Arg(app=self,
+                       count=0,
+                       lopt='arg')
+        # OK, explicit False.
+        self.arg = Arg(app=self,
+                       default=False,
+                       count=0,
+                       lopt='arg')
+        # OK, change the meaning: True - not mentioned, False - mentioned.
+        self.arg = Arg(app=self,
+                       default=True,
+                       count=0,
+                       lopt='arg')
+        # TypeError: Invalid type of Arg.default: int. Expected: bool, None.
+        self.arg = Arg(app=self,
+                       default=0,
+                       count=0,
+                       lopt='arg')
+```
+
+#### Example: `Arg.is_single == True`
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK, the trivial case.
+        self.arg = Arg(app=self,
+                       default='value',
+                       lopt='arg')
+        # OK, default is None.
+        self.arg = Arg(app=self,
+                       lopt='arg')
+        # OK, default is in choices.
+        self.arg = Arg(app=self,
+                       default=2,
+                       choices=[1, 2, 3],
+                       lopt='arg')
+        # TypeError: Invalid type of Arg.default: list. Expected: str, None.
+        self.arg = Arg(app=self,
+                       count=1,
+                       default=[],
+                       lopt='arg')
+        # TypeError: Invalid type of Arg.default: str. Expected: int, None.
+        self.arg = Arg(app=self,
+                       type=int,
+                       default='0',
+                       lopt='arg')
+        # ValueError: Invalid value of Arg.default: "d". Must be in Arg.choices: a, b, c.
+        self.arg = Arg(app=self,
+                       choices='abc',
+                       default='d',
+                       lopt='arg')
+```
+
+#### Example: `Arg.is_multi == True`
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK, the trivial case.
+        self.arg = Arg(app=self,
+                       default=[1, 2, 3],
+                       lopt='arg')
+        # OK, default is None.
+        self.arg = Arg(app=self,
+                       count='+',
+                       lopt='arg')
+        # OK, default matches the explicit type.
+        self.arg = Arg(app=self,
+                       type=int,
+                       default=[1, 2, 3],
+                       lopt='arg')
+        # OK, default is in choices.
+        self.arg = Arg(app=self,
+                       choices=[1, 2, 3],
+                       default=[1, 3],
+                       lopt='arg')
+        # OK, default has the exact number of elements.
+        self.arg = Arg(app=self,
+                       count=2,
+                       default=[1, 3],
+                       lopt='arg')
+        # OK, default has at least one element for "+".
+        self.arg = Arg(app=self,
+                       count='+',
+                       default=[1],
+                       lopt='arg')
+        # OK, default may be empty for "*".
+        self.arg = Arg(app=self,
+                       count='*',
+                       default=[],
+                       lopt='arg')
+        # OK, default has at least one element.
+        self.arg = Arg(app=self,
+                       count='+',
+                       default=[1],
+                       lopt='arg')
+        # TypeError: Invalid type of Arg.default: bool. Expected: Iterable, None.
+        self.arg = Arg(app=self,
+                       count='+',
+                       default=False,
+                       lopt='arg')
+        # TypeError: Invalid type of item in Arg.default: str. Expected: int.
+        self.arg = Arg(app=self,
+                       default=[1, 2, '3'],
+                       lopt='arg')
+        # ValueError: Invalid value of item in Arg.default: 4. Must be in Arg.choices: 1, 2, 3.
+        self.arg = Arg(app=self,
+                       choices=[1, 2, 3],
+                       default=[1, 4],
+                       lopt='arg')
+        # ValueError: Invalid value of Arg.default with Arg.count "+": []. Must not be empty.
+        self.arg = Arg(app=self,
+                       count='+',
+                       default=[],
+                       lopt='arg')
+        # ValueError: Invalid value of Arg.default: [1, 2, 3]. Must have exactly 2 items.
+        self.arg = Arg(app=self,
+                       count=2,
+                       default=[1, 2, 3],
+                       lopt='arg')
+```
