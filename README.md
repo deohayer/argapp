@@ -421,3 +421,102 @@ class ExampleApp(App):
         self.arg = Arg(app=self,
                        lopt='')
 ```
+
+### `Arg.help`
+
+The help text.
+
+May be set via `Arg.__init__` as `help`:
+ * `type(help)` must be `str` or `None` (`TypeError`).
+
+If `Arg.choices` is not `None`, the items are appended to the help text.
+`help1` and `help2` are only added if `type(Arg.choices) == dict`:
+
+```text
+Possible values:
+ * value1 - help1
+ * value2 - help2
+ * (...)
+ ```
+
+If `Arg.default` is not `None`, the following text is appended:
+
+```text
+Defaults to: value1 (value2, ...).
+```
+
+Defaults:
+1. `""`.
+
+#### Declaration
+
+```python
+@property
+def help(self) -> str:
+    ...
+```
+
+#### Example
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK, the trivial case:
+        #   ARG    A help text.
+        self.arg = Arg(app=self,
+                       help='A help text.')
+        # OK, the newlines are retained and properly padded:
+        #   ARG    This is a:
+        #          1. Multiline.
+        #          2. Help.
+        #          3. Text.
+        self.arg = Arg(app=self,
+                       help=str(
+                           'This is a:\n'
+                           '1. Multiline.\n'
+                           '2. Help.\n'
+                           '3. Text.'))
+        # OK, help defaults to "":
+        #   ARG
+        self.arg = Arg(app=self)
+        # OK, choices list is appended:
+        #   ARG    Possible values:
+        #           * value1
+        #           * value2
+        self.arg = Arg(app=self,
+                       choices=['value1', 'value2'])
+        # OK, choices dict is appended:
+        #   ARG    An Arg with choices.
+        #          Possible values:
+        #           * value1
+        #           * value2 - help2
+        self.arg = Arg(app=self,
+                       help='An Arg with choices.',
+                       choices={'value1': '', 'value2': 'help2'})
+        # OK, default is appended:
+        #   ARG    Defaults to: arg
+        self.arg = Arg(app=self,
+                       default='arg')
+        # OK, default list is appended:
+        #   ARG    An Arg with default.
+        #          Defaults to: value1 value2
+        self.arg = Arg(app=self,
+                       count='*',
+                       help='An Arg with default.',
+                       default=['value1', 'value2'])
+        # OK, both are appended:
+        #   ARG    An Arg with both.
+        #          Possible values:
+        #           * value1
+        #           * value2 - help2
+        #          Defaults to: value1 value2
+        self.arg = Arg(app=self,
+                       count='*',
+                       help='An Arg with both.',
+                       choices={'value1': '', 'value2': 'help2'},
+                       default=['value1', 'value2'])
+        # TypeError: Invalid type of Arg.help: bool. Expected: str, None.
+        self.arg = Arg(app=self,
+                       help=False)
+```
