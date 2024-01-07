@@ -2785,3 +2785,102 @@ app1
 app2
 app3
 ```
+
+### `App.__init__`
+
+Construct the `App` and:
+ * Initialize the fields.
+ * Add the instance to `app.apps`.
+
+Parameters match the corresponding fields.
+
+Exceptions:
+1. `TypeError`, if the type of some parameter is invalid (see the corresponding field).
+2. `ValueError`, if the value of some parameter is invalid (see the corresponding field).
+
+#### Declaration
+
+```python
+def __init__(
+    self,
+    app: App | None = None,
+    name: str | None = None,
+    help: str | None = None,
+    prolog: str | None = None,
+    epilog: str | None = None,
+) -> None:
+    ...
+```
+
+#### Example
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # App with only the required fields.
+        App(app=self,
+            name='one')
+        # App with all fields.
+        App(app=self,
+            help='A sub-command help.',
+            epilog='A sub-command prolog.',
+            prolog='A sub-command epilog.',
+            name='all')
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py CMD ...
+
+positional arguments:
+  CMD    A sub-command to run.
+         Possible values:
+          * one
+          * all - A sub-command help.
+
+optional arguments:
+  -h, --help     Show the help message and exit.
+
+# -------------------------------------------------
+
+./argapp.py one -h
+# The output:
+argapp.py one
+
+optional arguments:
+  -h, --help     Show the help message and exit.
+
+# -------------------------------------------------
+
+./argapp.py all -h
+# The output:
+argapp.py all
+
+A sub-command epilog.
+
+optional arguments:
+  -h, --help     Show the help message and exit.
+
+A sub-command prolog.
+```
