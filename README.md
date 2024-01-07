@@ -2400,3 +2400,39 @@ app = App(app=main,
           prolog=False,
           name='app')
 ```
+
+### `App.epilog`
+
+The detailed help text after the argument lists.
+
+May be set via `App.__init__` as `epilog`:
+ * `type(epilog)` must be `str` or `None` (`TypeError`).
+
+#### Declaration
+
+```python
+@property
+def epilog(self) -> str | None:
+    ...
+```
+
+#### Example
+
+```python
+# OK, the main App without epilog:
+# argapp.py
+#
+# optional arguments:
+#   -h, --help     Show the help message and exit.
+main = App()
+# OK, the main App with epilog:
+# argapp.py
+#
+# optional arguments:
+#   -h, --help     Show the help message and exit.
+#
+# This is epilog.
+main = App(epilog='This is epilog.')
+# TypeError: Invalid type of App.epilog: bool. Expected: str, None.
+main = App(epilog=False)
+```
