@@ -2951,3 +2951,171 @@ my-fancy-name
 optional arguments:
   -h, --help     Show the help message and exit.
 ```
+
+### `App.__call__(dict[Arg], list[App])`
+
+An overload of `App.__call__` for the parsed command line. The default implementation does nothing.
+It should be overridden, use this signature for overriding.
+
+It is mandatory to call `super().__call__(args, apps)` in the body before accessing `args` or `apps`.
+
+Parameters:
+ * `args` - A dictionary containing each `Arg` and its value.
+   The value is guaranteed to be set (can be `None`), so it is safe to use operator `[]`.
+ * `apps` - A call stack of `App`.
+   The first item is the main `App`, the other items are sub-commands.
+   The left-to-right order is preserved. Consider `"git remote add"`:
+   1. `apps[0].name` - `"git"`
+   2. `apps[1].name` - `"remote"`
+   3. `apps[2].name` - `"add"`
+
+#### Declaration
+
+```python
+def __call__(
+    self,
+    args: dict[Arg] = None,
+    apps: list[App] = None,
+) -> None:
+    ...
+```
+
+#### Example
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # Add args.
+        self.arg_of = Arg(app=self,
+                          help='Flag optional, count 0.',
+                          count=0,
+                          sopt='f',
+                          lopt='flag')
+        self.arg_oss = Arg(app=self,
+                           help='Single-value optional, count 1.',
+                           count=1,
+                           sopt='s',
+                           lopt='single')
+        self.arg_osq = Arg(app=self,
+                           help='Single-value optional, count "?".',
+                           count='?',
+                           sopt='q',
+                           lopt='qmark')
+        self.arg_omt = Arg(app=self,
+                           help='Multi-value optional, count 2.',
+                           count=2,
+                           sopt='t',
+                           lopt='two')
+        self.arg_omp = Arg(app=self,
+                           help='Multi-value optional, count "+".',
+                           count='+',
+                           sopt='p',
+                           lopt='plus')
+        self.arg_oma = Arg(app=self,
+                           help='Multi-value optional, count "*".',
+                           count='*',
+                           sopt='a',
+                           lopt='astra')
+        self.arg_pss = Arg(app=self,
+                           help='Single-value positional, count 1.',
+                           count=1,
+                           name='SINGLE')
+        self.arg_psq = Arg(app=self,
+                           help='Single-value positional, count "?".',
+                           count='?',
+                           name='QMARK')
+        self.arg_pmt = Arg(app=self,
+                           help='Multi-value positional, count 2.',
+                           count=2,
+                           name='TWO')
+        self.arg_pmp = Arg(app=self,
+                           help='Multi-value positional, count "+".',
+                           count='+',
+                           name='PLUS')
+        self.arg_pma = Arg(app=self,
+                           help='Multi-value positional, count "*".',
+                           count='*',
+                           name='ASTRA')
+        # Add apps.
+        for i in [1, 2, 3]:
+            App(app=self,
+                name=f'app{i}')
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+        print('Args:')
+        for x in self.args:
+            print(f' * {x.lopt or x.name}')
+        print('Apps:')
+        for x in self.apps:
+            print(f' * {x.name}')
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py SINGLE [QMARK] TWO TWO PLUS [PLUS...] [ASTRA...] CMD ...
+
+positional arguments:
+  SINGLE    Single-value positional, count 1.
+  QMARK     Single-value positional, count "?".
+  TWO       Multi-value positional, count 2.
+  PLUS      Multi-value positional, count "+".
+  ASTRA     Multi-value positional, count "*".
+  CMD       A sub-command to run.
+            Possible values:
+             * app1
+             * app2
+             * app3
+
+optional arguments:
+  -h, --help                   Show the help message and exit.
+  -f, --flag                   Flag optional, count 0.
+  -s, --single SINGLE          Single-value optional, count 1.
+  -q, --qmark [QMARK]          Single-value optional, count "?".
+  -t, --two TWO TWO            Multi-value optional, count 2.
+  -p, --plus PLUS [PLUS...]    Multi-value optional, count "+".
+  -a, --astra [ASTRA...]       Multi-value optional, count "*".
+```
+
+The usage:
+
+```shell
+# Supply some dummy values, it does not change the output.
+# The last argument is the sub-command.
+./argapp.py 0 0 0 0 0 app1
+# The output:
+Args:
+ * flag
+ * single
+ * qmark
+ * two
+ * plus
+ * astra
+ * SINGLE
+ * QMARK
+ * TWO
+ * PLUS
+ * ASTRA
+Apps:
+ * app1
+ * app2
+ * app3
+```
