@@ -687,3 +687,76 @@ class ExampleApp(App):
         self.arg = Arg(app=self,
                        type=list)
 ```
+
+### `Arg.choices`
+
+The list of allowed values. Can be `dict`, in this case:
+ * `keys` are allowed argument values.
+ * `values` are treated as the help text.
+
+See `Arg.help` for the details.
+
+May be set via `Arg.__init__` as `choices`:
+ * If `Arg.is_flag` is `True`, `choices` must be `None` (`TypeError`).
+ * `type(choices)` must be `Iterable` or `None` (`TypeError`).
+ * `len(choices)` must be greater than 0 (`ValueError`).
+ * Type of each item is the same as `Arg.type` (`TypeError`).
+ * Each item must be unique (`ValueError`).
+
+#### Declaration
+
+```python
+@property
+def choices(self) -> list | dict | None:
+    ...
+```
+
+#### Example
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK, the list case:
+        #   ARG    Possible values:
+        #           * 1
+        #           * 2
+        #           * 3
+        self.arg = Arg(app=self,
+                       choices=[1, 2, 3])
+        # OK, the dict case: the values are converted to str, can be complex objects:
+        #   ARG    Possible values:
+        #           * 1 - 100
+        #           * 2 - 200
+        #           * 3 - 300
+        self.arg = Arg(app=self,
+                       choices={1: 100, 2: 200, 3: 300})
+        # OK, str is Iterable: equivalent to ['a', 'b', 'c']:
+        #   ARG    Possible values:
+        #           * a
+        #           * b
+        #           * c
+        self.arg = Arg(app=self,
+                       choices='abc')
+        # TypeError: Invalid type of Arg.choices for flag: list. Expected: None.
+        self.arg = Arg(app=self,
+                       choices=[False, True],
+                       count=0,
+                       lopt='arg')
+        # TypeError: Invalid type of Arg.choices: bool. Expected: Iterable, None.
+        self.arg = Arg(app=self,
+                       choices=False,
+                       lopt='arg')
+        # ValueError: Invalid value of Arg.choices: []. Must not be empty.
+        self.arg = Arg(app=self,
+                       choices=[],
+                       lopt='arg')
+        # TypeError: Invalid type of item in Arg.choices: str. Expected: int.
+        self.arg = Arg(app=self,
+                       choices=[1, '2'],
+                       lopt='arg')
+        # ValueError: Invalid value of item in Arg.choices: 1. Must be unique.
+        self.arg = Arg(app=self,
+                       choices=[1, 1],
+                       lopt='arg')
+```
