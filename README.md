@@ -2556,3 +2556,149 @@ app1      : sub-command.
 app2      : sub-command.
 app3      : sub-command.
 ```
+
+### `App.args`
+
+A list of `App`'s arguments (`Arg`).
+ * Populated by constructing an `Arg` with `Arg.app` set to the `App` instance.
+ * Must not be modified directly.
+
+Each `Arg`:
+ * Is used for the help message generation: `"usage"`, `"positional arguments"`, `"optional arguments"`.
+ * Used as a key in the dictionary after the command line parsing.
+
+There are two automatic arguments that are never on the list:
+ * `-h, --help` - Display the help message and exit, always the first optional argument.
+ * `CMD`        - A sub-command to run, always the last positional argument. Appears only if `App.apps` is not empty.
+
+Defaults:
+1. `[]`.
+
+#### Declaration
+
+```python
+@property
+def args(self) -> list[Arg]:
+    ...
+```
+
+#### Example
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        self.arg_of = Arg(app=self,
+                          help='Flag optional, count 0.',
+                          count=0,
+                          sopt='f',
+                          lopt='flag')
+        self.arg_oss = Arg(app=self,
+                           help='Single-value optional, count 1.',
+                           count=1,
+                           sopt='s',
+                           lopt='single')
+        self.arg_osq = Arg(app=self,
+                           help='Single-value optional, count "?".',
+                           count='?',
+                           sopt='q',
+                           lopt='qmark')
+        self.arg_omt = Arg(app=self,
+                           help='Multi-value optional, count 2.',
+                           count=2,
+                           sopt='t',
+                           lopt='two')
+        self.arg_omp = Arg(app=self,
+                           help='Multi-value optional, count "+".',
+                           count='+',
+                           sopt='p',
+                           lopt='plus')
+        self.arg_oma = Arg(app=self,
+                           help='Multi-value optional, count "*".',
+                           count='*',
+                           sopt='a',
+                           lopt='astra')
+        self.arg_pss = Arg(app=self,
+                           help='Single-value positional, count 1.',
+                           count=1,
+                           name='SINGLE')
+        self.arg_psq = Arg(app=self,
+                           help='Single-value positional, count "?".',
+                           count='?',
+                           name='QMARK')
+        self.arg_pmt = Arg(app=self,
+                           help='Multi-value positional, count 2.',
+                           count=2,
+                           name='TWO')
+        self.arg_pmp = Arg(app=self,
+                           help='Multi-value positional, count "+".',
+                           count='+',
+                           name='PLUS')
+        self.arg_pma = Arg(app=self,
+                           help='Multi-value positional, count "*".',
+                           count='*',
+                           name='ASTRA')
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+        # Print all App.args.
+        for x in self.args:
+            print(x.lopt or x.name)
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py SINGLE [QMARK] TWO TWO PLUS [PLUS...] [ASTRA...]
+
+positional arguments:
+  SINGLE    Single-value positional, count 1.
+  QMARK     Single-value positional, count "?".
+  TWO       Multi-value positional, count 2.
+  PLUS      Multi-value positional, count "+".
+  ASTRA     Multi-value positional, count "*".
+
+optional arguments:
+  -h, --help                   Show the help message and exit.
+  -f, --flag                   Flag optional, count 0.
+  -s, --single SINGLE          Single-value optional, count 1.
+  -q, --qmark [QMARK]          Single-value optional, count "?".
+  -t, --two TWO TWO            Multi-value optional, count 2.
+  -p, --plus PLUS [PLUS...]    Multi-value optional, count "+".
+  -a, --astra [ASTRA...]       Multi-value optional, count "*".
+```
+
+The usage:
+
+```shell
+# Supply dummy values for positionals.
+./argapp.py 0 0 0 0 0
+# The output:
+flag
+single
+qmark
+two
+plus
+astra
+SINGLE
+QMARK
+TWO
+PLUS
+ASTRA
+```
