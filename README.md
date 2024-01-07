@@ -2702,3 +2702,86 @@ TWO
 PLUS
 ASTRA
 ```
+
+### `App.apps`
+
+A list of `App`'s sub-commands (`App`).
+ * Populated by constructing an `App` with `App.app` set to the instance.
+ * Must not be modified directly.
+
+Each `App`:
+ * Is used for the help message generation.
+ * Appears in its parent's help text for the `"CMD"` (see `App.args`).
+ * Used as an item in the list after the command line parsing (if called).
+
+Defaults:
+1. `[]`.
+
+#### Declaration
+
+```python
+@property
+def apps(self) -> list[App]:
+    ...
+```
+
+#### Example
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # Create some Apps.
+        for i in [1, 2, 3]:
+            App(app=self,
+                name=f'app{i}')
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+        # Print all App.apps, the sub-command does not matter.
+        for x in self.apps:
+            print(x.name)
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py CMD ...
+
+positional arguments:
+  CMD    A sub-command to run.
+         Possible values:
+          * app1
+          * app2
+          * app3
+
+optional arguments:
+  -h, --help     Show the help message and exit.
+```
+
+The usage:
+
+```shell
+# Supply dummy values for positionals.
+../argapp.py app1
+# The output:
+app1
+app2
+app3
+```
