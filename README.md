@@ -520,3 +520,91 @@ class ExampleApp(App):
         self.arg = Arg(app=self,
                        help=False)
 ```
+
+### `Arg.count`
+
+The number of values consumed from the command line.
+
+May be set via `Arg.__init__` as `count`:
+ * `type(count)` must be `int` or `str` or `None` (`TypeError`).
+ * If `type(count)` is `int`, `count` must be non-negative (`ValueError`).
+ * If `type(count)` is `int` and `Arg.is_positional` is `True`, `count` must not be 0 (`ValueError`).
+ * If `type(count)` is `str`, `count` must be one of: `"?"`, `"*"`, `"+"` (`ValueError`).<br>
+   Meaning of the string values:
+    * `"?"` - zero or one values.
+    * `"*"` - zero or more values.
+    * `"+"` - one or more values.
+
+Defaults:
+1. `"*"`, if `type(default)` is `Iterable` and not `str`.
+2. 1 otherwise.
+
+#### Declaration
+
+```python
+@property
+def count(self) -> int | str:
+    ...
+```
+
+#### Example
+
+```python
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # OK, count deduced to 1.
+        self.arg = Arg(app=self)
+        # OK, count deduced to 1, even though str is Iterable.
+        self.arg = Arg(app=self,
+                       default='value')
+        # OK, count deduced to "*".
+        self.arg = Arg(app=self,
+                       default=['value1', 'value2'])
+        # OK, an explicit single value.
+        self.argp = Arg(app=self,
+                        count=1)
+        self.argo = Arg(app=self,
+                        count=1,
+                        lopt='arg')
+        # OK, a specific number of multiple values.
+        self.argp = Arg(app=self,
+                        count=2)
+        self.argo = Arg(app=self,
+                        count=2,
+                        lopt='arg')
+        # OK, an optional single value '?'.
+        self.argp = Arg(app=self,
+                        count='?')
+        self.argo = Arg(app=self,
+                        count='?',
+                        lopt='arg')
+        # OK, optional multiple values '*'.
+        self.argp = Arg(app=self,
+                        count='*')
+        self.argo = Arg(app=self,
+                        count='*',
+                        lopt='arg')
+        # OK, at least one value: '+'.
+        self.argp = Arg(app=self,
+                        count='+')
+        self.argo = Arg(app=self,
+                        count='+',
+                        lopt='arg')
+        # OK, zero values for optional - a flag.
+        self.arg = Arg(app=self,
+                       count=0,
+                       lopt='arg')
+        # ValueError: Invalid value of Arg.count: 0. Must not be 0 for positional arguments.
+        self.arg = Arg(app=self,
+                       count=0)
+        # ValueError: Invalid value of Arg.count: -4. Must be non-negative int, "?", "*", "+".
+        self.arg = Arg(app=self,
+                       count=-4)
+        # ValueError: Invalid value of Arg.count: "%". Must be non-negative int, "?", "*", "+".
+        self.arg = Arg(app=self,
+                       count='%')
+        # TypeError: Invalid type of Arg.count: float. Expected: int, str, None.
+        self.arg = Arg(app=self,
+                       count=1.)
+```
