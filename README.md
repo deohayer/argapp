@@ -2214,3 +2214,37 @@ The completion:
 # Upon pressing TAB, the following is displayed:
 sub_a  sub_b
 ```
+
+### `App.app`
+
+The parent application. The `App` is added to `app.apps`.
+
+May be set via `App.__init__` as `app`:
+ * `type(app)` must be `App` or `None` (`TypeError`).
+ * `app.apps` must not contain `App` with the same `App.name` (`ValueError`).
+
+#### Declaration
+
+```python
+@property
+def app(self) -> App | None:
+    ...
+```
+
+#### Example
+
+```python
+# OK, the main App.
+main = App()
+# OK, a sub-command for main.
+app = App(app=main,
+          name='app')
+# TypeError: Invalid type of Arg.app: bool. Expected: App, None.
+app = App(app=False,
+          name='app')
+# ValueError: Invalid value of App.name: "app1". Must not repeat other App.name in main App.
+app1 = App(app=main,
+          name='app1')
+app2 = App(app=main,
+          name='app1')
+```
