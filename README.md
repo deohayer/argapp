@@ -1745,3 +1745,118 @@ argument.is_flag       : False
 argument.is_single     : False
 argument.is_multi      : True
 ```
+
+### `Arg.__call__(bool)`
+
+Parse the command line value. Called if `Arg.is_flag` is `True`:
+ * Can be overridden to return a custom value of any other type.
+ * The base version simply returns the parameter.
+ * The result is used as a value in the dictionary `args` in `App.__call__`.
+
+Parameters:
+ * `v` - `bool(not Arg.default)` if the argument was mentioned, `bool(Arg.default)` otherwise.
+
+Returns:
+ * `v`.
+
+#### Declaration
+
+```python
+@overload
+def __call__(self, v: bool) -> bool:
+    ...
+```
+
+#### Example
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+class ExampleObject:
+    def __init__(self, data: str) -> None:
+        self.data = data
+
+    def __str__(self) -> str:
+        return self.data
+
+
+class ExampleArg(Arg):
+    def __init__(
+        self,
+        app: App,
+        default: bool,
+    ) -> None:
+        # Construct a flag with customized parsing.
+        super().__init__(app=app,
+                         count=0,
+                         help=f'{not default} if present.',
+                         lopt=str(not default).lower(),
+                         default=default)
+
+    def __call__(self, v: 'bool') -> 'bool':
+        # Call the base to obtain the vanilla value.
+        v = super().__call__(v)
+        # Return a custom object.
+        data = 'TRUE' if v else 'FALSE'
+        return ExampleObject(data)
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        # Normal flag.
+        self.true = ExampleArg(self, False)
+        # Reversed flag.
+        self.false = ExampleArg(self, True)
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+        # Print all the values.
+        for arg in self.args:
+            # Retrieve the object: args contains ExampleObject, not bool.
+            o: ExampleObject = args[arg]
+            # Pick the name.
+            print(f'Value of {arg.lopt:6}: {o.data}')
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py
+
+optional arguments:
+  -h, --help     Show the help message and exit.
+  --true         True if present.
+  --false        False if present.
+```
+
+The usage:
+
+```shell
+# No flags.
+./argapp.py
+# The output:
+Value of true  : FALSE
+Value of false : TRUE
+
+#--------------------------------------------------------
+
+# Both flags.
+./argapp.py --true --false
+# The output:
+Value of true  : TRUE
+Value of false : FALSE
+```
