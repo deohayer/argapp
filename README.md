@@ -2496,3 +2496,63 @@ app1      : sub-command.
 app2      : sub-command.
 app3      : sub-command.
 ```
+
+### `App.is_sub`
+
+Whether `App` is a sub-command.
+ * Opposite to `App.is_main`.
+ * Cannot be set.
+
+Defaults:
+1. `True`, if `App.app` is not `None`.
+2. `False` otherwise.
+
+#### Declaration
+
+```python
+@property
+def is_sub(self) -> bool:
+    ...
+```
+
+#### Example
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        app1 = App(app=self,
+                   name='app1')
+        app2 = App(app=app1,
+                   name='app2')
+        app3 = App(app=app2,
+                   name='app3')
+
+    def __call__(self, args: dict[Arg] = None, apps: list[App] = None) -> None:
+        super().__call__(args, apps)
+        # Print if the called apps are a main or a sub-command.
+        for x in apps:
+            result = 'sub-command' if x.is_sub else 'main'
+            print(f'{x.name:10}: {result}.')
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The usage:
+
+```shell
+./argapp.py app1 app2 app3
+# The output:
+argapp.py : main.
+app1      : sub-command.
+app2      : sub-command.
+app3      : sub-command.
+```
