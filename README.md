@@ -2326,3 +2326,77 @@ app2 = App(app=main,
 app = App(app=main,
           help=False)
 ```
+
+### `App.prolog`
+
+The detailed help text before the argument lists.
+
+May be set via `App.__init__` as `prolog`:
+ * `type(prolog)` must be `str` or `None` (`TypeError`).
+
+Defaults:
+1. `App.help`.
+
+#### Declaration
+
+```python
+@property
+def prolog(self) -> str | None:
+    ...
+```
+
+#### Example
+
+```python
+# OK, the main App without prolog:
+# argapp.py
+#
+# optional arguments:
+#   -h, --help     Show the help message and exit.
+main = App()
+# OK, the main App with prolog:
+# argapp.py
+#
+# This is prolog.
+#
+# optional arguments:
+#   -h, --help     Show the help message and exit.
+main = App(prolog='This is prolog.')
+# OK, the main App with help:
+# argapp.py
+#
+# This is help.
+#
+# optional arguments:
+#   -h, --help     Show the help message and exit.
+main = App(help='This is help.')
+# OK, the sub-command with both.
+# Main help:
+# argapp.py CMD ...
+#
+# This is help.
+#
+# positional arguments:
+#   CMD    A sub-command to run.
+#          Possible values:
+#           * app - This is sub-command help.
+#
+# optional arguments:
+#   -h, --help     Show the help message and exit.
+# ------------------------------------------------
+# Sub-command help:
+# argapp.py app
+#
+# This is sub-command prolog.
+#
+# optional arguments:
+#   -h, --help     Show the help message and exit.
+app = App(app=main,
+          help='This is sub-command help.',
+          prolog='This is sub-command prolog.',
+          name='app')
+# TypeError: Invalid type of App.prolog: bool. Expected: str, None.
+app = App(app=main,
+          prolog=False,
+          name='app')
+```
