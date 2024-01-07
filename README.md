@@ -2884,3 +2884,70 @@ optional arguments:
 
 A sub-command prolog.
 ```
+
+### `App.__call__(list[str])`
+
+An overload of `App.__call__` for the raw command line.
+It should never be overridden, use the other overload's signature for overriding.
+
+The functionality is as follows:
+1. Parse the provided command line (`argv`) into `args` (`dict[Arg]`) and `apps` (`list[App]`).
+2. If `"-h, --help"` is encountered, display the help message and exit with code 0.
+3. If there are any issues with parsing, display the usage message, the error, and exit with non-zero code.
+4. For each `App` in `apps`, call the other overload of `App.__call__` passing `args` and `apps` as the parameter values.
+5. Exit with code 0 if there are no issues.
+6. Exit with code 1 and print an error if there are any issues.
+
+The help message structure is the same as in argparse, but there are specifics:
+ * The usage shows only positional arguments.
+ * All arguments are displayed in their respective sections in the order they were added.
+   As for the automatic arguments:
+   1. `"-h, --help"` is the very first argument.
+   2. `"CMD"` is the very last argument, if present. Note that in the usage it appears as `"CMD ..."`.
+ * Optional arguments are displayed as `"-a, --arg ARG"`, not `"-a ARG, --arg ARG"`.
+ * Newlines, spaces, tabs in the individual help texts are retained.
+ * All arguments are aligned section-wise. Their help texts are properly padded.
+ * An argument and its help text are always on the same line, no matter how wide the argument is.
+
+Parameters:
+ * `argv` - A raw command line as `list[str]`. Effectively defaults to `sys.argv`, if `None`.
+   The first item in the list must be the application name.
+
+Exceptions:
+ * `SystemExit`, regardless of success (code 0) or failure (code 1).
+'''
+
+#### Declaration
+
+```python
+def __call__(
+    self,
+    argv: list[str] = None,
+) -> None:
+    ...
+```
+
+#### Example
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+# Provide a custom command line, even the default App handles that.
+# For some other use cases, refer to App.args, App.apps.
+App()(['my-fancy-name', '-h'])
+```
+
+The usage:
+
+```shell
+# It immediately calls help.
+./argapp.py
+# The output:
+my-fancy-name
+
+optional arguments:
+  -h, --help     Show the help message and exit.
+```
