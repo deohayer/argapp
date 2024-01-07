@@ -2287,3 +2287,42 @@ app = App(app=main)
 app = App(app=main,
           name='')
 ```
+
+### `App.help`
+
+The help text for a sub-command.
+
+May be set via `App.__init__` as `help`:
+ * `type(help)` must be `str` or `None` (`TypeError`).
+
+#### Declaration
+
+```python
+@property
+def help(self) -> str | None:
+    ...
+```
+
+#### Example
+
+```python
+# OK, the main App without help.
+main = App()
+# OK, a sub-commands of main. The help message of main contains:
+# ...
+# positional arguments:
+#   CMD    A sub-command to run.
+#          Possible values:
+#           * app1 - The first sub-command.
+#           * app2 - The second sub-command.
+# ...
+app1 = App(app=main,
+           help='The first sub-command.',
+           name='app1')
+app2 = App(app=main,
+           help='The second sub-command.',
+           name='app2')
+# TypeError: Invalid type of App.help: bool. Expected: str, None.
+app = App(app=main,
+          help=False)
+```
