@@ -1442,3 +1442,150 @@ Argument "TWO"    : not single.
 Argument "PLUS"   : not single.
 Argument "ASTRA"  : not single.
 ```
+
+### `Arg.is_multi`
+
+Whether the argument may consume more than one value from the command line.
+ * Cannot be `True` if `Arg.is_flag` or `Arg.is_single` is `True`.
+ * Cannot be set.
+ * The stylized `Arg.name` is `Arg.name Arg.name Arg.name` (repeated `Arg.count` times) if `Arg.count` is `int`.
+ * The stylized `Arg.name` is `[Arg.name...]` if `Arg.count` is `"*"`.
+ * The stylized `Arg.name` is `Arg.name [Arg.name...]` if `Arg.count` is `"+"`.
+
+Defaults:
+1. `True`, if `Arg.count` is greater than 1, or equals to `"*"` or `"+"`.
+2. `False` otherwise.
+
+#### Declaration
+
+```python
+@property
+def is_multi(self) -> bool:
+    ...
+```
+
+#### Example
+
+```python
+#!/usr/bin/env python3
+# PYTHON_ARGCOMPLETE_OK
+
+from argapp import Arg, App
+
+
+class ExampleApp(App):
+    def __init__(self) -> None:
+        super().__init__(name='argapp.py')
+        self.arg_of = Arg(app=self,
+                          help='Flag optional, count 0.',
+                          count=0,
+                          sopt='f',
+                          lopt='flag')
+        self.arg_oss = Arg(app=self,
+                           help='Single-value optional, count 1.',
+                           count=1,
+                           sopt='s',
+                           lopt='single')
+        self.arg_osq = Arg(app=self,
+                           help='Single-value optional, count "?".',
+                           count='?',
+                           sopt='q',
+                           lopt='qmark')
+        self.arg_omt = Arg(app=self,
+                           help='Multi-value optional, count 2.',
+                           count=2,
+                           sopt='t',
+                           lopt='two')
+        self.arg_omp = Arg(app=self,
+                           help='Multi-value optional, count "+".',
+                           count='+',
+                           sopt='p',
+                           lopt='plus')
+        self.arg_oma = Arg(app=self,
+                           help='Multi-value optional, count "*".',
+                           count='*',
+                           sopt='a',
+                           lopt='astra')
+        self.arg_pss = Arg(app=self,
+                           help='Single-value positional, count 1.',
+                           count=1,
+                           name='SINGLE')
+        self.arg_psq = Arg(app=self,
+                           help='Single-value positional, count "?".',
+                           count='?',
+                           name='QMARK')
+        self.arg_pmt = Arg(app=self,
+                           help='Multi-value positional, count 2.',
+                           count=2,
+                           name='TWO')
+        self.arg_pmp = Arg(app=self,
+                           help='Multi-value positional, count "+".',
+                           count='+',
+                           name='PLUS')
+        self.arg_pma = Arg(app=self,
+                           help='Multi-value positional, count "*".',
+                           count='*',
+                           name='ASTRA')
+
+    def __call__(
+        self,
+        args: dict[Arg] = None,
+        apps: list[App] = None,
+    ) -> None:
+        super().__call__(args, apps)
+        # Alignment for names - pretty output.
+        w = max(len(x.lopt or x.name) for x in args) + 3
+        for arg in args:
+            # Determine and quote the name.
+            name = f'"{arg.lopt or arg.name}"'
+            # Print whether the arguments are multi using Arg.is_multi.
+            result = "multi" if arg.is_multi else "not multi"
+            print(f'Argument {name:{w}}: {result}.')
+
+
+# Construct and call.
+ExampleApp()()
+```
+
+The help:
+
+```shell
+./argapp.py -h
+# The output:
+argapp.py SINGLE [QMARK] TWO TWO PLUS [PLUS...] [ASTRA...]
+
+positional arguments:
+  SINGLE    Single-value positional, count 1.
+  QMARK     Single-value positional, count "?".
+  TWO       Multi-value positional, count 2.
+  PLUS      Multi-value positional, count "+".
+  ASTRA     Multi-value positional, count "*".
+
+optional arguments:
+  -h, --help                   Show the help message and exit.
+  -f, --flag                   Flag optional, count 0.
+  -s, --single SINGLE          Single-value optional, count 1.
+  -q, --qmark [QMARK]          Single-value optional, count "?".
+  -t, --two TWO TWO            Multi-value optional, count 2.
+  -p, --plus PLUS [PLUS...]    Multi-value optional, count "+".
+  -a, --astra [ASTRA...]       Multi-value optional, count "*".
+```
+
+The usage:
+
+```shell
+# Supply dummy values for positionals.
+../argapp.py 0 0 0 0 0
+# The output:
+Argument "flag"   : not multi.
+Argument "single" : not multi.
+Argument "qmark"  : not multi.
+Argument "two"    : multi.
+Argument "plus"   : multi.
+Argument "astra"  : multi.
+Argument "SINGLE" : not multi.
+Argument "QMARK"  : not multi.
+Argument "TWO"    : multi.
+Argument "PLUS"   : multi.
+Argument "ASTRA"  : multi.
+```
