@@ -10,7 +10,7 @@ argapp is an OOP wrapper for [argparse](https://docs.python.org/3/library/argpar
 
  * Offers several classes that allow building a Python CLI application in OOP style.
     * `Arg` represents optional and positional arguments, with the most essential use cases covered.
-    * `App` represents a main appplication or a sub-command.
+    * `App` represents a main appplication or a subcommand.
     * Instances of the classes are immutable.
     * The fields are validated upon construction, raising an `Exception` in case of any issues.
     * The command line parsing can be overridden to return custom values for a specific `Arg`.
@@ -155,7 +155,7 @@ class Arg:
 #### Example
 
 There are several best practices to follow:
- * Sub-class `Arg` to customize the construction or parsing.
+ * subclass `Arg` to customize the construction or parsing.
  * Create `Arg` instances inside the `App` that will contain it (that is, in `App.__init__`).
  * Save the created `Arg` into an `App` field. In the dictionary of parsed values, `Arg` itself is the key, not its name.
 
@@ -2111,11 +2111,11 @@ RuntimeError: Invalid item in argument ARG: 4. Must be one of:
 
 ### `App`
 
-Represents a command line application (main or sub-command).
+Represents a command line application (main or subcommand).
 
 The instance:
  * Works only with both the raw and the parsed command line if it is a main `App`.
- * Works only with the parsed command line if it is a sub-command `App`.
+ * Works only with the parsed command line if it is a subcommand `App`.
  * Is an item in `apps` in `App.__call__`.
 
 The fields:
@@ -2126,16 +2126,16 @@ The fields:
 Instances of this class are internally converted to `argparse.ArgumentParser`:
  * Any `App` will provide the help message mechanism via an automatic argument `"-h, --help"`.<br>
    The default generation from argparse is not used, but the differences are small and mostly related to style.
- * If `apps` not empty, the `App` will provide the sub-commands mechanism via an automatic argument `"CMD"`.<br>
+ * If `apps` not empty, the `App` will provide the subcommands mechanism via an automatic argument `"CMD"`.<br>
    Under the hood, `argparse.ArgumentParser.add_subparsers` is used to add the commands.
 
 #### Example
 
 There are several best practices to follow:
- * Sub-class `App` to customize the construction or execution.
+ * subclass `App` to customize the construction or execution.
  * Create `App` instances inside the `App` that will contain it (that is, in `App.__init__`).
 
-Below is `argapp.py` which features a main application with two sub-commands.
+Below is `argapp.py` which features a main application with two subcommands.
 
 ```python
 #!/usr/bin/env python3
@@ -2148,7 +2148,7 @@ class ExampleSub(App):
     def __init__(self, app: App, name: str) -> None:
         super().__init__(app=app,
                          name=name,
-                         help=f'An example sub-command: {name}.')
+                         help=f'An example subcommand: {name}.')
 
     def __call__(
         self,
@@ -2182,10 +2182,10 @@ argapp.py CMD ...
 The main app.
 
 positional arguments:
-  CMD    A sub-command to run.
+  CMD    A subcommand to run.
          Possible values:
-          * sub_a - An example sub-command: sub_a.
-          * sub_b - An example sub-command: sub_b.
+          * sub_a - An example subcommand: sub_a.
+          * sub_b - An example subcommand: sub_b.
 
 optional arguments:
   -h, --help     Show the help message and exit.
@@ -2236,7 +2236,7 @@ def app(self) -> App | None:
 ```python
 # OK, the main App.
 main = App()
-# OK, a sub-command for main.
+# OK, a subcommand for main.
 app = App(app=main,
           name='app')
 # TypeError: Invalid type of Arg.app: bool. Expected: App, None.
@@ -2275,13 +2275,13 @@ def name(self) -> str | None:
 main = App()
 # OK, the main App with the custom name.
 main = App(name='argapp.py')
-# OK, a sub-command of main.
+# OK, a subcommand of main.
 app = App(app=main,
           name='app')
 # TypeError: Invalid type of App.name: bool. Expected: str, None.
 app = App(app=main,
           name=False)
-# TypeError: Invalid type of App.name for sub-command: None. Expected: str.
+# TypeError: Invalid type of App.name for subcommand: None. Expected: str.
 app = App(app=main)
 # ValueError: Invalid value of App.name: "". Must not be empty.
 app = App(app=main,
@@ -2290,7 +2290,7 @@ app = App(app=main,
 
 ### `App.help`
 
-The help text for a sub-command.
+The help text for a subcommand.
 
 May be set via `App.__init__` as `help`:
  * `type(help)` must be `str` or `None` (`TypeError`).
@@ -2308,19 +2308,19 @@ def help(self) -> str | None:
 ```python
 # OK, the main App without help.
 main = App()
-# OK, a sub-commands of main. The help message of main contains:
+# OK, a subcommands of main. The help message of main contains:
 # ...
 # positional arguments:
-#   CMD    A sub-command to run.
+#   CMD    A subcommand to run.
 #          Possible values:
-#           * app1 - The first sub-command.
-#           * app2 - The second sub-command.
+#           * app1 - The first subcommand.
+#           * app2 - The second subcommand.
 # ...
 app1 = App(app=main,
-           help='The first sub-command.',
+           help='The first subcommand.',
            name='app1')
 app2 = App(app=main,
-           help='The second sub-command.',
+           help='The second subcommand.',
            name='app2')
 # TypeError: Invalid type of App.help: bool. Expected: str, None.
 app = App(app=main,
@@ -2370,30 +2370,30 @@ main = App(prolog='This is prolog.')
 # optional arguments:
 #   -h, --help     Show the help message and exit.
 main = App(help='This is help.')
-# OK, the sub-command with both.
+# OK, the subcommand with both.
 # Main help:
 # argapp.py CMD ...
 #
 # This is help.
 #
 # positional arguments:
-#   CMD    A sub-command to run.
+#   CMD    A subcommand to run.
 #          Possible values:
-#           * app - This is sub-command help.
+#           * app - This is subcommand help.
 #
 # optional arguments:
 #   -h, --help     Show the help message and exit.
 # ------------------------------------------------
-# Sub-command help:
+# subcommand help:
 # argapp.py app
 #
-# This is sub-command prolog.
+# This is subcommand prolog.
 #
 # optional arguments:
 #   -h, --help     Show the help message and exit.
 app = App(app=main,
-          help='This is sub-command help.',
-          prolog='This is sub-command prolog.',
+          help='This is subcommand help.',
+          prolog='This is subcommand prolog.',
           name='app')
 # TypeError: Invalid type of App.prolog: bool. Expected: str, None.
 app = App(app=main,
@@ -2476,9 +2476,9 @@ class ExampleApp(App):
 
     def __call__(self, args: dict[Arg] = None, apps: list[App] = None) -> None:
         super().__call__(args, apps)
-        # Print if the called apps are a main or a sub-command.
+        # Print if the called apps are a main or a subcommand.
         for x in apps:
-            result = 'main' if x.is_main else 'sub-command'
+            result = 'main' if x.is_main else 'subcommand'
             print(f'{x.name:10}: {result}.')
 
 
@@ -2492,14 +2492,14 @@ The usage:
 ./argapp.py app1 app2 app3
 # The output:
 argapp.py : main.
-app1      : sub-command.
-app2      : sub-command.
-app3      : sub-command.
+app1      : subcommand.
+app2      : subcommand.
+app3      : subcommand.
 ```
 
 ### `App.is_sub`
 
-Whether `App` is a sub-command.
+Whether `App` is a subcommand.
  * Opposite to `App.is_main`.
  * Cannot be set.
 
@@ -2536,9 +2536,9 @@ class ExampleApp(App):
 
     def __call__(self, args: dict[Arg] = None, apps: list[App] = None) -> None:
         super().__call__(args, apps)
-        # Print if the called apps are a main or a sub-command.
+        # Print if the called apps are a main or a subcommand.
         for x in apps:
-            result = 'sub-command' if x.is_sub else 'main'
+            result = 'subcommand' if x.is_sub else 'main'
             print(f'{x.name:10}: {result}.')
 
 
@@ -2552,9 +2552,9 @@ The usage:
 ./argapp.py app1 app2 app3
 # The output:
 argapp.py : main.
-app1      : sub-command.
-app2      : sub-command.
-app3      : sub-command.
+app1      : subcommand.
+app2      : subcommand.
+app3      : subcommand.
 ```
 
 ### `App.args`
@@ -2569,7 +2569,7 @@ Each `Arg`:
 
 There are two automatic arguments that are never on the list:
  * `-h, --help` - Display the help message and exit, always the first optional argument.
- * `CMD`        - A sub-command to run, always the last positional argument. Appears only if `App.apps` is not empty.
+ * `CMD`        - A subcommand to run, always the last positional argument. Appears only if `App.apps` is not empty.
 
 Defaults:
 1. `[]`.
@@ -2705,7 +2705,7 @@ ASTRA
 
 ### `App.apps`
 
-A list of `App`'s sub-commands (`App`).
+A list of `App`'s subcommands (`App`).
  * Populated by constructing an `App` with `App.app` set to the instance.
  * Must not be modified directly.
 
@@ -2748,7 +2748,7 @@ class ExampleApp(App):
         apps: list[App] = None,
     ) -> None:
         super().__call__(args, apps)
-        # Print all App.apps, the sub-command does not matter.
+        # Print all App.apps, the subcommand does not matter.
         for x in self.apps:
             print(x.name)
 
@@ -2765,7 +2765,7 @@ The help:
 argapp.py CMD ...
 
 positional arguments:
-  CMD    A sub-command to run.
+  CMD    A subcommand to run.
          Possible values:
           * app1
           * app2
@@ -2829,9 +2829,9 @@ class ExampleApp(App):
             name='one')
         # App with all fields.
         App(app=self,
-            help='A sub-command help.',
-            epilog='A sub-command prolog.',
-            prolog='A sub-command epilog.',
+            help='A subcommand help.',
+            epilog='A subcommand prolog.',
+            prolog='A subcommand epilog.',
             name='all')
 
     def __call__(
@@ -2854,10 +2854,10 @@ The help:
 argapp.py CMD ...
 
 positional arguments:
-  CMD    A sub-command to run.
+  CMD    A subcommand to run.
          Possible values:
           * one
-          * all - A sub-command help.
+          * all - A subcommand help.
 
 optional arguments:
   -h, --help     Show the help message and exit.
@@ -2877,12 +2877,12 @@ optional arguments:
 # The output:
 argapp.py all
 
-A sub-command epilog.
+A subcommand epilog.
 
 optional arguments:
   -h, --help     Show the help message and exit.
 
-A sub-command prolog.
+A subcommand prolog.
 ```
 
 ### `App.__call__(list[str])`
@@ -2963,7 +2963,7 @@ Parameters:
  * `args` - A dictionary containing each `Arg` and its value.
    The value is guaranteed to be set (can be `None`), so it is safe to use operator `[]`.
  * `apps` - A call stack of `App`.
-   The first item is the main `App`, the other items are sub-commands.
+   The first item is the main `App`, the other items are subcommands.
    The left-to-right order is preserved. Consider `"git remote add"`:
    1. `apps[0].name` - `"git"`
    2. `apps[1].name` - `"remote"`
@@ -3079,7 +3079,7 @@ positional arguments:
   TWO       Multi-value positional, count 2.
   PLUS      Multi-value positional, count "+".
   ASTRA     Multi-value positional, count "*".
-  CMD       A sub-command to run.
+  CMD       A subcommand to run.
             Possible values:
              * app1
              * app2
@@ -3099,7 +3099,7 @@ The usage:
 
 ```shell
 # Supply some dummy values, it does not change the output.
-# The last argument is the sub-command.
+# The last argument is the subcommand.
 ./argapp.py 0 0 0 0 0 app1
 # The output:
 Args:

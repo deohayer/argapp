@@ -474,7 +474,7 @@ class App:
                     (str, None))
         if self.is_sub:
             _check_type(self.name,
-                        name + ' for sub-command',
+                        name + ' for subcommand',
                         (str,))
         _check_value(self.name,
                      name,
@@ -536,7 +536,7 @@ class HelpFormatter:
         if app.apps:
             choices = {x.name: x.help for x in app.apps}
             self._args_pos.append(Arg(app=self._app_dummy,
-                                      help=f'A sub-command to run.',
+                                      help=f'A subcommand to run.',
                                       choices=choices,
                                       name='CMD'))
         self.usage = self._format_usage()
@@ -644,7 +644,7 @@ class Parser:
                 if x.count == 1 and value:
                     value = value[0]
                 args[x] = x(value)
-            # Continue with a sub-command.
+            # Continue with a subcommand.
             name = getattr(parsed, str(id(app)), None)
             if name == None:
                 break
@@ -676,7 +676,7 @@ class Parser:
             completer = kwargs.pop('completer')
             o = parser.add_argument(*args, **kwargs)
             setattr(o, 'completer', completer)
-        # Recursively construct the sub-commands.
+        # Recursively construct the subcommands.
         if app.apps:
             sub = parser.add_subparsers(**Parser._sub(app))
             for x in app.apps:
@@ -726,7 +726,7 @@ class Parser:
     def _sub(o: 'App') -> 'dict[str]':
         '''
         Translate App to kwargs for ArgumentParser.add_subparsers().
-        Supposed to be used only for Apps with sub-commands.
+        Supposed to be used only for Apps with subcommands.
         '''
         # Return kwargs.
         kwargs = {

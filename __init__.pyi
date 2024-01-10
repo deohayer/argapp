@@ -3,7 +3,7 @@ Wrapper for argparse and argcomplete.
 
 Features the following:
  * Arg - a command line argument (positional or optional).
- * App - a command line application (main or sub-command).
+ * App - a command line application (main or subcommand).
 
 Compatible with Python versions 3.6 - 3.11.
 '''
@@ -357,11 +357,11 @@ class Arg:
 
 class App:
     '''
-    Represents a command line application (main or sub-command).
+    Represents a command line application (main or subcommand).
 
     The instance:
      * Works only with both the raw and the parsed command line if it is a main App.
-     * Works only with the parsed command line if it is a sub-command App.
+     * Works only with the parsed command line if it is a subcommand App.
      * Is an item in apps in __call__.
 
     The fields:
@@ -372,7 +372,7 @@ class App:
     Instances of this class are internally converted to argparse.ArgumentParser:
      * Any App will provide the help message mechanism via an automatic argument "-h, --help".
        The default generation from argparse is not used, but the differences are small and mostly related to style.
-     * If apps not empty, the App will provide the sub-commands mechanism via an automatic argument "CMD".
+     * If apps not empty, the App will provide the subcommands mechanism via an automatic argument "CMD".
        Under the hood, argparse.ArgumentParser.add_subparsers is used to add the commands.
     '''
 
@@ -402,7 +402,7 @@ class App:
     @property
     def help(self) -> 'str | None':
         '''
-        The help text for a sub-command.
+        The help text for a subcommand.
 
         May be set via __init__ as help:
          * type(help) must be str or None (TypeError).
@@ -444,7 +444,7 @@ class App:
     @property
     def is_sub(self) -> 'bool':
         '''
-        Whether App is a sub-command.
+        Whether App is a subcommand.
          * Opposite to is_main.
          * Cannot be set.
 
@@ -466,7 +466,7 @@ class App:
 
         There are two automatic arguments that are never on the list:
          * -h, --help - Display the help message and exit, always the first optional argument.
-         * CMD        - A sub-command to run, always the last positional argument. Appears only if apps is not empty.
+         * CMD        - A subcommand to run, always the last positional argument. Appears only if apps is not empty.
 
         Defaults:
         1. [].
@@ -475,7 +475,7 @@ class App:
     @property
     def apps(self) -> 'list[App]':
         '''
-        A list of App's sub-commands (App).
+        A list of App's subcommands (App).
          * Populated by constructing an App with app set to the instance.
          * Must not be modified directly.
 
@@ -558,7 +558,7 @@ class App:
          * args - A dictionary containing each Arg and its value.
            The value is guaranteed to be set (can be None), so it is safe to use operator [].
          * apps - A call stack of Apps.
-           The first item is the main App, the other items are sub-commands.
+           The first item is the main App, the other items are subcommands.
            The left-to-right order is preserved. Consider "git remote add":
            1. apps[0].name - "git"
            2. apps[1].name - "remote"
