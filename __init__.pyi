@@ -32,18 +32,6 @@ class Arg:
     '''
 
     @property
-    def app(self) -> 'App | None':
-        '''
-        The application that contains the argument. The Arg is added to app.args.
-
-        Must be set via __init__ as app:
-         * type(app) must be App or None (TypeError).
-         * If app is App, app.args must not contain Arg with:
-           1. The same lopt or sopt if is_optional is True (ValueError).
-           2. The same name if is_positional is True (ValueError).
-        '''
-
-    @property
     def name(self) -> 'str':
         '''
         The value name: "URI" in "-u URI, --uri URI".
@@ -377,16 +365,6 @@ class App:
     '''
 
     @property
-    def app(self) -> 'App | None':
-        '''
-        The parent application. The App is added to app.apps.
-
-        May be set via __init__ as app:
-         * type(app) must be App or None (TypeError).
-         * app.apps must not contain App with the same name (ValueError).
-        '''
-
-    @property
     def name(self) -> 'str | None':
         '''
         The command's name, "git" in "git --version".
@@ -437,7 +415,7 @@ class App:
          * Cannot be set.
 
         Defaults:
-        1. True, if app is None.
+        1. True, if name is None.
         2. False otherwise.
         '''
 
@@ -449,7 +427,7 @@ class App:
          * Cannot be set.
 
         Defaults:
-        1. True, if app is not None.
+        1. True, if name is not None.
         2. False otherwise.
         '''
 
@@ -457,8 +435,6 @@ class App:
     def args(self) -> 'list[Arg]':
         '''
         A list of App's arguments (Arg).
-         * Populated by constructing an Arg with app set to the instance.
-         * Must not be modified directly.
 
         Each Arg:
          * Is used for the help message generation: "usage", "positional arguments", "optional arguments".
@@ -476,8 +452,6 @@ class App:
     def apps(self) -> 'list[App]':
         '''
         A list of App's subcommands (App).
-         * Populated by constructing an App with app set to the instance.
-         * Must not be modified directly.
 
         Each App:
          * Is used for the help message generation.

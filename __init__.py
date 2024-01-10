@@ -21,10 +21,6 @@ class Arg:
     '''
 
     @property
-    def app(self) -> 'App | None':
-        return self.__app
-
-    @property
     def name(self) -> 'str':
         return self.__name
 
@@ -78,7 +74,6 @@ class Arg:
 
     def __init__(
         self,
-        app: 'App | None' = None,
         name: 'str | None' = None,
         sopt: 'str | None' = None,
         lopt: 'str | None' = None,
@@ -89,7 +84,6 @@ class Arg:
         default: 'object | None' = None,
     ) -> 'None':
         # Set immediately, so there is no need to pass the parameters.
-        self.__app = app
         self.__name = name
         self.__sopt = sopt
         self.__lopt = lopt
@@ -107,7 +101,6 @@ class Arg:
         self.__init_default()
         self.__init_name()
         self.__init_help()
-        self.__init_app()
 
     def __init_sopt(self) -> 'None':
         if self.sopt == None:
@@ -308,33 +301,6 @@ class Arg:
                      self.name != '',
                      'Must not be empty.')
 
-    def __init_app(self) -> 'None':
-        name = 'Arg.app'
-        _check_type(self.app,
-                    name,
-                    (App, None))
-        if not self.app:
-            return
-        for x in self.app.args:
-            name = self.app.name or 'main'
-            if self.is_optional and x.is_optional:
-                if self.lopt != None:
-                    _check_value(self.lopt,
-                                 'Arg.lopt',
-                                 x.lopt != self.lopt,
-                                 f'Must not repeat other Arg.lopt in {name} App.')
-                if self.sopt != None:
-                    _check_value(self.sopt,
-                                 'Arg.sopt',
-                                 x.sopt != self.sopt,
-                                 f'Must not repeat other Arg.sopt in {name} App.')
-            if self.is_positional and x.is_positional:
-                _check_value(self.name,
-                             'Arg.name',
-                             x.name != self.name,
-                             f'Must not repeat other Arg.name in {name} App.')
-        self.app.args.append(self)
-
     def __call__(
         self,
         v: 'bool | str | list | None',
@@ -383,10 +349,6 @@ class App:
     '''
 
     @property
-    def app(self) -> 'App | None':
-        return self.__app
-
-    @property
     def name(self) -> 'str | None':
         return self.__name
 
@@ -408,7 +370,7 @@ class App:
 
     @property
     def is_sub(self) -> 'bool':
-        return bool(self.app)
+        return bool(self.name)
 
     @property
     def args(self) -> 'list[Arg]':
@@ -420,25 +382,12 @@ class App:
 
     def __init__(
         self,
-        app: 'App | None' = None,
         name: 'str | None' = None,
         help: 'str | None' = None,
         prolog: 'str | None' = None,
         epilog: 'str | None' = None,
     ) -> 'None':
-        '''
-        Construct the App and:
-         * Initialize the fields.
-         * Add the instance to app.apps.
-
-        Parameters match the corresponding fields.
-
-        Exceptions:
-        1. TypeError, if the type of some parameter is invalid (see the corresponding field).
-        2. ValueError, if the value of some parameter is invalid (see the corresponding field).
-        '''
         # Set immediately, so there is no need to pass the parameters.
-        self.__app = app
         self.__name = name
         self.__help = help
         self.__prolog = prolog
@@ -450,7 +399,6 @@ class App:
         self.__init_prolog()
         self.__init_epilog()
         self.__init_name()
-        self.__init_app()
 
     def __init_help(self) -> 'None':
         _check_type(self.help,
@@ -483,21 +431,6 @@ class App:
                      self.name != '',
                      'Must not be empty.')
 
-    def __init_app(self) -> 'None':
-        name = 'Arg.app'
-        _check_type(self.app,
-                    name,
-                    (App, None))
-        if self.app == None:
-            return
-        for x in self.app.apps:
-            name = self.app.name or 'main'
-            _check_value(self.name,
-                         'App.name',
-                         x.name != self.name,
-                         f'Must not repeat other App.name in {name} App.')
-        self.app.apps.append(self)
-
     def __call__(
         self,
         args: 'list[str] | dict[Arg]' = None,
@@ -523,22 +456,19 @@ class HelpFormatter:
     Generates help and usage.
     '''
 
-    def __init__(self,  app: 'App', argv: 'list[str]') -> 'None':
-        self._app = app
+    def __init__(self,  apps: 'list[App]', argv: 'list[str]') -> 'None':
+        self._app = apps[-1]
         self._argv = argv
-        self._app_dummy = App()
-        self._apps = app.apps
-        self._args_opt = [x for x in app.args if x.is_optional]
-        self._args_opt.insert(0, Arg(app=self._app_dummy,
-                                     count=0,
+        self._apps = apps
+        self._args_opt = [x for x in self._app.args if x.is_optional]
+        self._args_opt.insert(0, Arg(count=0,
                                      help='Show the help message and exit.',
                                      sopt='h',
                                      lopt='help'))
-        self._args_pos = [x for x in app.args if x.is_positional]
-        if app.apps:
-            choices = {x.name: x.help for x in app.apps}
-            self._args_pos.append(Arg(app=self._app_dummy,
-                                      help=f'A subcommand to run.',
+        self._args_pos = [x for x in self._app.args if x.is_positional]
+        if self._app.apps:
+            choices = {x.name: x.help for x in self._app.apps}
+            self._args_pos.append(Arg(help=f'A subcommand to run.',
                                       choices=choices,
                                       name='CMD'))
         self.usage = self._format_usage()
@@ -546,11 +476,9 @@ class HelpFormatter:
 
     def _format_usage(self) -> 'str':
         result = ''
-        app = self._app
         main = os.path.basename(self._argv[0])
-        while app:
-            result = f'{app.name or main} {result}'
-            app = app.app
+        for x in self._apps:
+            result = f'{result} {x.name or main}'
         result = result.rstrip()
         for x in self._args_pos:
             result = f'{result} {self._format_arg(x)}'
@@ -622,7 +550,7 @@ class Parser:
     def __init__(self, app: 'App', argv: 'list[str]') -> 'None':
         self.app = app
         self.argv = argv
-        self.parser = self._construct(app, ArgumentParser(add_help=False))
+        self.parser = self._construct([app], ArgumentParser(add_help=False))
         self.parser.prog = self.app.name or os.path.basename(self.argv[0])
 
     def __call__(self) -> 'tuple[dict[Arg], list[App]]':
@@ -658,12 +586,13 @@ class Parser:
 
     def _construct(
         self,
-        app: 'App',
+        apps: 'list[App]',
         parser: 'ArgumentParser',
     ) -> 'ArgumentParser':
+        app = apps[-1]
         # Set fields of the ArgumentParser.
         kwargs = Parser._app(app)
-        formatter = HelpFormatter(app, self.argv)
+        formatter = HelpFormatter(apps, self.argv)
         parser.usage = formatter.usage
         for k, v in kwargs.items():
             setattr(parser, k, v)
@@ -682,7 +611,9 @@ class Parser:
         if app.apps:
             sub = parser.add_subparsers(**Parser._sub(app))
             for x in app.apps:
-                self._construct(x, sub.add_parser(x.name, add_help=False))
+                apps.append(x)
+                self._construct(apps, sub.add_parser(x.name, add_help=False))
+                apps.pop()
         return parser
 
     @staticmethod

@@ -226,73 +226,6 @@ The usage:
 a + b = 6 + -10 = -4
 ```
 
-### `Arg.app`
-
-The application that contains the argument. The `Arg` is added to `app.args`.
-
-Must be set via `Arg.__init__` as `app`:
- * `type(app)` must be `App` or `None` (`TypeError`).
- * If `app` is `App`, `app.args` must not contain `Arg` with:
-   1. The same `Arg.lopt` or `Arg.sopt` if `Arg.is_optional` is `True` (`ValueError`).
-   2. The same `Arg.name` if `Arg.is_positional` is `True` (`ValueError`).
-
-#### Declaration
-
-```python
-@property
-def app(self) -> App | None:
-    ...
-```
-
-#### Example
-
-```python
-class ExampleApp(App):
-    def __init__(self) -> None:
-        super().__init__(name='argapp.py')
-        # OK:
-        #  * name of positional Args are different.
-        #  * sopt and lopt of optional Args are different.
-        #  * name of optional Args are not considered.
-        #  * sopt, lopt, name of the same object do not clash.
-        #  * Optional and positional Args cannot clash.
-        self.arg_p1 = Arg(app=self,
-                          name='a')
-        self.arg_p2 = Arg(app=self,
-                          name='b')
-        self.arg_o1 = Arg(app=self,
-                          name='a',
-                          sopt='a',
-                          lopt='a')
-        self.arg_o2 = Arg(app=self,
-                          name='b',
-                          sopt='b',
-                          lopt='b')
-        self.arg_o3 = Arg(app=self,
-                          name='a',
-                          sopt='c',
-                          lopt='c')
-        # OK, Arg that is not applied anywhere (a template/data instance).
-        self.arg2 = Arg(app=None)
-        # TypeError: Invalid type of Arg.app: bool. Expected: App.
-        self.arg2 = Arg(app=False)
-        # ValueError: Invalid value of Arg.name: "a". Must not repeat other Arg.name in argapp.py App.
-        self.arg1 = Arg(app=self,
-                        name='a')
-        self.arg2 = Arg(app=self,
-                        name='a')
-        # ValueError: Invalid value of Arg.sopt: "a". Must not repeat other Arg.sopt in argapp.py App.
-        self.arg1 = Arg(app=self,
-                        sopt='a')
-        self.arg2 = Arg(app=self,
-                        sopt='a')
-        # ValueError: Invalid value of Arg.lopt: "a". Must not repeat other Arg.lopt in argapp.py App.
-        self.arg1 = Arg(app=self,
-                        lopt='a')
-        self.arg2 = Arg(app=self,
-                        lopt='a')
-```
-
 ### `Arg.name`
 
 The value name: `"URI"` in `"-u URI, --uri URI"`.
@@ -2215,40 +2148,6 @@ The completion:
 sub_a  sub_b
 ```
 
-### `App.app`
-
-The parent application. The `App` is added to `app.apps`.
-
-May be set via `App.__init__` as `app`:
- * `type(app)` must be `App` or `None` (`TypeError`).
- * `app.apps` must not contain `App` with the same `App.name` (`ValueError`).
-
-#### Declaration
-
-```python
-@property
-def app(self) -> App | None:
-    ...
-```
-
-#### Example
-
-```python
-# OK, the main App.
-main = App()
-# OK, a subcommand for main.
-app = App(app=main,
-          name='app')
-# TypeError: Invalid type of Arg.app: bool. Expected: App, None.
-app = App(app=False,
-          name='app')
-# ValueError: Invalid value of App.name: "app1". Must not repeat other App.name in main App.
-app1 = App(app=main,
-          name='app1')
-app2 = App(app=main,
-          name='app1')
-```
-
 ### `App.name`
 
 The command's name, `"git"` in `"git --version"`.
@@ -2444,7 +2343,7 @@ Whether `App` is a main application.
  * Cannot be set.
 
 Defaults:
-1. `True`, if `App.app` is `None`.
+1. `True`, if `App.name` is `None`.
 2. `False` otherwise.
 
 #### Declaration
@@ -2504,7 +2403,7 @@ Whether `App` is a subcommand.
  * Cannot be set.
 
 Defaults:
-1. `True`, if `App.app` is not `None`.
+1. `True`, if `App.name` is not `None`.
 2. `False` otherwise.
 
 #### Declaration
@@ -2560,8 +2459,6 @@ app3      : subcommand.
 ### `App.args`
 
 A list of `App`'s arguments (`Arg`).
- * Populated by constructing an `Arg` with `Arg.app` set to the `App` instance.
- * Must not be modified directly.
 
 Each `Arg`:
  * Is used for the help message generation: `"usage"`, `"positional arguments"`, `"optional arguments"`.
@@ -2706,8 +2603,6 @@ ASTRA
 ### `App.apps`
 
 A list of `App`'s subcommands (`App`).
- * Populated by constructing an `App` with `App.app` set to the instance.
- * Must not be modified directly.
 
 Each `App`:
  * Is used for the help message generation.
