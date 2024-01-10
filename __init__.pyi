@@ -32,13 +32,13 @@ class Arg:
     '''
 
     @property
-    def app(self) -> 'App':
+    def app(self) -> 'App | None':
         '''
         The application that contains the argument. The Arg is added to app.args.
 
         Must be set via __init__ as app:
-         * type(app) must be App (TypeError).
-         * app.args must not contain Arg with:
+         * type(app) must be App or None (TypeError).
+         * If app is App, app.args must not contain Arg with:
            1. The same lopt or sopt if is_optional is True (ValueError).
            2. The same name if is_positional is True (ValueError).
         '''
@@ -269,7 +269,7 @@ class Arg:
 
     def __init__(
         self,
-        app: 'App',
+        app: 'App | None' = None,
         name: 'str | None' = None,
         sopt: 'str | None' = None,
         lopt: 'str | None' = None,

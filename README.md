@@ -231,8 +231,8 @@ a + b = 6 + -10 = -4
 The application that contains the argument. The `Arg` is added to `app.args`.
 
 Must be set via `Arg.__init__` as `app`:
- * `type(app)` must be `App` (`TypeError`).
- * `app.args` must not contain `Arg` with:
+ * `type(app)` must be `App` or `None` (`TypeError`).
+ * If `app` is `App`, `app.args` must not contain `Arg` with:
    1. The same `Arg.lopt` or `Arg.sopt` if `Arg.is_optional` is `True` (`ValueError`).
    2. The same `Arg.name` if `Arg.is_positional` is `True` (`ValueError`).
 
@@ -240,7 +240,7 @@ Must be set via `Arg.__init__` as `app`:
 
 ```python
 @property
-def app(self) -> App:
+def app(self) -> App | None:
     ...
 ```
 
@@ -272,7 +272,7 @@ class ExampleApp(App):
                           name='a',
                           sopt='c',
                           lopt='c')
-        # TypeError: Invalid type of Arg.app: None. Expected: App.
+        # OK, Arg that is not applied anywhere (a template/data instance).
         self.arg2 = Arg(app=None)
         # TypeError: Invalid type of Arg.app: bool. Expected: App.
         self.arg2 = Arg(app=False)
@@ -1607,7 +1607,7 @@ Exceptions:
 ```python
 def __init__(
     self,
-    app: App,
+    app: App | None = None,
     name: str | None = None,
     sopt: str | None = None,
     lopt: str | None = None,

@@ -21,7 +21,7 @@ class Arg:
     '''
 
     @property
-    def app(self) -> 'App':
+    def app(self) -> 'App | None':
         return self.__app
 
     @property
@@ -78,7 +78,7 @@ class Arg:
 
     def __init__(
         self,
-        app: 'App',
+        app: 'App | None' = None,
         name: 'str | None' = None,
         sopt: 'str | None' = None,
         lopt: 'str | None' = None,
@@ -312,7 +312,9 @@ class Arg:
         name = 'Arg.app'
         _check_type(self.app,
                     name,
-                    (App,))
+                    (App, None))
+        if not self.app:
+            return
         for x in self.app.args:
             name = self.app.name or 'main'
             if self.is_optional and x.is_optional:
