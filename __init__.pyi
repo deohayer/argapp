@@ -257,7 +257,6 @@ class Arg:
 
     def __init__(
         self,
-        app: 'App | None' = None,
         name: 'str | None' = None,
         sopt: 'str | None' = None,
         lopt: 'str | None' = None,
@@ -268,9 +267,7 @@ class Arg:
         default: 'object | None' = None,
     ) -> 'None':
         '''
-        Construct the Arg and:
-         * Initialize the fields.
-         * Add the instance to app.args.
+        Construct the Arg.
 
         Parameters match the corresponding fields.
 
@@ -471,9 +468,7 @@ class App:
         epilog: 'str | None' = None,
     ) -> 'None':
         '''
-        Construct the App and:
-         * Initialize the fields.
-         * Add the instance to app.apps.
+        Construct the App.
 
         Parameters match the corresponding fields.
 
