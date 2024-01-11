@@ -461,7 +461,6 @@ class App:
 
     def __init__(
         self,
-        app: 'App | None' = None,
         name: 'str | None' = None,
         help: 'str | None' = None,
         prolog: 'str | None' = None,
