@@ -479,7 +479,7 @@ class HelpFormatter:
         main = os.path.basename(self._argv[0])
         for x in self._apps:
             result = f'{result} {x.name or main}'
-        result = result.rstrip()
+        result = result.strip()
         for x in self._args_pos:
             result = f'{result} {self._format_arg(x)}'
         if self._app.apps:
