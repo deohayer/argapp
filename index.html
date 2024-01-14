@@ -437,16 +437,118 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
 <h1>argapp - A Python package for CLI application development</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_overview">Overview</a>
+<ul class="sectlevel2">
+<li><a href="#_features">Features</a></li>
+<li><a href="#_dependencies">Dependencies</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
-
+<div class="sect1">
+<h2 id="_overview">Overview</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>argapp is an OOP wrapper for <a href="https://docs.python.org/3/library/argparse.html">argparse</a> and <a href="https://pypi.org/project/argcomplete">argcomplete</a>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Allows writing CLI applications using OOP - encapsulates argparse API.</p>
+</li>
+<li>
+<p>Optionally supports shell completion - encapsulates argcomplete API.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_features">Features</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Offers several classes that allow building a Python CLI application in OOP style.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Arg</code> represents optional and positional arguments, with the most essential use cases covered.</p>
+</li>
+<li>
+<p><code>App</code> represents a main appplication or a subcommand.</p>
+</li>
+<li>
+<p>The fields are validated, raising an appropriate <code>Exception</code> in case of any issues.</p>
+</li>
+<li>
+<p>The command line parsing of values can be customized via <code>Arg.__call__</code>.</p>
+</li>
+<li>
+<p>The actual application execution should be implemented in <code>App.__call__</code>.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Offers shell completion support if argcomplete is installed:</p>
+<div class="ulist">
+<ul>
+<li>
+<p>The required API calls are already in place. It is only required to install argcomplete and add the <code>PYTHON_ARGCOMPLETE_OK</code> comment.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_dependencies">Dependencies</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Linux</p>
+</li>
+<li>
+<p>Python 3</p>
+<div class="ulist">
+<ul>
+<li>
+<p>3.6</p>
+</li>
+<li>
+<p>3.7</p>
+</li>
+<li>
+<p>3.8</p>
+</li>
+<li>
+<p>3.9</p>
+</li>
+<li>
+<p>3.10</p>
+</li>
+<li>
+<p>3.11</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-01-14 17:33:03 +0200
+Last updated 2024-01-14 18:18:11 +0200
 </div>
 </div>
 </body>

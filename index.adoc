@@ -3,3 +3,32 @@
 :source-highlighter: rouge
 
 = argapp - A Python package for CLI application development
+
+== Overview
+
+argapp is an OOP wrapper for link:https://docs.python.org/3/library/argparse.html[argparse] and link:https://pypi.org/project/argcomplete[argcomplete].
+
+* Allows writing CLI applications using OOP - encapsulates argparse API.
+* Optionally supports shell completion - encapsulates argcomplete API.
+
+=== Features
+
+* Offers several classes that allow building a Python CLI application in OOP style.
+** `Arg` represents optional and positional arguments, with the most essential use cases covered.
+** `App` represents a main appplication or a subcommand.
+** The fields are validated, raising an appropriate `Exception` in case of any issues.
+** The command line parsing of values can be customized via `+Arg.__call__+`.
+** The actual application execution should be implemented in `+App.__call__+`.
+* Offers shell completion support if argcomplete is installed:
+** The required API calls are already in place. It is only required to install argcomplete and add the `PYTHON_ARGCOMPLETE_OK` comment.
+
+=== Dependencies
+
+* Linux
+* Python 3
+** 3.6
+** 3.7
+** 3.8
+** 3.9
+** 3.10
+** 3.11
