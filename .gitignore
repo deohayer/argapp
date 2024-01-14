@@ -9,3 +9,5 @@
 
 !*.py
 !*.pyi
+!index.adoc
+!index.html

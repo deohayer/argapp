@@ -1,0 +1,4 @@
+:toc: left
+:toclevels: 4
+
+= argapp - A Python package for CLI application development
