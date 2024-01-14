@@ -57,3 +57,7 @@ from argapp import *
 ----
 
 All the identifiers described in this chapter are exported by this module.
+
+=== `Any`
+
+An alias for link:https://docs.python.org/3/library/typing.html#typing.Any[`typing.Any`].
