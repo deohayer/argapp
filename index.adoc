@@ -45,3 +45,14 @@ pip3 install argapp
 * The Git link:https://github.com/deohayer/argapp[repository] can be used directly if a specific version is needed.
 The repository layout is designed with exactly this use case in mind.
 * For the argcomplete installation, please follow the official link:https://pypi.org/project/argcomplete[documentation].
+
+== API
+
+The package is a module by itself so the import is as simple as:
+
+[source,python]
+----
+from argapp import *
+----
+
+All the identifiers described in this chapter are exported by this module.
