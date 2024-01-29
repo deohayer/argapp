@@ -129,6 +129,15 @@ class Arg:
         ...
 
     @property
+    def completer(self) -> 'Completer':
+        '''
+        '''
+
+    @completer.setter
+    def completer(self, v: 'Completer | None') -> 'None':
+        ...
+
+    @property
     def optional(self) -> 'bool':
         '''
         '''
