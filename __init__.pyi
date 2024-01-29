@@ -133,6 +133,11 @@ class Arg:
         '''
         '''
 
+    @property
+    def positional(self) -> 'bool':
+        '''
+        '''
+
 
 class App:
     '''

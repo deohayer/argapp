@@ -110,6 +110,10 @@ class Arg:
     def optional(self) -> 'bool':
         ...
 
+    @property
+    def positional(self) -> 'bool':
+        ...
+
 
 class App:
     ...
