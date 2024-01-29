@@ -58,6 +58,14 @@ class Arg:
     def count(self, v: 'int | str | None') -> 'None':
         ...
 
+    @property
+    def default(self) -> 'object | list | None':
+        ...
+
+    @default.setter
+    def default(self, v: 'object | list | None') -> 'None':
+        ...
+
 
 class App:
     ...
