@@ -143,6 +143,11 @@ class Arg:
         '''
         '''
 
+    @property
+    def single(self) -> 'bool':
+        '''
+        '''
+
 
 class App:
     '''

@@ -118,6 +118,10 @@ class Arg:
     def flag(self) -> 'bool':
         ...
 
+    @property
+    def single(self) -> 'bool':
+        ...
+
 
 class App:
     ...
