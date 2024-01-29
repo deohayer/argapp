@@ -122,6 +122,10 @@ class Arg:
     def single(self) -> 'bool':
         ...
 
+    @property
+    def multiple(self) -> 'bool':
+        ...
+
 
 class App:
     ...

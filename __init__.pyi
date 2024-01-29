@@ -148,6 +148,11 @@ class Arg:
         '''
         '''
 
+    @property
+    def multiple(self) -> 'bool':
+        '''
+        '''
+
 
 class App:
     '''
