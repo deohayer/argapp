@@ -2,7 +2,13 @@ import sys
 
 
 class Arg:
-    ...
+    @property
+    def name(self) -> 'str':
+        ...
+
+    @name.setter
+    def name(self, v: 'str | None') -> 'None':
+        ...
 
 
 class App:
