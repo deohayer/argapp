@@ -42,6 +42,14 @@ class Arg:
     def helper(self, v: 'ArgHelper | None') -> 'None':
         ...
 
+    @property
+    def type(self) -> 'type':
+        ...
+
+    @type.setter
+    def type(self, v: 'type | None') -> 'None':
+        ...
+
 
 class App:
     ...
