@@ -29,6 +29,15 @@ class Arg:
     def lopt(self, v: 'str | None') -> 'None':
         ...
 
+    @property
+    def sopt(self) -> 'str':
+        '''
+        '''
+
+    @sopt.setter
+    def sopt(self, v: 'str | None') -> 'None':
+        ...
+
 
 class App:
     '''
