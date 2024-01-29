@@ -1,3 +1,6 @@
+import sys
+
+
 class Arg:
     ...
 
@@ -34,5 +37,8 @@ class CallError:
     ...
 
 
-def main():
+def main(
+    app: 'App',
+    argv: 'list[str]' = sys.argv,
+) -> 'None':
     ...

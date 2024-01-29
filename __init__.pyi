@@ -4,6 +4,8 @@ Wrapper for argparse and argcomplete.
 Compatible with Python versions 3.6 - 3.11.
 '''
 
+import sys
+
 
 class Arg:
     '''
@@ -50,6 +52,9 @@ class CallError:
     '''
 
 
-def main():
+def main(
+    app: 'App',
+    argv: 'list[str]' = sys.argv,
+) -> 'None':
     '''
     '''
