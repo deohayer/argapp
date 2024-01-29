@@ -65,6 +65,15 @@ class Arg:
     def type(self, v: 'type | None') -> 'None':
         ...
 
+    @property
+    def count(self) -> 'int | str':
+        '''
+        '''
+
+    @count.setter
+    def count(self, v: 'int | str | None') -> 'None':
+        ...
+
 
 class App:
     '''
