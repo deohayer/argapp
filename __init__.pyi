@@ -101,6 +101,15 @@ class Arg:
     def restrict(self, v: 'bool | None') -> 'None':
         ...
 
+    @property
+    def suppress(self) -> 'bool':
+        '''
+        '''
+
+    @suppress.setter
+    def suppress(self, v: 'bool | None') -> 'None':
+        ...
+
 
 class App:
     '''
