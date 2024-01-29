@@ -138,6 +138,11 @@ class Arg:
         '''
         '''
 
+    @property
+    def flag(self) -> 'bool':
+        '''
+        '''
+
 
 class App:
     '''

@@ -114,6 +114,10 @@ class Arg:
     def positional(self) -> 'bool':
         ...
 
+    @property
+    def flag(self) -> 'bool':
+        ...
+
 
 class App:
     ...
