@@ -20,6 +20,15 @@ class Arg:
     def name(self, v: 'str | None') -> 'None':
         ...
 
+    @property
+    def lopt(self) -> 'str':
+        '''
+        '''
+
+    @lopt.setter
+    def lopt(self, v: 'str | None') -> 'None':
+        ...
+
 
 class App:
     '''
