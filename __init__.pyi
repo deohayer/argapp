@@ -92,6 +92,15 @@ class Arg:
     def choices(self, v: 'dict | None') -> 'None':
         ...
 
+    @property
+    def restrict(self) -> 'bool':
+        '''
+        '''
+
+    @restrict.setter
+    def restrict(self, v: 'bool | None') -> 'None':
+        ...
+
 
 class App:
     '''
