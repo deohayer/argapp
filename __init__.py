@@ -98,6 +98,14 @@ class Arg:
     def required(self, v: 'bool | None') -> 'None':
         ...
 
+    @property
+    def append(self) -> 'bool':
+        ...
+
+    @append.setter
+    def append(self, v: 'bool | None') -> 'None':
+        ...
+
 
 class App:
     ...
