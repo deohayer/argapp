@@ -90,6 +90,14 @@ class Arg:
     def suppress(self, v: 'bool | None') -> 'None':
         ...
 
+    @property
+    def required(self) -> 'bool':
+        ...
+
+    @required.setter
+    def required(self, v: 'bool | None') -> 'None':
+        ...
+
 
 class App:
     ...
