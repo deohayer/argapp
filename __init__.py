@@ -66,6 +66,14 @@ class Arg:
     def default(self, v: 'object | list | None') -> 'None':
         ...
 
+    @property
+    def choices(self) -> 'dict':
+        ...
+
+    @choices.setter
+    def choices(self, v: 'dict | None') -> 'None':
+        ...
+
 
 class App:
     ...
