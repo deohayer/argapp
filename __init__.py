@@ -106,6 +106,10 @@ class Arg:
     def append(self, v: 'bool | None') -> 'None':
         ...
 
+    @property
+    def optional(self) -> 'bool':
+        ...
+
 
 class App:
     ...
