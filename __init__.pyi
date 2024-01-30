@@ -6,6 +6,8 @@ Compatible with Python versions 3.6 - 3.11.
 
 import sys
 
+from typing import overload
+
 
 class Arg:
     '''
@@ -179,6 +181,14 @@ class Arg:
         append: 'bool | None' = None,
         completer: 'Completer | None' = None,
     ) -> 'None':
+        '''
+        '''
+
+    @overload
+    def __call__(
+        self,
+        v: 'bool',
+    ) -> 'bool':
         '''
         '''
 
