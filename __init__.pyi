@@ -208,6 +208,14 @@ class Arg:
         '''
         '''
 
+    @overload
+    def __call__(
+        self,
+        v: 'list[str | None]',
+    ) -> 'list[object | None]':
+        '''
+        '''
+
 
 class App:
     '''
