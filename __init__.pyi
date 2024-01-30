@@ -200,6 +200,14 @@ class Arg:
         '''
         '''
 
+    @overload
+    def __call__(
+        self,
+        v: 'str | None',
+    ) -> 'object | None':
+        '''
+        '''
+
 
 class App:
     '''
