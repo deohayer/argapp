@@ -153,6 +153,12 @@ class Arg:
     ) -> 'None':
         ...
 
+    def __call__(
+        self,
+        v: 'bool | int | str | list | list[list] | None',
+    ) -> 'bool | int | object | list | list[list] | None':
+        ...
+
 
 class App:
     ...
