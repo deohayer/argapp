@@ -162,6 +162,26 @@ class Arg:
         '''
         '''
 
+    def __init__(
+        self,
+        name: 'str | None' = None,
+        lopt: 'str | None' = None,
+        sopt: 'str | None' = None,
+        help: 'str | None' = None,
+        helper: 'ArgHelper | None' = None,
+        type: 'type | None' = None,
+        count: 'int | str | None' = None,
+        default: 'object | list | None' = None,
+        choices: 'dict | None' = None,
+        restrict: 'bool | None' = None,
+        suppress: 'bool | None' = None,
+        required: 'bool | None' = None,
+        append: 'bool | None' = None,
+        completer: 'Completer | None' = None,
+    ) -> 'None':
+        '''
+        '''
+
 
 class App:
     '''
