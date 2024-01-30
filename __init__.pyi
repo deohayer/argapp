@@ -192,6 +192,14 @@ class Arg:
         '''
         '''
 
+    @overload
+    def __call__(
+        self,
+        v: 'int',
+    ) -> 'int':
+        '''
+        '''
+
 
 class App:
     '''
