@@ -205,6 +205,10 @@ class App:
     def args(self) -> 'list[Arg]':
         ...
 
+    @property
+    def apps(self) -> 'list[App]':
+        ...
+
 
 class ArgHelper:
     ...

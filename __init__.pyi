@@ -287,6 +287,11 @@ class App:
         '''
         '''
 
+    @property
+    def apps(self) -> 'list[App]':
+        '''
+        '''
+
 
 class ArgHelper:
     '''
