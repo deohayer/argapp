@@ -244,6 +244,9 @@ class ArgHelper:
     def default(self, v: 'bool | None') -> 'None':
         ...
 
+    def text_help(self, arg: 'Arg') -> 'str':
+        ...
+
 
 class AppHelper:
     ...
