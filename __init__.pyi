@@ -406,6 +406,14 @@ class AppHelper:
         '''
         '''
 
+    def section_epilog(
+        self,
+        title: 'str',
+        app: 'App',
+    ) -> 'str':
+        '''
+        '''
+
 
 class Completer:
     '''
