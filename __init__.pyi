@@ -264,6 +264,15 @@ class App:
     def prolog(self, v: 'str | None') -> 'None':
         ...
 
+    @property
+    def epilog(self) -> 'str':
+        '''
+        '''
+
+    @epilog.setter
+    def epilog(self, v: 'str | None') -> 'None':
+        ...
+
 
 class ArgHelper:
     '''
