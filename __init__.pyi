@@ -292,6 +292,17 @@ class App:
         '''
         '''
 
+    def __init__(
+        self,
+        name: 'str | None' = None,
+        help: 'str | None' = None,
+        epilog: 'str | None' = None,
+        prolog: 'str | None' = None,
+        helper: 'AppHelper | None' = None,
+    ) -> 'None':
+        '''
+        '''
+
 
 class ArgHelper:
     '''
