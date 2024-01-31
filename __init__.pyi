@@ -382,6 +382,14 @@ class AppHelper:
     def help(self, v: 'str | None') -> 'None':
         ...
 
+    def text_help(
+        self,
+        apps: 'list[App]',
+        name: 'str',
+    ) -> 'str':
+        '''
+        '''
+
 
 class Completer:
     '''
