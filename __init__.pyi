@@ -316,6 +316,15 @@ class ArgHelper:
     '''
     '''
 
+    @property
+    def choices(self) -> 'bool':
+        '''
+        '''
+
+    @choices.setter
+    def choices(self, v: 'bool | None') -> 'None':
+        ...
+
 
 class AppHelper:
     '''
