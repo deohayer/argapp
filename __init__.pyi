@@ -273,6 +273,15 @@ class App:
     def epilog(self, v: 'str | None') -> 'None':
         ...
 
+    @property
+    def helper(self) -> 'AppHelper':
+        '''
+        '''
+
+    @helper.setter
+    def helper(self, v: 'AppHelper | None') -> 'None':
+        ...
+
 
 class ArgHelper:
     '''
