@@ -259,7 +259,13 @@ class ArgHelper:
 
 
 class AppHelper:
-    ...
+    @property
+    def lopt(self) -> 'str':
+        ...
+
+    @lopt.setter
+    def lopt(self, v: 'str | None') -> 'None':
+        ...
 
 
 class Completer:
