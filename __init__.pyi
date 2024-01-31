@@ -364,6 +364,15 @@ class AppHelper:
     def lopt(self, v: 'str | None') -> 'None':
         ...
 
+    @property
+    def sopt(self) -> 'str':
+        '''
+        '''
+
+    @sopt.setter
+    def sopt(self, v: 'str | None') -> 'None':
+        ...
+
 
 class Completer:
     '''
