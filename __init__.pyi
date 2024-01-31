@@ -303,6 +303,14 @@ class App:
         '''
         '''
 
+    def __call__(
+        self,
+        args: 'dict[Arg]',
+        apps: 'list[App]',
+    ) -> 'None':
+        '''
+        '''
+
 
 class ArgHelper:
     '''
