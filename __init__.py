@@ -201,6 +201,10 @@ class App:
     def helper(self, v: 'AppHelper | None') -> 'None':
         ...
 
+    @property
+    def args(self) -> 'list[Arg]':
+        ...
+
 
 class ArgHelper:
     ...
