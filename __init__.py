@@ -325,6 +325,14 @@ class AppHelper:
     ) -> 'str':
         ...
 
+    def __init__(
+        self,
+        lopt: 'str | None' = 'help',
+        sopt: 'str | None' = 'h',
+        help: 'str | None' = 'Show the help text and exit.',
+    ) -> 'None':
+        ...
+
 
 class Completer:
     ...
