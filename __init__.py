@@ -161,7 +161,13 @@ class Arg:
 
 
 class App:
-    ...
+    @property
+    def name(self) -> 'str':
+        ...
+
+    @name.setter
+    def name(self, v: 'str | None') -> 'None':
+        ...
 
 
 class ArgHelper:
