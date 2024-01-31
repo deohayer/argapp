@@ -351,7 +351,13 @@ class CompleterPath:
 
 
 class CallError:
-    ...
+    @property
+    def text(self) -> 'str':
+        ...
+
+    @text.setter
+    def text(self, v: 'str | None') -> 'None':
+        ...
 
 
 def main(
