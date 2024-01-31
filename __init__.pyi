@@ -414,6 +414,14 @@ class AppHelper:
         '''
         '''
 
+    def section_apps(
+        self,
+        title: 'str',
+        apps: 'list[App]',
+    ) -> 'str':
+        '''
+        '''
+
 
 class Completer:
     '''
