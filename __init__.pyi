@@ -390,6 +390,14 @@ class AppHelper:
         '''
         '''
 
+    def text_usage(
+        self,
+        apps: 'list[App]',
+        name: 'str',
+    ) -> 'str':
+        '''
+        '''
+
 
 class Completer:
     '''
