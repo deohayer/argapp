@@ -367,6 +367,13 @@ class CallError:
     def code(self, v: 'int | None') -> 'None':
         ...
 
+    def __init__(
+        self,
+        text: 'str | None' = None,
+        code: 'int | None' = None,
+    ) -> 'None':
+        ...
+
 
 def main(
     app: 'App',
