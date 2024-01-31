@@ -373,6 +373,15 @@ class AppHelper:
     def sopt(self, v: 'str | None') -> 'None':
         ...
 
+    @property
+    def help(self) -> 'str':
+        '''
+        '''
+
+    @help.setter
+    def help(self, v: 'str | None') -> 'None':
+        ...
+
 
 class Completer:
     '''
