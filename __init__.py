@@ -359,6 +359,14 @@ class CallError:
     def text(self, v: 'str | None') -> 'None':
         ...
 
+    @property
+    def code(self) -> 'int':
+        ...
+
+    @code.setter
+    def code(self, v: 'int | None') -> 'None':
+        ...
+
 
 def main(
     app: 'App',
