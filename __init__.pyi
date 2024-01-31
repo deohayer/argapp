@@ -342,6 +342,14 @@ class ArgHelper:
         '''
         '''
 
+    def __init__(
+        self,
+        choices: 'bool | None' = None,
+        default: 'bool | None' = None,
+    ) -> 'None':
+        '''
+        '''
+
 
 class AppHelper:
     '''

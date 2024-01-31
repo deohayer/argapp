@@ -250,6 +250,13 @@ class ArgHelper:
     def text_usage(self, arg: 'Arg') -> 'str':
         ...
 
+    def __init__(
+        self,
+        choices: 'bool | None' = None,
+        default: 'bool | None' = None,
+    ) -> 'None':
+        ...
+
 
 class AppHelper:
     ...
