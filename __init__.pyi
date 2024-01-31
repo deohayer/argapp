@@ -398,6 +398,14 @@ class AppHelper:
         '''
         '''
 
+    def section_prolog(
+        self,
+        title: 'str',
+        app: 'App',
+    ) -> 'str':
+        '''
+        '''
+
 
 class Completer:
     '''

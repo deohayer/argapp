@@ -297,6 +297,13 @@ class AppHelper:
     ) -> 'str':
         ...
 
+    def section_prolog(
+        self,
+        title: 'str',
+        app: 'App',
+    ) -> 'str':
+        ...
+
 
 class Completer:
     ...
