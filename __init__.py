@@ -177,6 +177,14 @@ class App:
     def help(self, v: 'str | None') -> 'None':
         ...
 
+    @property
+    def prolog(self) -> 'str':
+        ...
+
+    @prolog.setter
+    def prolog(self, v: 'str | None') -> 'None':
+        ...
+
 
 class ArgHelper:
     ...
