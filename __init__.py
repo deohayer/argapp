@@ -247,6 +247,9 @@ class ArgHelper:
     def text_help(self, arg: 'Arg') -> 'str':
         ...
 
+    def text_usage(self, arg: 'Arg') -> 'str':
+        ...
+
 
 class AppHelper:
     ...

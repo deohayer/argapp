@@ -338,6 +338,10 @@ class ArgHelper:
         '''
         '''
 
+    def text_usage(self, arg: 'Arg') -> 'str':
+        '''
+        '''
+
 
 class AppHelper:
     '''
