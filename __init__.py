@@ -318,6 +318,13 @@ class AppHelper:
     ) -> 'str':
         ...
 
+    def section_args(
+        self,
+        title: 'str',
+        apps: 'list[Arg]',
+    ) -> 'str':
+        ...
+
 
 class Completer:
     ...
