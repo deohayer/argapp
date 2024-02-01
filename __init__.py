@@ -151,7 +151,51 @@ class Arg:
         append: 'bool | None' = None,
         completer: 'Completer | None' = None,
     ) -> 'None':
-        ...
+        # Actual value.
+        self.___name: 'str | None' = None
+        self.___lopt: 'str | None' = None
+        self.___sopt: 'str | None' = None
+        self.___help: 'str | None' = None
+        self.___helper: 'ArgHelper | None' = None
+        self.___type: 'type | None' = None
+        self.___count: 'int | str | None' = None
+        self.___default: 'object | list | None' = None
+        self.___choices: 'dict | None' = None
+        self.___restrict: 'bool | None' = None
+        self.___suppress: 'bool | None' = None
+        self.___required: 'bool | None' = None
+        self.___append: 'bool | None' = None
+        self.___completer: 'Completer | None' = None
+        # Cached value.
+        self.__name: 'str' = ''
+        self.__lopt: 'str' = ''
+        self.__sopt: 'str' = ''
+        self.__help: 'str' = ''
+        self.__helper: 'ArgHelper' = ArgHelper()
+        self.__type: 'type' = str
+        self.__count: 'int | str' = 1
+        self.__default: 'object | list | None' = None
+        self.__choices: 'dict' = {}
+        self.__restrict: 'bool' = True
+        self.__suppress: 'bool' = False
+        self.__required: 'bool' = True
+        self.__append: 'bool' = False
+        self.__completer: 'Completer' = CompleterPath()
+        # Set the fields.
+        self.name = name
+        self.lopt = lopt
+        self.sopt = sopt
+        self.help = help
+        self.helper = helper
+        self.type = type
+        self.count = count
+        self.default = default
+        self.choices = choices
+        self.restrict = restrict
+        self.suppress = suppress
+        self.required = required
+        self.append = append
+        self.completer = completer
 
     def __call__(
         self,

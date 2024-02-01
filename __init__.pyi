@@ -182,6 +182,23 @@ class Arg:
         completer: 'Completer | None' = None,
     ) -> 'None':
         '''
+        The constructor. Sets each field in the declaration order.
+
+        Parameters:
+        * `name` - corresponds to `self.name`.
+        * `lopt` - corresponds to `self.lopt`.
+        * `sopt` - corresponds to `self.sopt`.
+        * `help` - corresponds to `self.help`.
+        * `helper` - corresponds to `self.helper`.
+        * `type` - corresponds to `self.type`.
+        * `count` - corresponds to `self.count`.
+        * `default` - corresponds to `self.default`.
+        * `choices` - corresponds to `self.choices`.
+        * `restrict` - corresponds to `self.restrict`.
+        * `suppress` - corresponds to `self.suppress`.
+        * `required` - corresponds to `self.required`.
+        * `append` - corresponds to `self.append`.
+        * `completer` - corresponds to `self.completer`.
         '''
 
     @overload
