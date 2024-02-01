@@ -181,6 +181,11 @@ class Arg:
     @property
     def positional(self) -> 'bool':
         '''
+        Whether the argument is positional.
+
+        Defaults:
+        1. `True`, if both `self.sopt` and `self.lopt` are not set.
+        2. `False`.
         '''
 
     @property

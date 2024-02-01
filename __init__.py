@@ -136,7 +136,7 @@ class Arg:
 
     @property
     def positional(self) -> 'bool':
-        ...
+        return not self.optional
 
     @property
     def flag(self) -> 'bool':
