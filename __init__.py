@@ -66,35 +66,35 @@ class Arg:
 
     @property
     def type(self) -> 'type':
-        ...
+        return self.__type
 
     @type.setter
     def type(self, v: 'type | None') -> 'None':
-        ...
+        self.__type = v
 
     @property
     def count(self) -> 'int | str':
-        ...
+        return self.__count
 
     @count.setter
     def count(self, v: 'int | str | None') -> 'None':
-        ...
+        self.__count = v
 
     @property
     def default(self) -> 'object | list | None':
-        ...
+        return self.__default
 
     @default.setter
     def default(self, v: 'object | list | None') -> 'None':
-        ...
+        self.__default = v
 
     @property
     def choices(self) -> 'dict':
-        ...
+        return self.__choices
 
     @choices.setter
     def choices(self, v: 'dict | None') -> 'None':
-        ...
+        self.__choices = v
 
     @property
     def restrict(self) -> 'bool':
@@ -109,35 +109,35 @@ class Arg:
 
     @property
     def suppress(self) -> 'bool':
-        ...
+        return self.__suppress
 
     @suppress.setter
     def suppress(self, v: 'bool | None') -> 'None':
-        ...
+        self.__suppress = v
 
     @property
     def required(self) -> 'bool':
-        ...
+        return self.__required
 
     @required.setter
     def required(self, v: 'bool | None') -> 'None':
-        ...
+        self.__required = v
 
     @property
     def append(self) -> 'bool':
-        ...
+        return self.__append
 
     @append.setter
     def append(self, v: 'bool | None') -> 'None':
-        ...
+        self.__append = v
 
     @property
     def completer(self) -> 'Completer':
-        ...
+        return self.__completer
 
     @completer.setter
     def completer(self, v: 'Completer | None') -> 'None':
-        ...
+        self.__completer = v
 
     @property
     def optional(self) -> 'bool':
