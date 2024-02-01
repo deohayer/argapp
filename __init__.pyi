@@ -511,3 +511,21 @@ def _str(o: 'object') -> 'str':
     2. `o__name__`, if the type is `type`.
     3. `str(o)`.
     '''
+
+
+def _raise_t(
+    o: 'object',
+    t: 'type | tuple[type]',
+    v: 'str',
+) -> 'None':
+    '''
+    Raise a consistently formatted `TypeError`, if the object is not one of the types.
+
+    Parameters:
+     * `o` - object to check.
+     * `t` - types to check against.
+     * `v` - name of the value that is being checked.
+
+    Exceptions:
+     * `TypeError`, if the type of `o` does not match any in `t`.
+    '''

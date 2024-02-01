@@ -388,3 +388,17 @@ def _str(o: 'object') -> 'str':
     if isinstance(o, type):
         return 'None' if o is type(None) else o.__name__
     return str(o)
+
+
+def _raise_t(
+    o: 'object',
+    t: 'type | tuple[type]',
+    v: 'str',
+) -> 'None':
+    if isinstance(t, type):
+        t = (t,)
+    if isinstance(o, t):
+        return
+    types = ', '.join(_str(x) for x in t)
+    raise TypeError(
+        f'{v}: Invalid type: {type(o).__name__}. Must be: {types}.')
