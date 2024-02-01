@@ -529,3 +529,23 @@ def _raise_t(
     Exceptions:
      * `TypeError`, if the type of `o` does not match any in `t`.
     '''
+
+
+def _raise_v(
+    o: 'object',
+    c: 'bool',
+    v: 'str',
+    m: 'str',
+) -> 'None':
+    '''
+    Raise a consistently formatted `ValueError`, if the condition is `False`.
+
+    Parameters:
+     * `o` - object, will be mentioned in the error message.
+     * `c` - condition, `True` or `False`.
+     * `v` - name of the value that is being checked.
+     * `m` - message with more datails.
+
+    Exceptions:
+     * `ValueError`, if `c` is `False`.
+    '''

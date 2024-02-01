@@ -402,3 +402,14 @@ def _raise_t(
     types = ', '.join(_str(x) for x in t)
     raise TypeError(
         f'{v}: Invalid type: {type(o).__name__}. Must be: {types}.')
+
+
+def _raise_v(
+    o: 'object',
+    c: 'bool',
+    v: 'str',
+    m: 'str',
+) -> 'None':
+    if c:
+        return
+    raise ValueError(f'{v}: Invalid value: {_str(o)}. {m}')
