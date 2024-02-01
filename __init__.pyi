@@ -16,6 +16,15 @@ class Arg:
     @property
     def name(self) -> 'str':
         '''
+        The name of the argument's value.
+
+        Defaults:
+        1. Uppercase `self.lopt`, if set.
+        2. Uppercase `self.sopt`, if set.
+        3. `''`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `str` or `None`.
         '''
 
     @name.setter

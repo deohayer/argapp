@@ -4,11 +4,15 @@ import sys
 class Arg:
     @property
     def name(self) -> 'str':
-        ...
+        return self.__name
 
     @name.setter
     def name(self, v: 'str | None') -> 'None':
-        ...
+        # Validate.
+        _raise_t(v, (str, type(None)), 'Arg.name')
+        # Set.
+        self.___name = v or ''
+        self.__name = self.___name or self.lopt.upper() or self.sopt.upper()
 
     @property
     def lopt(self) -> 'str':
@@ -20,6 +24,7 @@ class Arg:
         _raise_t(v, (str, type(None)), 'Arg.lopt')
         # Set.
         self.__lopt = v or ''
+        self.name = self.___name
 
     @property
     def sopt(self) -> 'str':
@@ -35,6 +40,7 @@ class Arg:
                  'Must not exceed one character.')
         # Set.
         self.__sopt = v or ''
+        self.name = self.___name
 
     @property
     def help(self) -> 'str':
