@@ -171,6 +171,11 @@ class Arg:
     @property
     def optional(self) -> 'bool':
         '''
+        Whether the argument is optional.
+
+        Defaults:
+        1. `True`, if either `self.sopt` or `self.lopt` is set.
+        2. `False`.
         '''
 
     @property

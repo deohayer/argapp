@@ -132,7 +132,7 @@ class Arg:
 
     @property
     def optional(self) -> 'bool':
-        ...
+        return bool(self.sopt or self.lopt)
 
     @property
     def positional(self) -> 'bool':
