@@ -108,6 +108,27 @@ class Arg:
     @property
     def count(self) -> 'int | str':
         '''
+        The number of values consumed by the argument:
+        1. `0`: indicates a flag. Can be set if `self.optional` is `True`.
+        2. `1`: a single value.
+        3. `2` or greater: multiple values, an exact number.
+        4. `'?'`: a single value, zero or one.
+        5. `'*'`: multiple values, zero or more.
+        6. `'+'`: multiple values, one or more.
+        7. `'~'`: multiple values, zero or more. Consume the rest of the command line without parsing. Can be set if `self.positional` is `True`.
+
+        Defaults:
+        1. `'*'`, if the type of `self.default` is `list`.
+        2. `1`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `int`, `str` or `None`.
+        2. `ValueError`, if the type is `int` and the value is negative.
+        3. `ValueError`, if the type is `str` and the value is not one of: `'?'`, `'*'`, `'+'`, `'~'`.
+        4. `ValueError`, if the value is `0` and `self.optional` is `False`.
+        5. `ValueError`, if the value is `'~'` and `self.positional` is `False`.
+        6. `ValueError`, if the value is `'+'` and `self.default` is an empty `list`.
+        7. `ValueError`, if the type is `int` and the value does not match the number of items in `self.default`.
         '''
 
     @count.setter

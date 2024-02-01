@@ -78,7 +78,36 @@ class Arg:
 
     @count.setter
     def count(self, v: 'int | str | None') -> 'None':
-        self.__count = v
+        # Validate.
+        V = 'Arg.count'
+        _raise_t(v, (int, str, type(None)), V)
+        if self.optional:
+            if isinstance(v, int):
+                M = f'Must be non-negative for optional.'
+                _raise_v(v, v >= 0, V, M)
+            if isinstance(v, str):
+                M = f'Must be "?", "*" or "+" for optional.'
+                _raise_v(v, v in ['?', '*', '+'], V, M)
+        if self.positional:
+            if isinstance(v, int):
+                M = f'Must be positive for positional.'
+                _raise_v(v, v > 0, V, M)
+            if isinstance(v, str):
+                M = f'Must be "?", "*", "+" or "~" for positional.'
+                _raise_v(v, v in ['?', '*', '+', '~'], V, M)
+        if isinstance(self.default, list):
+            l = len(self.default)
+            if v == '+':
+                M = f'Must allow zero values, self.default is empty.'
+                _raise_v(v, l != 0, V, M)
+            if isinstance(v, int):
+                M = f'Must match the number of values in self.default: {l}.'
+                _raise_v(v, v == l, V, M)
+        # Set.
+        self.___count = v
+        self.__count = self.___count
+        if self.__count is None:
+            self.__count = '*' if isinstance(self.default, list) else 1
 
     @property
     def default(self) -> 'object | list | None':
@@ -87,6 +116,7 @@ class Arg:
     @default.setter
     def default(self, v: 'object | list | None') -> 'None':
         self.__default = v
+        self.count = self.___count
 
     @property
     def choices(self) -> 'dict':
