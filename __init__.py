@@ -380,3 +380,11 @@ def main(
     argv: 'list[str]' = sys.argv,
 ) -> 'None':
     ...
+
+
+def _str(o: 'object') -> 'str':
+    if isinstance(o, str):
+        return f'"{o}"'
+    if isinstance(o, type):
+        return 'None' if o is type(None) else o.__name__
+    return str(o)

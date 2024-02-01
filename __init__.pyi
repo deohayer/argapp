@@ -497,3 +497,17 @@ def main(
 ) -> 'None':
     '''
     '''
+
+
+def _str(o: 'object') -> 'str':
+    '''
+    Convert to a printable `str`.
+
+    Parameters:
+     * `o` - object to convert to `str`.
+
+    Returns:
+    1. `f'"{o}"'`, if the type is `str`.
+    2. `o__name__`, if the type is `type`.
+    3. `str(o)`.
+    '''
