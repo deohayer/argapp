@@ -58,6 +58,13 @@ class Arg:
     @property
     def help(self) -> 'str':
         '''
+        The argument's description.
+
+        Defaults:
+        1. `""`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `str` or `None`.
         '''
 
     @help.setter

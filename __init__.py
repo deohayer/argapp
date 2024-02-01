@@ -38,11 +38,14 @@ class Arg:
 
     @property
     def help(self) -> 'str':
-        ...
+        return self.__help
 
     @help.setter
     def help(self, v: 'str | None') -> 'None':
-        ...
+        # Validate.
+        _raise_t(v, (str, type(None)), 'Arg.help')
+        # Set.
+        self.__help = v or ''
 
     @property
     def helper(self) -> 'ArgHelper':
@@ -165,7 +168,7 @@ class Arg:
         self.___name: 'str | None' = None
         # No lopt.
         # No sopt.
-        self.___help: 'str | None' = None
+        # No help.
         self.___helper: 'ArgHelper | None' = None
         self.___type: 'type | None' = None
         self.___count: 'int | str | None' = None
