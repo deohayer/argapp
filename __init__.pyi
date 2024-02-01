@@ -135,6 +135,13 @@ class Arg:
     @property
     def restrict(self) -> 'bool':
         '''
+        Whether `self.choices` are restrictive.
+
+        Defaults:
+        1. `True`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @restrict.setter

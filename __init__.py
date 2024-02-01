@@ -98,11 +98,14 @@ class Arg:
 
     @property
     def restrict(self) -> 'bool':
-        ...
+        return self.__restrict
 
     @restrict.setter
     def restrict(self, v: 'bool | None') -> 'None':
-        ...
+        # Validate.
+        _raise_t(v, (bool, type(None)), 'Arg.restrict')
+        # Set.
+        self.__restrict = True if v is None else v
 
     @property
     def suppress(self) -> 'bool':
@@ -183,7 +186,7 @@ class Arg:
         self.___count: 'int | str | None' = None
         self.___default: 'object | list | None' = None
         self.___choices: 'dict | None' = None
-        self.___restrict: 'bool | None' = None
+        # No restrict.
         self.___suppress: 'bool | None' = None
         self.___required: 'bool | None' = None
         self.___append: 'bool | None' = None
