@@ -12,11 +12,14 @@ class Arg:
 
     @property
     def lopt(self) -> 'str':
-        ...
+        return self.__lopt
 
     @lopt.setter
     def lopt(self, v: 'str | None') -> 'None':
-        ...
+        # Validate.
+        _raise_t(v, (str, type(None)), 'Arg.lopt')
+        # Set.
+        self.__lopt = v or ''
 
     @property
     def sopt(self) -> 'str':
@@ -153,7 +156,7 @@ class Arg:
     ) -> 'None':
         # Actual value.
         self.___name: 'str | None' = None
-        self.___lopt: 'str | None' = None
+        # No lopt.
         self.___sopt: 'str | None' = None
         self.___help: 'str | None' = None
         self.___helper: 'ArgHelper | None' = None

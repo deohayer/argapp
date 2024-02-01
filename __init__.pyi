@@ -25,6 +25,13 @@ class Arg:
     @property
     def lopt(self) -> 'str':
         '''
+        The long option name.
+
+        Defaults:
+        1. `""`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `str` or `None`.
         '''
 
     @lopt.setter
