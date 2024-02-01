@@ -41,6 +41,14 @@ class Arg:
     @property
     def sopt(self) -> 'str':
         '''
+        The short option name.
+
+        Defaults:
+        1. `""`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `str` or `None`.
+        2. `ValueError`, if the value exceeds one character.
         '''
 
     @sopt.setter

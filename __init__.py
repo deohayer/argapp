@@ -23,11 +23,18 @@ class Arg:
 
     @property
     def sopt(self) -> 'str':
-        ...
+        return self.__sopt
 
     @sopt.setter
     def sopt(self, v: 'str | None') -> 'None':
-        ...
+        # Validate.
+        _raise_t(v, (str, type(None)), 'Arg.sopt')
+        _raise_v(v,
+                 v is None or len(v) < 2,
+                 'Arg.sopt',
+                 'Must not exceed one character.')
+        # Set.
+        self.__sopt = v or ''
 
     @property
     def help(self) -> 'str':
@@ -157,7 +164,7 @@ class Arg:
         # Actual value.
         self.___name: 'str | None' = None
         # No lopt.
-        self.___sopt: 'str | None' = None
+        # No sopt.
         self.___help: 'str | None' = None
         self.___helper: 'ArgHelper | None' = None
         self.___type: 'type | None' = None
