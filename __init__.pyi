@@ -74,6 +74,13 @@ class Arg:
     @property
     def helper(self) -> 'ArgHelper':
         '''
+        The argument's help text generator.
+
+        Defaults:
+        1. `ArgHelper()`.
+
+        Exceptions:
+        1. `TypeError` if the type is not `ArgHelper` or `None`.
         '''
 
     @helper.setter

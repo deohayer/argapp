@@ -49,11 +49,14 @@ class Arg:
 
     @property
     def helper(self) -> 'ArgHelper':
-        ...
+        return self.__helper
 
     @helper.setter
     def helper(self, v: 'ArgHelper | None') -> 'None':
-        ...
+        # Validate.
+        _raise_t(v, (ArgHelper, type(None)), 'Arg.helper')
+        # Set.
+        self.__helper = v or ArgHelper()
 
     @property
     def type(self) -> 'type':
@@ -169,7 +172,7 @@ class Arg:
         # No lopt.
         # No sopt.
         # No help.
-        self.___helper: 'ArgHelper | None' = None
+        # No helper.
         self.___type: 'type | None' = None
         self.___count: 'int | str | None' = None
         self.___default: 'object | list | None' = None
