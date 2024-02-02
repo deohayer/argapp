@@ -1,4 +1,5 @@
 import sys
+from typing import Iterable
 
 
 class Arg:
@@ -145,12 +146,19 @@ class Arg:
             self.type = None
 
     @property
-    def choices(self) -> 'dict':
+    def choices(self) -> 'dict[str, str]':
         return self.__choices
 
     @choices.setter
-    def choices(self, v: 'dict | None') -> 'None':
-        self.__choices = v
+    def choices(self, v: 'list | dict | None') -> 'None':
+        # Validate.
+        _raise_t(v, (Iterable, type(None)), 'Arg.choices')
+        # Set.
+        self.__choices = {}
+        if isinstance(v, dict):
+            self.__choices = {str(x): str(y) for x, y in v.items()}
+        elif v:
+            self.__choices = {str(x): '' for x in v}
 
     @property
     def restrict(self) -> 'bool':
@@ -241,7 +249,7 @@ class Arg:
         self.___type: 'type | None' = None
         self.___count: 'int | str | None' = None
         self.___default: 'object | list | None' = None
-        self.___choices: 'dict | None' = None
+        # No choices.
         # No restrict.
         self.___suppress: 'bool | None' = None
         self.___required: 'bool | None' = None
@@ -256,7 +264,7 @@ class Arg:
         self.__type: 'type' = str
         self.__count: 'int | str' = 1
         self.__default: 'object | list | None' = None
-        self.__choices: 'dict' = {}
+        self.__choices: 'dict[str, str]' = {}
         self.__restrict: 'bool' = True
         self.__suppress: 'bool' = False
         self.__required: 'bool' = True
@@ -512,6 +520,8 @@ def _str(o: 'object') -> 'str':
         return f'"{o}"'
     if isinstance(o, type):
         return 'None' if o is type(None) else o.__name__
+    if o is Iterable:
+        return 'Iterable'
     return str(o)
 
 

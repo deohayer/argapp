@@ -156,12 +156,22 @@ class Arg:
         ...
 
     @property
-    def choices(self) -> 'dict':
+    def choices(self) -> 'dict[str, str]':
         '''
+        A `dict` of the possible values.
+         * Converted to a `dict[str, str]` from any `Iterable`.
+         * The dictionary values are used as the descriptions, if not empty.
+         * `self.default` is never checked against `self.choices`.
+
+        Defaults:
+        1. `{}`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `Iterable` or `None`.
         '''
 
     @choices.setter
-    def choices(self, v: 'dict | None') -> 'None':
+    def choices(self, v: 'list | dict | None') -> 'None':
         ...
 
     @property
