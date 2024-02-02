@@ -70,7 +70,29 @@ class Arg:
 
     @type.setter
     def type(self, v: 'type | None') -> 'None':
-        self.__type = v
+        # Validate.
+        V = 'Arg.type'
+        _raise_t(v, (type, type(None)), V)
+        if v is not None:
+            M = f'Must match self.default:'
+            if isinstance(self.default, list) and self.default:
+                M = f'{M} {_str(type(self.default[0]))}.'
+                _raise_v(v, isinstance(self.default[0], v), V, M)
+            elif not isinstance(self.default, list) and self.default is not None:
+                M = f'{M} {_str(type(self.default))}.'
+                _raise_v(v, isinstance(self.default, v), V, M)
+        # Set.
+        self.___type = v
+        self.__type = self.___type
+        if self.flag:
+            self.__type = bool
+        elif self.__type is None:
+            if isinstance(self.default, list) and self.default:
+                self.__type = type(self.default[0])
+            elif not isinstance(self.default, list) and self.default is not None:
+                self.__type = type(self.default)
+            else:
+                self.__type = str
 
     @property
     def count(self) -> 'int | str':
@@ -108,6 +130,8 @@ class Arg:
         self.__count = self.___count
         if self.__count is None:
             self.__count = '*' if isinstance(self.default, list) else 1
+        if self.___type is None:
+            self.type = None
 
     @property
     def default(self) -> 'object | list | None':
@@ -117,6 +141,8 @@ class Arg:
     def default(self, v: 'object | list | None') -> 'None':
         self.__default = v
         self.count = self.___count
+        if self.___type is None:
+            self.type = None
 
     @property
     def choices(self) -> 'dict':

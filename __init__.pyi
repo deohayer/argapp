@@ -99,6 +99,17 @@ class Arg:
     @property
     def type(self) -> 'type':
         '''
+        The type of an individual value.
+
+        Defaults:
+        . Always `bool`, if `self.flag` is `True`.
+        . The type of the first item of `self.default`, if its type is `list` and it is not empty.
+        . The type of `self.default`, if its type is not `list` and it is not `None`.
+        . `str`.
+
+        Exceptions:
+        . `TypeError`, if the type is not `type` or `None`.
+        . `ValueError`, if the value does not match `self.default`.
         '''
 
     @type.setter
