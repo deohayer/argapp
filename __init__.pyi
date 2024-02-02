@@ -248,6 +248,11 @@ class Arg:
     @property
     def multiple(self) -> 'bool':
         '''
+        Whether the argument can consume more than one value.
+
+        Defaults:
+        1. `True`, if `self.count` is `'*'`, `'+'`, `'~'` or greater than one.
+        2. `False`.
         '''
 
     def __init__(

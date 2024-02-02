@@ -187,7 +187,7 @@ class Arg:
 
     @property
     def multiple(self) -> 'bool':
-        ...
+        return not (self.flag or self.single)
 
     def __init__(
         self,
