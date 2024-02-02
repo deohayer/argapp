@@ -179,7 +179,7 @@ class Arg:
 
     @property
     def flag(self) -> 'bool':
-        ...
+        return self.count == 0
 
     @property
     def single(self) -> 'bool':

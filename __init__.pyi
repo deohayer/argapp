@@ -228,6 +228,11 @@ class Arg:
     @property
     def flag(self) -> 'bool':
         '''
+        Whether the argument does not consume a value.
+
+        Defaults:
+        1. `True`, if `self.count` is `0`.
+        2. `False`.
         '''
 
     @property
