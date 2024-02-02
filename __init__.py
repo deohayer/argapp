@@ -128,11 +128,14 @@ class Arg:
                 _raise_v(v, v == l, V, M)
         # Set.
         self.___count = v
+        v = self.__count
         self.__count = self.___count
         if self.__count is None:
             self.__count = '*' if isinstance(self.default, list) else 1
         if self.___type is None:
             self.type = None
+        if self.___default is None and self.__count is not v:
+            self.default = None
 
     @property
     def default(self) -> 'object | list | None':
@@ -140,8 +143,40 @@ class Arg:
 
     @default.setter
     def default(self, v: 'object | list | None') -> 'None':
-        self.__default = v
-        self.count = self.___count
+        # Validate.
+        V = 'Arg.default'
+        if isinstance(v, Iterable) and not isinstance(v, str):
+            v = [x for x in v]
+        if self.___type is not None:
+            if isinstance(v, list):
+                for i in range(len(v)):
+                    _raise_t(v[i], self.type, f'{V}[{i}]')
+            else:
+                _raise_t(v, (self.type, type(None)), V)
+        if self.___count is not None:
+            if isinstance(v, list):
+                if self.single:
+                    raise TypeError(
+                        f'{V}: Invalid type: list. Must be: object, None.')
+                if isinstance(self.count, int):
+                    M = f'Must match self.count: {self.count}.'
+                    O = Exception(f'len() is {len(v)}')
+                    _raise_v(O, len(v) == self.count, V, M)
+                elif self.count == '+':
+                    M = 'Must have at least one item, self.count is "+".'
+                    _raise_v(v, bool(v), V, M)
+            elif self.multiple:
+                _raise_t(v, (list, type(None)), V)
+        # Set.
+        self.___default = v
+        self.__default = self.___default
+        if self.__default is None:
+            if self.flag:
+                self.__default = False
+            elif self.___count in ['*', '~']:
+                self.__default = []
+        if self.___count is None:
+            self.count = None
         if self.___type is None:
             self.type = None
 

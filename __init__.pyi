@@ -149,6 +149,22 @@ class Arg:
     @property
     def default(self) -> 'object | list | None':
         '''
+        The default value. It is used by the base implementations of `Arg.__call__(...)` in the following cases:
+         * `self.count` is `'?'`, `'*'` or `'~'` and no values provided.
+         * `self.optional` is `True`, `self.suppress` is `False`, and the argument is not mentioned.
+
+        Defaults:
+        1. `False`, if `self.flag` is `True`.
+        2. `[]`, if `self.count` is `'*'` or `'~'`.
+        3. `None`.
+
+        Exceptions:
+        1 `TypeError`, if the type is not `list` or `None` and `self.multiple` is `True`.
+        2 `TypeError`, if the type is `list`, and `self.single` is `True`.
+        3 `TypeError`, if the type is not `list` and it is not `self.type` or `None`.
+        4 `TypeError`, if the type is `list` and one of the items is not `self.type`.
+        5. `ValueError`, if the type is `list`, and the number of items does not match `self.count`.
+        6. `ValueError`, if the value is an empty `list`, and `self.count` is `'+'`.
         '''
 
     @default.setter
