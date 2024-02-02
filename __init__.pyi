@@ -238,6 +238,11 @@ class Arg:
     @property
     def single(self) -> 'bool':
         '''
+        Whether the argument can consume at most one value.
+
+        Defaults:
+        1. `True`, if `self.count` is `'?'` or `1`.
+        2. `False`.
         '''
 
     @property

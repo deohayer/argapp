@@ -183,7 +183,7 @@ class Arg:
 
     @property
     def single(self) -> 'bool':
-        ...
+        return self.count == 1 or self.count == '?'
 
     @property
     def multiple(self) -> 'bool':
