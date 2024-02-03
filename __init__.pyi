@@ -523,6 +523,13 @@ class App:
     @property
     def prolog(self) -> 'str':
         '''
+        The command's detailed description before arguments.
+
+        Defaults:
+        * `self.help`.
+
+        Exceptions:
+        * `TypeError`, if the type is not `str` or `None`.
         '''
 
     @prolog.setter

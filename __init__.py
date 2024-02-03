@@ -457,7 +457,10 @@ class App:
 
     @prolog.setter
     def prolog(self, v: 'str | None') -> 'None':
-        self.__prolog = v
+        # Validate.
+        _raise_t(v, (str, type(None)), 'App.prolog')
+        # Set.
+        self.__prolog = v or self.help
 
     @property
     def epilog(self) -> 'str':
@@ -493,13 +496,14 @@ class App:
     ) -> 'None':
         self.__name = ''
         self.__help = ''
-        self.__prolog = prolog or ''
+        self.__prolog = ''
         self.__epilog = epilog or ''
         self.__helper = helper or AppHelper()
         self.__args = []
         self.__apps = []
         self.name = name
         self.help = help
+        self.prolog = prolog
 
     def __call__(
         self,
