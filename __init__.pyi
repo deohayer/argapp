@@ -403,6 +403,19 @@ class Arg:
         v: 'str | None',
     ) -> 'object | None':
         '''
+        Parse the command line value. This overload is called if:
+         * `self.single` is `True`.
+         * `self.append` is `False`.
+
+        Parameters:
+         * `v` - a value from the command line. `None` if not provided.
+
+        Returns:
+        1. `self.default`, if `v` is `None`.
+        2. `self.type(v)`.
+
+        Exceptions:
+        1. `CallError`, if `self.restrict` is `True` and the value is not in `self.choices`.
         '''
 
     @overload

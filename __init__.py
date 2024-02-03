@@ -360,12 +360,34 @@ class Arg:
                 return self.__call___bool(v)
             else:
                 return self.__call___int(v)
+        if self.single:
+            if not self.append:
+                return self.__call___str(v)
 
     def __call___bool(self, v: 'bool') -> 'bool':
         return not self.default if v else self.default
 
     def __call___int(self, v: 'int') -> 'int':
         return v
+
+    def __call___str(self, v: 'str | None') -> 'object | None':
+        if self.restrict and self.choices:
+            if v is not None and v not in self.choices:
+                raise CallError(
+                    f'Invalid value of argument {self.__strname()}: {v}. '
+                    f'Must be one of:{self.__strchoices()}',
+                    1)
+        return self.default if v is None else self.type(v)
+
+    def __strname(self) -> 'str':
+        if self.lopt:
+            return f'--{self.lopt}'
+        if self.sopt:
+            return f'-{self.sopt}'
+        return self.name
+
+    def __strchoices(self) -> 'str':
+        return '\n * ' + '\n * '.join(self.choices)
 
 
 class App:
@@ -559,29 +581,30 @@ class CompleterPath(Completer):
     ...
 
 
-class CallError:
+class CallError(RuntimeError):
     @property
     def text(self) -> 'str':
-        ...
+        return self.__text
 
     @text.setter
     def text(self, v: 'str | None') -> 'None':
-        ...
+        self.__text = v
 
     @property
     def code(self) -> 'int':
-        ...
+        return self.__code
 
     @code.setter
     def code(self, v: 'int | None') -> 'None':
-        ...
+        self.__code = v
 
     def __init__(
         self,
         text: 'str | None' = None,
         code: 'int | None' = None,
     ) -> 'None':
-        ...
+        self.__text = text
+        self.__code = code
 
 
 def main(
