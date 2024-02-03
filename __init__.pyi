@@ -580,6 +580,10 @@ class App:
     @property
     def apps(self) -> 'list[App]':
         '''
+        The command's subcommands.
+
+        Defaults:
+        * `[]`.
         '''
 
     def __init__(
