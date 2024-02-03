@@ -547,11 +547,19 @@ class App:
         self,
         name: 'str | None' = None,
         help: 'str | None' = None,
-        epilog: 'str | None' = None,
         prolog: 'str | None' = None,
+        epilog: 'str | None' = None,
         helper: 'AppHelper | None' = None,
     ) -> 'None':
         '''
+        The constructor. Sets each field in the declaration order.
+
+        Parameters:
+        * `name` - corresponds to `App.name`.
+        * `help` - corresponds to `App.help`.
+        * `prolog` - corresponds to `App.prolog`.
+        * `epilog` - corresponds to `App.epilog`.
+        * `helper` - corresponds to `App.helper`.
         '''
 
     def __call__(

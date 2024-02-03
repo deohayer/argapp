@@ -431,61 +431,67 @@ class Arg:
 class App:
     @property
     def name(self) -> 'str':
-        ...
+        return self.__name
 
     @name.setter
     def name(self, v: 'str | None') -> 'None':
-        ...
+        self.__name = v
 
     @property
     def help(self) -> 'str':
-        ...
+        return self.__help
 
     @help.setter
     def help(self, v: 'str | None') -> 'None':
-        ...
+        self.__help = v
 
     @property
     def prolog(self) -> 'str':
-        ...
+        return self.__prolog
 
     @prolog.setter
     def prolog(self, v: 'str | None') -> 'None':
-        ...
+        self.__prolog = v
 
     @property
     def epilog(self) -> 'str':
-        ...
+        return self.__epilog
 
     @epilog.setter
     def epilog(self, v: 'str | None') -> 'None':
-        ...
+        self.__epilog = v
 
     @property
     def helper(self) -> 'AppHelper':
-        ...
+        return self.__helper
 
     @helper.setter
     def helper(self, v: 'AppHelper | None') -> 'None':
-        ...
+        self.__helper = v
 
     @property
     def args(self) -> 'list[Arg]':
-        ...
+        return self.__args
 
     @property
     def apps(self) -> 'list[App]':
-        ...
+        return self.__apps
 
     def __init__(
         self,
         name: 'str | None' = None,
         help: 'str | None' = None,
-        epilog: 'str | None' = None,
         prolog: 'str | None' = None,
+        epilog: 'str | None' = None,
         helper: 'AppHelper | None' = None,
     ) -> 'None':
-        ...
+        self.__name = name or ''
+        self.__help = help or ''
+        self.__prolog = prolog or ''
+        self.__epilog = epilog or ''
+        self.__helper = helper or AppHelper()
+        self.__args = []
+        self.__apps = []
 
     def __call__(
         self,
