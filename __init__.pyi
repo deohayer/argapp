@@ -571,6 +571,10 @@ class App:
     @property
     def args(self) -> 'list[Arg]':
         '''
+        The command's arguments.
+
+        Defaults:
+        * `[]`.
         '''
 
     @property
