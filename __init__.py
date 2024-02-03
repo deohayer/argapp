@@ -612,27 +612,27 @@ class ArgHelper:
 class AppHelper:
     @property
     def lopt(self) -> 'str':
-        ...
+        return self.__lopt
 
     @lopt.setter
     def lopt(self, v: 'str | None') -> 'None':
-        ...
+        self.__lopt = v
 
     @property
     def sopt(self) -> 'str':
-        ...
+        return self.__sopt
 
     @sopt.setter
     def sopt(self, v: 'str | None') -> 'None':
-        ...
+        self.__sopt = v
 
     @property
     def help(self) -> 'str':
-        ...
+        return self.__help
 
     @help.setter
     def help(self, v: 'str | None') -> 'None':
-        ...
+        self.__help = v
 
     def text_help(
         self,
@@ -682,7 +682,9 @@ class AppHelper:
         sopt: 'str | None' = 'h',
         help: 'str | None' = 'Show the help text and exit.',
     ) -> 'None':
-        ...
+        self.lopt = lopt
+        self.sopt = sopt
+        self.help = help
 
 
 class Completer:

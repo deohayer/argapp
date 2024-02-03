@@ -791,6 +791,12 @@ class AppHelper:
         help: 'str | None' = 'Show the help text and exit.',
     ) -> 'None':
         '''
+        The constructor. Sets each field in the declaration order.
+
+        Parameters:
+        * `lopt` - corresponds to `self.lopt`.
+        * `sopt` - corresponds to `self.sopt`.
+        * `help` - corresponds to `self.help`.
         '''
 
 
