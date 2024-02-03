@@ -260,6 +260,15 @@ class Arg:
     @property
     def completer(self) -> 'Completer':
         '''
+        The command line completer for the argument.
+
+        Defaults:
+        1. `CompleterList(self.choices)`, if `self.choices` is not empty.
+        2. `CompleterPath()`, if `self.type` is `str`.
+        3. `CompleterNone()`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `Completer` or `None`.
         '''
 
     @completer.setter

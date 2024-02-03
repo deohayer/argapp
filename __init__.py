@@ -100,6 +100,8 @@ class Arg:
                 self.__type = type(self.default)
             else:
                 self.__type = str
+        if self.___completer is None:
+            self.completer = None
 
     @property
     def count(self) -> 'int | str':
@@ -200,6 +202,8 @@ class Arg:
             self.__choices = {str(x): str(y) for x, y in v.items()}
         elif v:
             self.__choices = {str(x): '' for x in v}
+        if self.___completer is None:
+            self.completer = None
 
     @property
     def restrict(self) -> 'bool':
@@ -251,7 +255,18 @@ class Arg:
 
     @completer.setter
     def completer(self, v: 'Completer | None') -> 'None':
-        self.__completer = v
+        # Validate.
+        _raise_t(v, (Completer, type(None)), 'Arg.completer')
+        # Set.
+        self.___completer = v
+        self.__completer = self.___completer
+        if self.__completer is None:
+            if self.choices:
+                self.__completer = CompleterList(self.choices)
+            elif issubclass(self.type, str):
+                self.__completer = CompleterPath()
+            else:
+                self.__completer = CompleterNone()
 
     @property
     def optional(self) -> 'bool':
@@ -521,15 +536,16 @@ class Completer:
     ...
 
 
-class CompleterNone:
+class CompleterNone(Completer):
     ...
 
 
-class CompleterList:
-    ...
+class CompleterList(Completer):
+    def __init__(self, v: 'Iterable') -> 'None':
+        pass
 
 
-class CompleterPath:
+class CompleterPath(Completer):
     ...
 
 
