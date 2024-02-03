@@ -1,6 +1,40 @@
 import sys
 from typing import Iterable
 
+try:
+    from argcomplete.completers import BaseCompleter as Completer
+    from argcomplete.completers import SuppressCompleter as CompleterNone
+    from argcomplete.completers import ChoicesCompleter as CompleterList
+    from argcomplete.completers import FilesCompleter as CompleterPath
+except:
+    class Completer:
+        def __init__(self) -> 'None':
+            ...
+
+        def __call__(self, *args, **kwds) -> 'list[str]':
+            ...
+
+    class CompleterNone(Completer):
+        def __init__(self) -> 'None':
+            ...
+
+        def __call__(self, *args, **kwds) -> 'list[str]':
+            ...
+
+    class CompleterList(Completer):
+        def __init__(self, v: 'list[str]') -> 'None':
+            ...
+
+        def __call__(self, *args, **kwds) -> 'list[str]':
+            ...
+
+    class CompleterPath(Completer):
+        def __init__(self) -> 'None':
+            ...
+
+        def __call__(self, *args, **kwds) -> 'list[str]':
+            ...
+
 
 class Arg:
     @property
@@ -765,23 +799,6 @@ class AppHelper:
         self.lopt = lopt
         self.sopt = sopt
         self.help = help
-
-
-class Completer:
-    ...
-
-
-class CompleterNone(Completer):
-    ...
-
-
-class CompleterList(Completer):
-    def __init__(self, v: 'Iterable') -> 'None':
-        pass
-
-
-class CompleterPath(Completer):
-    ...
 
 
 class CallError(RuntimeError):

@@ -9,6 +9,71 @@ import sys
 from typing import overload
 
 
+__all__ = [
+    'Arg',
+    'App',
+    'ArgHelper',
+    'AppHelper',
+    'Completer',
+    'CompleterNone',
+    'CompleterList',
+    'CompleterPath',
+    'CallError',
+    'main',
+]
+
+
+try:
+    from argcomplete.completers import BaseCompleter as Completer
+    from argcomplete.completers import SuppressCompleter as CompleterNone
+    from argcomplete.completers import ChoicesCompleter as CompleterList
+    from argcomplete.completers import FilesCompleter as CompleterPath
+except:
+    class Completer:
+        '''
+        A dummy when argcomplete is not installed.
+        '''
+
+        def __init__(self) -> 'None':
+            ...
+
+        def __call__(self, *args, **kwds) -> 'list[str]':
+            ...
+
+    class CompleterNone(Completer):
+        '''
+        A dummy when argcomplete is not installed.
+        '''
+
+        def __init__(self) -> 'None':
+            ...
+
+        def __call__(self, *args, **kwds) -> 'list[str]':
+            ...
+
+    class CompleterList(Completer):
+        '''
+        A dummy when argcomplete is not installed.
+        '''
+
+        def __init__(self, v: 'list[str]') -> 'None':
+            ...
+
+        def __call__(self, *args, **kwds) -> 'list[str]':
+            ...
+
+    class CompleterPath(Completer):
+        '''
+        A dummy when argcomplete is not installed.
+        '''
+
+        def __init__(self) -> 'None':
+            ...
+
+        def __call__(self, *args, **kwds) -> 'list[str]':
+            ...
+
+
 class Arg:
     '''
     '''
@@ -884,26 +949,6 @@ class AppHelper:
         * `sopt` - corresponds to `self.sopt`.
         * `help` - corresponds to `self.help`.
         '''
-
-
-class Completer:
-    '''
-    '''
-
-
-class CompleterNone:
-    '''
-    '''
-
-
-class CompleterList:
-    '''
-    '''
-
-
-class CompleterPath:
-    '''
-    '''
 
 
 class CallError:
