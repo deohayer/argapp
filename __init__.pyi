@@ -613,6 +613,11 @@ class ArgHelper:
         default: 'bool | None' = None,
     ) -> 'None':
         '''
+        The constructor. Sets each field in the declaration order.
+
+        Parameters:
+         * `choices` - corresponds to `self.choices`.
+         * `default` - corresponds to `self.default`.
         '''
 
 
