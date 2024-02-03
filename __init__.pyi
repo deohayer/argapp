@@ -507,6 +507,13 @@ class App:
     @property
     def help(self) -> 'str':
         '''
+        The command's short description.
+
+        Defaults:
+        * `''`.
+
+        Exceptions:
+        * `TypeError`, if the type is not `str` or `None`.
         '''
 
     @help.setter
