@@ -468,7 +468,10 @@ class App:
 
     @epilog.setter
     def epilog(self, v: 'str | None') -> 'None':
-        self.__epilog = v
+        # Validate.
+        _raise_t(v, (str, type(None)), 'App.epilog')
+        # Set.
+        self.__epilog = v or ''
 
     @property
     def helper(self) -> 'AppHelper':
@@ -497,13 +500,14 @@ class App:
         self.__name = ''
         self.__help = ''
         self.__prolog = ''
-        self.__epilog = epilog or ''
+        self.__epilog = ''
         self.__helper = helper or AppHelper()
         self.__args = []
         self.__apps = []
         self.name = name
         self.help = help
         self.prolog = prolog
+        self.epilog = epilog
 
     def __call__(
         self,

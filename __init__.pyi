@@ -539,6 +539,13 @@ class App:
     @property
     def epilog(self) -> 'str':
         '''
+        The command's detailed description after arguments.
+
+        Defaults:
+        * `''`.
+
+        Exceptions:
+        * `TypeError`, if the type is not `str` or `None`.
         '''
 
     @epilog.setter
