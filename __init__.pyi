@@ -570,6 +570,13 @@ class ArgHelper:
     @property
     def choices(self) -> 'bool':
         '''
+        Whether to append the `Arg.choices` to the help text.
+
+        Defaults:
+        1. `True`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @choices.setter

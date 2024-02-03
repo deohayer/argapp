@@ -498,11 +498,14 @@ class App:
 class ArgHelper:
     @property
     def choices(self) -> 'bool':
-        ...
+        return self.__choices
 
     @choices.setter
     def choices(self, v: 'bool | None') -> 'None':
-        ...
+        # Validate.
+        _raise_t(v, (bool, type(None)), 'ArgHelper.choices')
+        # Set.
+        self.__choices = True if v is None else v
 
     @property
     def default(self) -> 'bool':
@@ -523,7 +526,8 @@ class ArgHelper:
         choices: 'bool | None' = None,
         default: 'bool | None' = None,
     ) -> 'None':
-        ...
+        self.__choices = None
+        self.choices = choices
 
 
 class AppHelper:
