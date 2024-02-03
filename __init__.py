@@ -519,7 +519,37 @@ class ArgHelper:
         self.__default = True if v is None else v
 
     def text_help(self, arg: 'Arg') -> 'str':
-        ...
+        result = arg.help
+        # Do not append anything for flag.
+        if arg.flag:
+            return result
+        # Append default.
+        if self.default and arg.default is not None and arg.default != []:
+            if result:
+                result += '\n'
+            result += 'Default: '
+            items = [arg.default] if arg.single else arg.default
+            result += ' '.join('""' if x == '' else str(x) for x in items)
+        # Append choices.
+        if self.choices and arg.choices:
+            if result:
+                result += '\n'
+            if arg.restrict:
+                result += 'Allowed values:'
+            else:
+                result += 'Possible values:'
+            w = max(len(x) for x in arg.choices)
+            p = ' ' * (w + 6)
+            for x, y in arg.choices.items():
+                if y:
+                    result += f'\n * {x:{w}}'
+                    lines = y.split('\n')
+                    result += f' - {lines[0]}'
+                    for i in range(1, len(lines)):
+                        result += f'\n{p}{lines[i]}'
+                else:
+                    result += f'\n * {x}'
+        return result
 
     def text_usage(self, arg: 'Arg') -> 'str':
         ...

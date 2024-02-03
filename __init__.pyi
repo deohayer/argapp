@@ -601,6 +601,15 @@ class ArgHelper:
 
     def text_help(self, arg: 'Arg') -> 'str':
         '''
+        Generate the argument's description.
+
+        Parameters:
+         * `arg` - the argument to use for the generation.
+
+        Returns:
+        1. `arg.help` with the following appended if `arg.flag` is `False`:
+           * `arg.default`, if `self.default` is `True`.
+           * `arg.choices`, if `self.choices` is `True`.
         '''
 
     def text_usage(self, arg: 'Arg') -> 'str':
