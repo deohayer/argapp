@@ -611,6 +611,15 @@ class App:
         apps: 'list[App]',
     ) -> 'None':
         '''
+        Run the command.
+
+        * This function is called by `main()` on each command from the command line.
+        * The base implementation does nothing, the subclasses are supposed to override it.
+        * `CallError` has to be raised to notify about any errors.
+
+        Parameters:
+        * `args` - A dictionary of `Arg` and its parsed command line value.
+        * `apps` - A list of commands that are mentioned in the command line, starting from the leftmost one.
         '''
 
 
