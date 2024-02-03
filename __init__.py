@@ -708,9 +708,24 @@ class AppHelper:
     def section_args(
         self,
         title: 'str',
-        apps: 'list[Arg]',
+        args: 'list[Arg]',
     ) -> 'str':
-        ...
+        if not args:
+            return ''
+        result = f'{title}:' if title else ''
+        info = {x.helper.text_usage(x): x.helper.text_help(x) for x in args}
+        w = max(len(x) for x in info)
+        p = ' ' * (w + 6)
+        for name, help in info.items():
+            if help:
+                result += f'\n * {name:{w}}'
+                lines = help.split('\n')
+                result += f' - {lines[0]}'
+                for i in range(1, len(lines)):
+                    result += f'\n{p}{lines[i]}'
+            else:
+                result += f'\n * {name}'
+        return result.lstrip('\n')
 
     def __init__(
         self,

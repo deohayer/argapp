@@ -831,9 +831,18 @@ class AppHelper:
     def section_args(
         self,
         title: 'str',
-        apps: 'list[Arg]',
+        args: 'list[Arg]',
     ) -> 'str':
         '''
+        Generate the command's text for arguments.
+
+        Parameters:
+        * `title` - a title for the section.
+        * `args` - a list of `Arg` to generate the text for.
+
+        Returns:
+        * `''` if `args` is empty.
+        * A `str` that is a bullet list from `arg` in `args`: `arg.helper.text_usage(arg)` and `arg.helper.text_help(arg)`.
         '''
 
     def __init__(
