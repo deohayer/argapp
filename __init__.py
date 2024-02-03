@@ -627,7 +627,15 @@ class AppHelper:
 
     @sopt.setter
     def sopt(self, v: 'str | None') -> 'None':
-        self.__sopt = v
+        # Validate.
+        V = 'AppHelper.sopt'
+        _raise_t(v, (str, type(None)), V)
+        _raise_v(v,
+                 v is None or len(v) < 2,
+                 V,
+                 'Must not exceed one character.')
+        # Set.
+        self.__sopt = v or ''
 
     @property
     def help(self) -> 'str':

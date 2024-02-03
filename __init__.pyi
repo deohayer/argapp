@@ -728,6 +728,13 @@ class AppHelper:
     @property
     def sopt(self) -> 'str':
         '''
+        The short option name for the help argument. Similar to `Arg.sopt`.
+
+        Defaults:
+        * `''`.
+
+        Exceptions:
+        * `TypeError`, if the type is not `str` or `None`.
         '''
 
     @sopt.setter
