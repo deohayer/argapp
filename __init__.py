@@ -725,13 +725,13 @@ class AppHelper:
         p = ' ' * (w + 6)
         for app in apps:
             if app.help:
-                result += f'\n * {app.name:{w}}'
+                result += f'\n  {app.name:{w}}'
                 lines = app.help.split('\n')
-                result += f' - {lines[0]}'
+                result += f'    {lines[0]}'
                 for i in range(1, len(lines)):
                     result += f'\n{p}{lines[i]}'
             else:
-                result += f'\n * {app.name}'
+                result += f'\n  {app.name}'
         return result.lstrip('\n')
 
     def section_args(
@@ -747,13 +747,13 @@ class AppHelper:
         p = ' ' * (w + 6)
         for name, help in info.items():
             if help:
-                result += f'\n * {name:{w}}'
+                result += f'\n  {name:{w}}'
                 lines = help.split('\n')
-                result += f' - {lines[0]}'
+                result += f'    {lines[0]}'
                 for i in range(1, len(lines)):
                     result += f'\n{p}{lines[i]}'
             else:
-                result += f'\n * {name}'
+                result += f'\n  {name}'
         return result.lstrip('\n')
 
     def __init__(
