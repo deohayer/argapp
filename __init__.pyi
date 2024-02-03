@@ -614,6 +614,21 @@ class ArgHelper:
 
     def text_usage(self, arg: 'Arg') -> 'str':
         '''
+        Generate the argument's usage (stylized name).
+
+        Parameters:
+        * `arg` - the argument to use for the generation.
+
+        Returns:
+        1. A `str` with the following text combined:
+           1. `-sopt`, if `arg.sopt` is set.
+           2. `--lopt`, if `arg.lopt` is set.
+           3. A stylized `arg.name`:
+              1. `name` repeated `arg.count` times, if its type is `int`.
+              2. `[name]`, if `arg.count` is `'?'`.
+              3. `[name...]`, if `arg.count` is `'*'`.
+              4. `name [name...]`, if `arg.count` is `'+'`.
+              5. `[name]...`, if `arg.count` is `'~'`.
         '''
 
     def __init__(

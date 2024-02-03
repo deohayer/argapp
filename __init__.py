@@ -552,7 +552,25 @@ class ArgHelper:
         return result
 
     def text_usage(self, arg: 'Arg') -> 'str':
-        ...
+        result = ''
+        if arg.sopt:
+            result += f'-{arg.sopt}'
+        if arg.lopt:
+            if result:
+                result += '/'
+            result += f'--{arg.lopt}'
+        result += ' '
+        if isinstance(arg.count, int):
+            result += ' '.join([arg.name] * arg.count)
+        elif arg.count == '?':
+            result += f'[{arg.name}]'
+        elif arg.count == '*':
+            result += f'[{arg.name}...]'
+        elif arg.count == '+':
+            result += f'{arg.name} [{arg.name}...]'
+        elif arg.count == '~':
+            result += f'[{arg.name}]...'
+        return result.strip(' ')
 
     def __init__(
         self,
