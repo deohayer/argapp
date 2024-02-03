@@ -368,6 +368,8 @@ class Arg:
         if self.multiple:
             if not self.append:
                 return self.__call___list_str(v)
+            else:
+                return self.__call___list_list(v)
 
     def __call___bool(self, v: 'bool') -> 'bool':
         return not self.default if v else self.default
@@ -403,6 +405,17 @@ class Arg:
                         f'Must be one of:{self.__strchoices()}',
                         1)
         return self.default if v is None else [self.type(x) for x in v]
+
+    def __call___list_list(self, v: 'list[list[str] | None]') -> 'list[list[object] | None]':
+        if self.restrict and self.choices:
+            for i in range(len(v)):
+                for j in range(len(v[i] if v[i] else [])):
+                    if v[i][j] not in self.choices:
+                        raise CallError(
+                            f'Invalid value of argument {self.__strname()}[{i}][{j}]: {v[i][j]}. '
+                            f'Must be one of:{self.__strchoices()}',
+                            1)
+        return [(self.default if not l else [self.type(x) for x in l]) for l in v]
 
     def __strname(self) -> 'str':
         if self.lopt:
