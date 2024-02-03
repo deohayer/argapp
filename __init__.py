@@ -28,6 +28,7 @@ class Arg:
         self.name = self.___name
         self.suppress = self.__suppress
         self.required = self.__required
+        self.append = self.__append
 
     @property
     def sopt(self) -> 'str':
@@ -46,6 +47,7 @@ class Arg:
         self.name = self.___name
         self.suppress = self.__suppress
         self.required = self.__required
+        self.append = self.__append
 
     @property
     def help(self) -> 'str':
@@ -238,7 +240,10 @@ class Arg:
 
     @append.setter
     def append(self, v: 'bool | None') -> 'None':
-        self.__append = v
+        # Validate.
+        _raise_t(v, (bool, type(None)), 'Arg.append')
+        # Set.
+        self.__append = False if self.positional else bool(v)
 
     @property
     def completer(self) -> 'Completer':
@@ -298,7 +303,7 @@ class Arg:
         # No restrict.
         # No suppress.
         # No required.
-        self.___append: 'bool | None' = None
+        # No append.
         self.___completer: 'Completer | None' = None
         # Cached value.
         self.__name: 'str' = ''

@@ -243,6 +243,14 @@ class Arg:
     @property
     def append(self) -> 'bool':
         '''
+        Whether the optional argument is appended on repeat.
+
+        Defaults:
+        1. Always `False`, if `self.optional` is `False`.
+        2. `False`.
+
+        Exceptions:
+        . `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @append.setter
