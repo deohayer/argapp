@@ -209,6 +209,14 @@ class Arg:
     @property
     def suppress(self) -> 'bool':
         '''
+        Whether to not set the optional argument to `self.default` if it is not mentioned.
+
+        Defaults:
+        1. Always `False`, if `self.optional` is `False`.
+        2. `False`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @suppress.setter

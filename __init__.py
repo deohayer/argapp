@@ -26,6 +26,7 @@ class Arg:
         # Set.
         self.__lopt = v or ''
         self.name = self.___name
+        self.suppress = self.__suppress
 
     @property
     def sopt(self) -> 'str':
@@ -42,6 +43,7 @@ class Arg:
         # Set.
         self.__sopt = v or ''
         self.name = self.___name
+        self.suppress = self.__suppress
 
     @property
     def help(self) -> 'str':
@@ -212,7 +214,10 @@ class Arg:
 
     @suppress.setter
     def suppress(self, v: 'bool | None') -> 'None':
-        self.__suppress = v
+        # Validate.
+        _raise_t(v, (bool, type(None)), 'Arg.suppress')
+        # Set.
+        self.__suppress = False if self.positional else bool(v)
 
     @property
     def required(self) -> 'bool':
@@ -286,7 +291,7 @@ class Arg:
         self.___default: 'object | list | None' = None
         # No choices.
         # No restrict.
-        self.___suppress: 'bool | None' = None
+        # No suppress.
         self.___required: 'bool | None' = None
         self.___append: 'bool | None' = None
         self.___completer: 'Completer | None' = None
