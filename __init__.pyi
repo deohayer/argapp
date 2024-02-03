@@ -226,6 +226,14 @@ class Arg:
     @property
     def required(self) -> 'bool':
         '''
+        Whether the optional argument must be mentioned.
+
+        Defaults:
+        1. Always `True`, if `self.optional` is `False`.
+        2. `False`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @required.setter
