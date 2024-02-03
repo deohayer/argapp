@@ -689,7 +689,21 @@ class AppHelper:
         title: 'str',
         apps: 'list[App]',
     ) -> 'str':
-        ...
+        if not apps:
+            return ''
+        result = f'{title}:' if title else ''
+        w = max(len(str(x.name)) for x in apps)
+        p = ' ' * (w + 6)
+        for app in apps:
+            if app.help:
+                result += f'\n * {app.name:{w}}'
+                lines = app.help.split('\n')
+                result += f' - {lines[0]}'
+                for i in range(1, len(lines)):
+                    result += f'\n{p}{lines[i]}'
+            else:
+                result += f'\n * {app.name}'
+        return result.lstrip('\n')
 
     def section_args(
         self,

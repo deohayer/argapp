@@ -817,6 +817,15 @@ class AppHelper:
         apps: 'list[App]',
     ) -> 'str':
         '''
+        Generate the command's text for subcommands.
+
+        Parameters:
+        * `title` - A title for the section.
+        * `apps`  - A list of `App` to generate the text for.
+
+        Returns:
+        * `''` if `apps` is empty.
+        * A `str` that is a bullet list from `app` in `apps`: `app.name` and `app.help`.
         '''
 
     def section_args(
