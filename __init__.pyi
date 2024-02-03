@@ -555,6 +555,13 @@ class App:
     @property
     def helper(self) -> 'AppHelper':
         '''
+        The command's help text generator.
+
+        Defaults:
+        * `AppHelper()`.
+
+        Exceptions:
+        * `TypeError`, if the type is not `AppHelper` or `None`.
         '''
 
     @helper.setter

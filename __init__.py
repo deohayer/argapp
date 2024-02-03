@@ -479,7 +479,10 @@ class App:
 
     @helper.setter
     def helper(self, v: 'AppHelper | None') -> 'None':
-        self.__helper = v
+        # Validate.
+        _raise_t(v, (AppHelper, type(None)), 'App.helper')
+        # Set.
+        self.__helper = v or AppHelper()
 
     @property
     def args(self) -> 'list[Arg]':
@@ -501,13 +504,14 @@ class App:
         self.__help = ''
         self.__prolog = ''
         self.__epilog = ''
-        self.__helper = helper or AppHelper()
+        self.__helper = AppHelper()
         self.__args = []
         self.__apps = []
         self.name = name
         self.help = help
         self.prolog = prolog
         self.epilog = epilog
+        self.helper = helper
 
     def __call__(
         self,
