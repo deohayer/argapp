@@ -643,7 +643,10 @@ class AppHelper:
 
     @help.setter
     def help(self, v: 'str | None') -> 'None':
-        self.__help = v
+        # Validate.
+        _raise_t(v, (str, type(None)), 'AppHelper.help')
+        # Set.
+        self.__help = v or ''
 
     def text_help(
         self,

@@ -744,6 +744,13 @@ class AppHelper:
     @property
     def help(self) -> 'str':
         '''
+        The help text for the help argument. Similar to `Arg.help`.
+
+        Defaults:
+        * `''`.
+
+        Exceptions:
+        * `TypeError` if the type is not `str` or `None`.
         '''
 
     @help.setter
