@@ -660,7 +660,20 @@ class AppHelper:
         apps: 'list[App]',
         name: 'str',
     ) -> 'str':
-        ...
+        names = [x.name for x in apps]
+        names[0] = names[0] or name
+        result = ' '.join(names)
+        args_opt = [x for x in apps[-1].args if x.required and x.optional]
+        args_pos = [x for x in apps[-1].args if x.positional]
+        if args_opt:
+            result += ' ' + ' '.join(
+                [f'{{{x.helper.text_usage(x)}}}' for x in args_opt])
+        if args_pos:
+            result += ' ' + ' '.join(
+                [x.helper.text_usage(x) for x in args_pos])
+        if apps[-1].apps:
+            result += ' (...)'
+        return result
 
     def section_prolog(
         self,

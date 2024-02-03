@@ -771,6 +771,17 @@ class AppHelper:
         name: 'str',
     ) -> 'str':
         '''
+        Generate the command's full usage text.
+
+        Parameters:
+        * `apps` - A list of commands mentioned in the command line. The usage text is generated for the last one.
+        * `name` - A name to use for the first command in `apps`.
+
+        Returns:
+        * A `str` that combines:
+           * All the commands from the command line (the arguments omitted).
+           * The last command's optional arguments with `required` set to `True`.
+           * The last command's positional arguments.
         '''
 
     def section_prolog(
