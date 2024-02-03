@@ -798,6 +798,17 @@ class AppHelper:
         app: 'App',
     ) -> 'str':
         '''
+        Generate the command's text after arguments.
+
+        Parameters:
+        * `title` - a title for the section.
+        * `app`   - an `App` to generate the text for.
+
+        Returns:
+        * `''`, if `app.epilog` is not set.
+        * A `str` that combines:
+           * `title`.
+           * `app.epilog`.
         '''
 
     def section_apps(

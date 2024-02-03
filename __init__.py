@@ -678,7 +678,11 @@ class AppHelper:
         title: 'str',
         app: 'App',
     ) -> 'str':
-        ...
+        if not app.epilog:
+            return ''
+        if not title:
+            return app.epilog
+        return f'{title}:\n{app.epilog}'
 
     def section_apps(
         self,
