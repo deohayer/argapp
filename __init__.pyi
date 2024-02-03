@@ -491,6 +491,13 @@ class App:
     @property
     def name(self) -> 'str':
         '''
+        The command's name.
+
+        Defaults:
+        * `''`.
+
+        Exceptions:
+        * `TypeError`, if the type is not `str` or `None`.
         '''
 
     @name.setter

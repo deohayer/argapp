@@ -435,7 +435,10 @@ class App:
 
     @name.setter
     def name(self, v: 'str | None') -> 'None':
-        self.__name = v
+        # Validate.
+        _raise_t(v, (str, type(None)), 'App.name')
+        # Set.
+        self.__name = v or ''
 
     @property
     def help(self) -> 'str':
@@ -485,13 +488,14 @@ class App:
         epilog: 'str | None' = None,
         helper: 'AppHelper | None' = None,
     ) -> 'None':
-        self.__name = name or ''
+        self.__name = ''
         self.__help = help or ''
         self.__prolog = prolog or ''
         self.__epilog = epilog or ''
         self.__helper = helper or AppHelper()
         self.__args = []
         self.__apps = []
+        self.name = name
 
     def __call__(
         self,
