@@ -368,6 +368,16 @@ class Arg:
         v: 'bool',
     ) -> 'bool':
         '''
+        Parse the command line value. This overload is called if:
+         * `self.flag` is `True`.
+         * `self.append` is `False`.
+
+        Parameters:
+         * `v` - `True` if the argument is mentioned in the command line. `False` otherwise.
+
+        Returns:
+        1. `self.default`, if v is `True`.
+        2. `not self.default`, if v is `False`.
         '''
 
     @overload

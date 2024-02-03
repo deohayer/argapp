@@ -355,8 +355,12 @@ class Arg:
         self,
         v: 'bool | int | str | list | list[list] | None',
     ) -> 'bool | int | object | list | list[list] | None':
-        ...
+        if self.flag:
+            if not self.append:
+                return self.__call___bool(v)
 
+    def __call___bool(self, v: 'bool') -> 'bool':
+        return not self.default if v else self.default
 
 class App:
     @property
