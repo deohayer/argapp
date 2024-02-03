@@ -386,6 +386,15 @@ class Arg:
         v: 'int',
     ) -> 'int':
         '''
+        Parse the command line value. This overload is called if:
+         * `self.flag` is `True`.
+         * `self.append` is `True`.
+
+        Parameters:
+         * `v` - a number of times the argument is mentioned in the command line.
+
+        Returns:
+        1. `v`.
         '''
 
     @overload

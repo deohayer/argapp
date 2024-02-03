@@ -358,9 +358,15 @@ class Arg:
         if self.flag:
             if not self.append:
                 return self.__call___bool(v)
+            else:
+                return self.__call___int(v)
 
     def __call___bool(self, v: 'bool') -> 'bool':
         return not self.default if v else self.default
+
+    def __call___int(self, v: 'int') -> 'int':
+        return v
+
 
 class App:
     @property
