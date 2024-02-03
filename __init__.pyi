@@ -446,6 +446,19 @@ class Arg:
         v: 'list[str] | None',
     ) -> 'list[object] | None':
         '''
+        Parse the command line value. This overload is called if:
+         * `self.multiple` is `True`.
+         * `self.append` is `False`.
+
+        Parameters:
+         * `v` - a list of values from the command line.
+
+        Returns:
+        1. `self.default`, if `v` is `None`.
+        2. A `list` where each item `x` from `v` is set to `self.type(x)`.
+
+        Exceptions:
+        1. `CallError`, if `self.restrict` is `True` and any item is not in `self.choices`.
         '''
 
     @overload
