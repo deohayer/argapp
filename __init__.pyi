@@ -763,6 +763,20 @@ class AppHelper:
         name: 'str',
     ) -> 'str':
         '''
+        Generate the command's full help text.
+
+        Parameters:
+        * `apps` - A list of commands mentioned in the command line. The text is generated for the last one.
+        * `name` - A name to use for the first command in `apps`.
+
+        Returns:
+        * A `str`, combination of the following:
+           * `self.text_usage(apps, name)`.
+           * `self.section_prolog("Description", apps[-1])`.
+           * `self.section_apps("Commands", apps[-1].apps)`.
+           * `self.section_args("Positional arguments", args)`, where `args` - positional arguments from `apps[-1].args`.
+           * `self.section_args("Optional arguments", args)`, where `args` - optional arguments from `apps[-1].args` and the help option, if set.
+           * `self.section_epilog("Notes", apps[-1])`.
         '''
 
     def text_usage(

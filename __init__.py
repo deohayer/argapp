@@ -653,7 +653,23 @@ class AppHelper:
         apps: 'list[App]',
         name: 'str',
     ) -> 'str':
-        ...
+        parts = [self.text_usage(apps, name)]
+        parts.append(self.section_prolog('Description', apps[-1]))
+        parts.append(self.section_apps('Commands', apps[-1].apps))
+        args = [x for x in apps[-1].args if x.positional]
+        parts.append(self.section_args('Positional arguments', args))
+        args = [x for x in apps[-1].args if x.optional]
+        if self.sopt or self.lopt:
+            args.append(Arg(
+                lopt=self.lopt,
+                sopt=self.sopt,
+                help=self.help,
+                count=0,
+            ))
+        parts.append(self.section_args('Optional arguments', args))
+        parts.append(self.section_epilog('Notes', apps[-1]))
+        parts = [x for x in parts if x]
+        return '\n\n'.join(parts) + '\n'
 
     def text_usage(
         self,
