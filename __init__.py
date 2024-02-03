@@ -509,11 +509,14 @@ class ArgHelper:
 
     @property
     def default(self) -> 'bool':
-        ...
+        return self.__default
 
     @default.setter
     def default(self, v: 'bool | None') -> 'None':
-        ...
+        # Validate.
+        _raise_t(v, (bool, type(None)), 'ArgHelper.default')
+        # Set.
+        self.__default = True if v is None else v
 
     def text_help(self, arg: 'Arg') -> 'str':
         ...
@@ -527,7 +530,9 @@ class ArgHelper:
         default: 'bool | None' = None,
     ) -> 'None':
         self.__choices = None
+        self.__default = None
         self.choices = choices
+        self.default = default
 
 
 class AppHelper:

@@ -586,6 +586,13 @@ class ArgHelper:
     @property
     def default(self) -> 'bool':
         '''
+        Whether to append the `Arg.default` to the help text.
+
+        Defaults:
+        1. `True`.
+
+        Exceptions:
+        1. `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @default.setter
