@@ -712,6 +712,13 @@ class AppHelper:
     @property
     def lopt(self) -> 'str':
         '''
+        The long option name for the help argument. Similar to `Arg.lopt`.
+
+        Defaults:
+        * `''`.
+
+        Exceptions:
+        * `TypeError`, if the type is not `str` or `None`.
         '''
 
     @lopt.setter

@@ -616,7 +616,10 @@ class AppHelper:
 
     @lopt.setter
     def lopt(self, v: 'str | None') -> 'None':
-        self.__lopt = v
+        # Validate.
+        _raise_t(v, (str, type(None)), 'AppHelper.lopt')
+        # Set.
+        self.__lopt = v or ''
 
     @property
     def sopt(self) -> 'str':
