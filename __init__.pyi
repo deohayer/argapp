@@ -779,6 +779,17 @@ class AppHelper:
         app: 'App',
     ) -> 'str':
         '''
+        Generate the command's text before arguments.
+
+        Parameters:
+        * `title` - a title for the section.
+        * `app` -`App` to generate the text for.
+
+        Returns:
+        * `''` if `app.prolog` is not set.
+        * A `str` that combines:
+           * `title`.
+           * `app.prolog`.
         '''
 
     def section_epilog(

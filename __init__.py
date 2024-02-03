@@ -667,7 +667,11 @@ class AppHelper:
         title: 'str',
         app: 'App',
     ) -> 'str':
-        ...
+        if not app.prolog:
+            return ''
+        if not title:
+            return app.prolog
+        return f'{title}:\n{app.prolog}'
 
     def section_epilog(
         self,
