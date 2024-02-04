@@ -84,12 +84,12 @@ class Arg:
         The name of the argument's value.
 
         Defaults:
-        1. Uppercase `self.lopt`, if set.
-        2. Uppercase `self.sopt`, if set.
-        3. `''`.
+        * Uppercase `self.lopt`, if set.
+        * Uppercase `self.sopt`, if set.
+        * `''`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `str` or `None`.
+        * `TypeError`, if the type is not `str` or `None`.
         '''
 
     @name.setter
@@ -102,10 +102,10 @@ class Arg:
         The long option name.
 
         Defaults:
-        1. `""`.
+        * `""`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `str` or `None`.
+        * `TypeError`, if the type is not `str` or `None`.
         '''
 
     @lopt.setter
@@ -118,11 +118,11 @@ class Arg:
         The short option name.
 
         Defaults:
-        1. `""`.
+        * `''`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `str` or `None`.
-        2. `ValueError`, if the value exceeds one character.
+        * `TypeError`, if the type is not `str` or `None`.
+        * `ValueError`, if the value exceeds one character.
         '''
 
     @sopt.setter
@@ -135,10 +135,10 @@ class Arg:
         The argument's description.
 
         Defaults:
-        1. `""`.
+        * `''`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `str` or `None`.
+        * `TypeError`, if the type is not `str` or `None`.
         '''
 
     @help.setter
@@ -151,10 +151,10 @@ class Arg:
         The argument's help text generator.
 
         Defaults:
-        1. `ArgHelper()`.
+        * `ArgHelper()`.
 
         Exceptions:
-        1. `TypeError` if the type is not `ArgHelper` or `None`.
+        * `TypeError`, if the type is not `ArgHelper` or `None`.
         '''
 
     @helper.setter
@@ -167,14 +167,14 @@ class Arg:
         The type of an individual value.
 
         Defaults:
-        . Always `bool`, if `self.flag` is `True`.
-        . The type of the first item of `self.default`, if its type is `list` and it is not empty.
-        . The type of `self.default`, if its type is not `list` and it is not `None`.
-        . `str`.
+        * Always `bool`, if `self.flag` is `True`.
+        * The type of the first item of `self.default`, if its type is `list` and it is not empty.
+        * The type of `self.default`, if its type is not `list` and it is not `None`.
+        * `str`.
 
         Exceptions:
-        . `TypeError`, if the type is not `type` or `None`.
-        . `ValueError`, if the value does not match `self.default`.
+        * `TypeError`, if the type is not `type` or `None`.
+        * `ValueError`, if the value does not match `self.default`.
         '''
 
     @type.setter
@@ -185,26 +185,26 @@ class Arg:
     def count(self) -> 'int | str':
         '''
         The number of values consumed by the argument:
-        1. `0`: indicates a flag. Can be set if `self.optional` is `True`.
-        2. `1`: a single value.
-        3. `2` or greater: multiple values, an exact number.
-        4. `'?'`: a single value, zero or one.
-        5. `'*'`: multiple values, zero or more.
-        6. `'+'`: multiple values, one or more.
-        7. `'~'`: multiple values, zero or more. Consume the rest of the command line without parsing. Can be set if `self.positional` is `True`.
+        * `0`: indicates a flag. Can be set if `self.optional` is `True`.
+        * `1`: a single value.
+        * `2` or greater: multiple values, an exact number.
+        * `'?'`: a single value, zero or one.
+        * `'*'`: multiple values, zero or more.
+        * `'+'`: multiple values, one or more.
+        * `'~'`: multiple values, zero or more. Consume the rest of the command line without parsing. Can be set if `self.positional` is `True`.
 
         Defaults:
-        1. `'*'`, if the type of `self.default` is `list`.
-        2. `1`.
+        * `'*'`, if the type of `self.default` is `list`.
+        * `1`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `int`, `str` or `None`.
-        2. `ValueError`, if the type is `int` and the value is negative.
-        3. `ValueError`, if the type is `str` and the value is not one of: `'?'`, `'*'`, `'+'`, `'~'`.
-        4. `ValueError`, if the value is `0` and `self.optional` is `False`.
-        5. `ValueError`, if the value is `'~'` and `self.positional` is `False`.
-        6. `ValueError`, if the value is `'+'` and `self.default` is an empty `list`.
-        7. `ValueError`, if the type is `int` and the value does not match the number of items in `self.default`.
+        * `TypeError`, if the type is not `int`, `str` or `None`.
+        * `ValueError`, if the type is `int` and the value is negative.
+        * `ValueError`, if the type is `str` and the value is not one of: `'?'`, `'*'`, `'+'`, `'~'`.
+        * `ValueError`, if the value is `0` and `self.optional` is `False`.
+        * `ValueError`, if the value is `'~'` and `self.positional` is `False`.
+        * `ValueError`, if the value is `'+'` and `self.default` is an empty `list`.
+        * `ValueError`, if the type is `int` and the value does not match the number of items in `self.default`.
         '''
 
     @count.setter
@@ -215,21 +215,21 @@ class Arg:
     def default(self) -> 'object | list | None':
         '''
         The default value. It is used by the base implementations of `Arg.__call__(...)` in the following cases:
-         * `self.count` is `'?'`, `'*'` or `'~'` and no values provided.
-         * `self.optional` is `True`, `self.suppress` is `False`, and the argument is not mentioned.
+        * `self.count` is `'?'`, `'*'` or `'~'` and no values provided.
+        * `self.optional` is `True`, `self.suppress` is `False`, and the argument is not mentioned.
 
         Defaults:
-        1. `False`, if `self.flag` is `True`.
-        2. `[]`, if `self.count` is `'*'` or `'~'`.
-        3. `None`.
+        * `False`, if `self.flag` is `True`.
+        * `[]`, if `self.count` is `'*'` or `'~'`.
+        * `None`.
 
         Exceptions:
-        1 `TypeError`, if the type is not `list` or `None` and `self.multiple` is `True`.
-        2 `TypeError`, if the type is `list`, and `self.single` is `True`.
-        3 `TypeError`, if the type is not `list` and it is not `self.type` or `None`.
-        4 `TypeError`, if the type is `list` and one of the items is not `self.type`.
-        5. `ValueError`, if the type is `list`, and the number of items does not match `self.count`.
-        6. `ValueError`, if the value is an empty `list`, and `self.count` is `'+'`.
+        * `TypeError`, if the type is not `list` or `None` and `self.multiple` is `True`.
+        * `TypeError`, if the type is `list`, and `self.single` is `True`.
+        * `TypeError`, if the type is not `list` and it is not `self.type` or `None`.
+        * `TypeError`, if the type is `list` and one of the items is not `self.type`.
+        *  `ValueError`, if the type is `list`, and the number of items does not match `self.count`.
+        *  `ValueError`, if the value is an empty `list`, and `self.count` is `'+'`.
         '''
 
     @default.setter
@@ -240,15 +240,15 @@ class Arg:
     def choices(self) -> 'dict[str, str]':
         '''
         A `dict` of the possible values.
-         * Converted to a `dict[str, str]` from any `Iterable`.
-         * The dictionary values are used as the descriptions, if not empty.
-         * `self.default` is never checked against `self.choices`.
+        * Converted to a `dict[str, str]` from any `Iterable`.
+        * The dictionary values are used as the descriptions, if not empty.
+        * `self.default` is never checked against `self.choices`.
 
         Defaults:
-        1. `{}`.
+        * `{}`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `Iterable` or `None`.
+        * `TypeError`, if the type is not `Iterable` or `None`.
         '''
 
     @choices.setter
@@ -261,10 +261,10 @@ class Arg:
         Whether `self.choices` are restrictive.
 
         Defaults:
-        1. `True`.
+        * `True`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `bool` or `None`.
+        * `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @restrict.setter
@@ -277,11 +277,11 @@ class Arg:
         Whether to not set the optional argument to `self.default` if it is not mentioned.
 
         Defaults:
-        1. Always `False`, if `self.optional` is `False`.
-        2. `False`.
+        * Always `False`, if `self.optional` is `False`.
+        * `False`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `bool` or `None`.
+        * `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @suppress.setter
@@ -294,11 +294,11 @@ class Arg:
         Whether the optional argument must be mentioned.
 
         Defaults:
-        1. Always `True`, if `self.optional` is `False`.
-        2. `False`.
+        * Always `True`, if `self.optional` is `False`.
+        * `False`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `bool` or `None`.
+        * `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @required.setter
@@ -311,11 +311,11 @@ class Arg:
         Whether the optional argument is appended on repeat.
 
         Defaults:
-        1. Always `False`, if `self.optional` is `False`.
-        2. `False`.
+        * Always `False`, if `self.optional` is `False`.
+        * `False`.
 
         Exceptions:
-        . `TypeError`, if the type is not `bool` or `None`.
+        * `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @append.setter
@@ -328,12 +328,12 @@ class Arg:
         The command line completer for the argument.
 
         Defaults:
-        1. `CompleterList(self.choices)`, if `self.choices` is not empty.
-        2. `CompleterPath()`, if `self.type` is `str`.
-        3. `CompleterNone()`.
+        * `CompleterList(self.choices)`, if `self.choices` is not empty.
+        * `CompleterPath()`, if `self.type` is `str`.
+        * `CompleterNone()`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `Completer` or `None`.
+        * `TypeError`, if the type is not `Completer` or `None`.
         '''
 
     @completer.setter
@@ -346,8 +346,8 @@ class Arg:
         Whether the argument is optional.
 
         Defaults:
-        1. `True`, if either `self.sopt` or `self.lopt` is set.
-        2. `False`.
+        * `True`, if either `self.sopt` or `self.lopt` is set.
+        * `False`.
         '''
 
     @property
@@ -356,8 +356,8 @@ class Arg:
         Whether the argument is positional.
 
         Defaults:
-        1. `True`, if both `self.sopt` and `self.lopt` are not set.
-        2. `False`.
+        * `True`, if both `self.sopt` and `self.lopt` are not set.
+        * `False`.
         '''
 
     @property
@@ -366,8 +366,8 @@ class Arg:
         Whether the argument does not consume a value.
 
         Defaults:
-        1. `True`, if `self.count` is `0`.
-        2. `False`.
+        * `True`, if `self.count` is `0`.
+        * `False`.
         '''
 
     @property
@@ -376,8 +376,8 @@ class Arg:
         Whether the argument can consume at most one value.
 
         Defaults:
-        1. `True`, if `self.count` is `'?'` or `1`.
-        2. `False`.
+        * `True`, if `self.count` is `'?'` or `1`.
+        * `False`.
         '''
 
     @property
@@ -386,8 +386,8 @@ class Arg:
         Whether the argument can consume more than one value.
 
         Defaults:
-        1. `True`, if `self.count` is `'*'`, `'+'`, `'~'` or greater than one.
-        2. `False`.
+        * `True`, if `self.count` is `'*'`, `'+'`, `'~'` or greater than one.
+        * `False`.
         '''
 
     def __init__(
@@ -434,15 +434,15 @@ class Arg:
     ) -> 'bool':
         '''
         Parse the command line value. This overload is called if:
-         * `self.flag` is `True`.
-         * `self.append` is `False`.
+        * `self.flag` is `True`.
+        * `self.append` is `False`.
 
         Parameters:
-         * `v` - `True` if the argument is mentioned in the command line. `False` otherwise.
+        * `v` - `True` if the argument is mentioned in the command line. `False` otherwise.
 
         Returns:
-        1. `self.default`, if v is `True`.
-        2. `not self.default`, if v is `False`.
+        * `self.default`, if v is `True`.
+        * `not self.default`, if v is `False`.
         '''
 
     @overload
@@ -452,14 +452,14 @@ class Arg:
     ) -> 'int':
         '''
         Parse the command line value. This overload is called if:
-         * `self.flag` is `True`.
-         * `self.append` is `True`.
+        * `self.flag` is `True`.
+        * `self.append` is `True`.
 
         Parameters:
-         * `v` - a number of times the argument is mentioned in the command line.
+        * `v` - a number of times the argument is mentioned in the command line.
 
         Returns:
-        1. `v`.
+        * `v`.
         '''
 
     @overload
@@ -469,18 +469,18 @@ class Arg:
     ) -> 'object | None':
         '''
         Parse the command line value. This overload is called if:
-         * `self.single` is `True`.
-         * `self.append` is `False`.
+        * `self.single` is `True`.
+        * `self.append` is `False`.
 
         Parameters:
-         * `v` - a value from the command line. `None` if not provided.
+        * `v` - a value from the command line. `None` if not provided.
 
         Returns:
-        1. `self.default`, if `v` is `None`.
-        2. `self.type(v)`.
+        * `self.default`, if `v` is `None`.
+        * `self.type(v)`.
 
         Exceptions:
-        1. `CallError`, if `self.restrict` is `True` and the value is not in `self.choices`.
+        * `CallError`, if `self.restrict` is `True` and the value is not in `self.choices`.
         '''
 
     @overload
@@ -490,19 +490,19 @@ class Arg:
     ) -> 'list[object | None]':
         '''
         Parse the command line value. This overload is called if:
-         * `self.single` is `True`.
-         * `self.append` is `True`.
+        * `self.single` is `True`.
+        * `self.append` is `True`.
 
         Parameters:
-         * `v` - a list of values from the command line associated with the argument.
+        * `v` - a list of values from the command line associated with the argument.
 
         Returns:
-        1. A `list` where each item `x` from `v` is set to:
-            1. `self.default`, if `x` is `None`.
-            2. `self.type(x)`.
+        * A `list` where each item `x` from `v` is set to:
+           * `self.default`, if `x` is `None`.
+           * `self.type(x)`.
 
         Exceptions:
-        . `CallError`, if `self.restrict` is `True` and any item is not in `self.choices`.
+        * `CallError`, if `self.restrict` is `True` and any item is not in `self.choices`.
         '''
 
     @overload
@@ -512,18 +512,18 @@ class Arg:
     ) -> 'list[object] | None':
         '''
         Parse the command line value. This overload is called if:
-         * `self.multiple` is `True`.
-         * `self.append` is `False`.
+        * `self.multiple` is `True`.
+        * `self.append` is `False`.
 
         Parameters:
-         * `v` - a list of values from the command line.
+        * `v` - a list of values from the command line.
 
         Returns:
-        1. `self.default`, if `v` is `None`.
-        2. A `list` where each item `x` from `v` is set to `self.type(x)`.
+        * `self.default`, if `v` is `None`.
+        * A `list` where each item `x` from `v` is set to `self.type(x)`.
 
         Exceptions:
-        1. `CallError`, if `self.restrict` is `True` and any item is not in `self.choices`.
+        * `CallError`, if `self.restrict` is `True` and any item is not in `self.choices`.
         '''
 
     @overload
@@ -533,19 +533,19 @@ class Arg:
     ) -> 'list[list[object] | None]':
         '''
         Parse the command line value. This overload is called if:
-         * `self.multiple` is `True`.
-         * `self.append` is `True`.
+        * `self.multiple` is `True`.
+        * `self.append` is `True`.
 
         Parameters:
-         * `v` - a list of lists of values from the command line associated with the argument.
+        * `v` - a list of lists of values from the command line associated with the argument.
 
         Returns:
-        1. A `list[list]` where each list `l` from `v` is converted to:
-            1. `self.default`, if `l` is `None`.
-            2. A `list` where each item `x` from `l` is converted to `self.type(x)`.
+        * A `list[list]` where each list `l` from `v` is converted to:
+           * `self.default`, if `l` is `None`.
+           * A `list` where each item `x` from `l` is converted to `self.type(x)`.
 
         Exceptions:
-        1. `CallError`, if `self.restrict` is `True` and any item is not in `self.choices`.
+        * `CallError`, if `self.restrict` is `True` and any item is not in `self.choices`.
         '''
 
 
@@ -677,7 +677,6 @@ class App:
     ) -> 'None':
         '''
         Run the command.
-
         * This function is called by `main()` on each command from the command line.
         * The base implementation does nothing, the subclasses are supposed to override it.
         * `CallError` has to be raised to notify about any errors.
@@ -698,10 +697,10 @@ class ArgHelper:
         Whether to append the `Arg.choices` to the help text.
 
         Defaults:
-        1. `True`.
+        * `True`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `bool` or `None`.
+        * `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @choices.setter
@@ -714,10 +713,10 @@ class ArgHelper:
         Whether to append the `Arg.default` to the help text.
 
         Defaults:
-        1. `True`.
+        * `True`.
 
         Exceptions:
-        1. `TypeError`, if the type is not `bool` or `None`.
+        * `TypeError`, if the type is not `bool` or `None`.
         '''
 
     @default.setter
@@ -729,10 +728,10 @@ class ArgHelper:
         Generate the argument's description.
 
         Parameters:
-         * `arg` - the argument to use for the generation.
+        * `arg` - the argument to use for the generation.
 
         Returns:
-        1. `arg.help` with the following appended if `arg.flag` is `False`:
+        * `arg.help` with the following appended if `arg.flag` is `False`:
            * `arg.default`, if `self.default` is `True`.
            * `arg.choices`, if `self.choices` is `True`.
         '''
@@ -745,15 +744,15 @@ class ArgHelper:
         * `arg` - the argument to use for the generation.
 
         Returns:
-        1. A `str` with the following text combined:
-           1. `-sopt`, if `arg.sopt` is set.
-           2. `--lopt`, if `arg.lopt` is set.
-           3. A stylized `arg.name`:
-              1. `name` repeated `arg.count` times, if its type is `int`.
-              2. `[name]`, if `arg.count` is `'?'`.
-              3. `[name...]`, if `arg.count` is `'*'`.
-              4. `name [name...]`, if `arg.count` is `'+'`.
-              5. `[name]...`, if `arg.count` is `'~'`.
+        * A `str` with the following text combined:
+           * `-sopt`, if `arg.sopt` is set.
+           * `--lopt`, if `arg.lopt` is set.
+           * A stylized `arg.name`:
+                  * `name` repeated `arg.count` times, if its type is `int`.
+                  * `[name]`, if `arg.count` is `'?'`.
+                  * `[name...]`, if `arg.count` is `'*'`.
+                  * `name [name...]`, if `arg.count` is `'+'`.
+                  * `[name]...`, if `arg.count` is `'~'`.
         '''
 
     def __init__(
@@ -765,8 +764,8 @@ class ArgHelper:
         The constructor. Sets each field in the declaration order.
 
         Parameters:
-         * `choices` - corresponds to `self.choices`.
-         * `default` - corresponds to `self.default`.
+        * `choices` - corresponds to `self.choices`.
+        * `default` - corresponds to `self.default`.
         '''
 
 
@@ -831,8 +830,8 @@ class AppHelper:
         Generate the command's full help text.
 
         Parameters:
-        * `apps` - A list of commands mentioned in the command line. The text is generated for the last one.
-        * `name` - A name to use for the first command in `apps`.
+        * `apps` - a list of commands mentioned in the command line. The text is generated for the last one.
+        * `name` - a name to use for the first command in `apps`.
 
         Returns:
         * A `str`, combination of the following:
@@ -853,8 +852,8 @@ class AppHelper:
         Generate the command's full usage text.
 
         Parameters:
-        * `apps` - A list of commands mentioned in the command line. The usage text is generated for the last one.
-        * `name` - A name to use for the first command in `apps`.
+        * `apps` - a list of commands mentioned in the command line. The usage text is generated for the last one.
+        * `name` - a name to use for the first command in `apps`.
 
         Returns:
         * A `str` that combines:
@@ -873,7 +872,7 @@ class AppHelper:
 
         Parameters:
         * `title` - a title for the section.
-        * `app` -`App` to generate the text for.
+        * `app`   - an `App` to generate the text for.
 
         Returns:
         * `''` if `app.prolog` is not set.
@@ -910,8 +909,8 @@ class AppHelper:
         Generate the command's text for subcommands.
 
         Parameters:
-        * `title` - A title for the section.
-        * `apps`  - A list of `App` to generate the text for.
+        * `title` - a title for the section.
+        * `apps`  - a list of `App` to generate the text for.
 
         Returns:
         * `''` if `apps` is empty.
@@ -928,7 +927,7 @@ class AppHelper:
 
         Parameters:
         * `title` - a title for the section.
-        * `args` - a list of `Arg` to generate the text for.
+        * `args`  - a list of `Arg` to generate the text for.
 
         Returns:
         * `''` if `args` is empty.
@@ -1015,12 +1014,12 @@ def _str(o: 'object') -> 'str':
     Convert to a printable `str`.
 
     Parameters:
-     * `o` - object to convert to `str`.
+    * `o` - object to convert to `str`.
 
     Returns:
-    1. `f'"{o}"'`, if the type is `str`.
-    2. `o__name__`, if the type is `type`.
-    3. `str(o)`.
+    * `f'"{o}"'`, if the type is `str`.
+    * `o.__name__`, if the type is `type`.
+    * `str(o)`.
     '''
 
 
@@ -1033,12 +1032,12 @@ def _raise_t(
     Raise a consistently formatted `TypeError`, if the object is not one of the types.
 
     Parameters:
-     * `o` - object to check.
-     * `t` - types to check against.
-     * `v` - name of the value that is being checked.
+    * `o` - object to check.
+    * `t` - types to check against.
+    * `v` - name of the value that is being checked.
 
     Exceptions:
-     * `TypeError`, if the type of `o` does not match any in `t`.
+    * `TypeError`, if the type of `o` does not match any in `t`.
     '''
 
 
@@ -1052,11 +1051,11 @@ def _raise_v(
     Raise a consistently formatted `ValueError`, if the condition is `False`.
 
     Parameters:
-     * `o` - object, will be mentioned in the error message.
-     * `c` - condition, `True` or `False`.
-     * `v` - name of the value that is being checked.
-     * `m` - message with more datails.
+    * `o` - object, will be mentioned in the error message.
+    * `c` - condition, `True` or `False`.
+    * `v` - name of the value that is being checked.
+    * `m` - message with more datails.
 
     Exceptions:
-     * `ValueError`, if `c` is `False`.
+    * `ValueError`, if `c` is `False`.
     '''
