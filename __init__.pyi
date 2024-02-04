@@ -974,6 +974,14 @@ class CallError:
     @property
     def code(self) -> 'int':
         '''
+        The error exit code.
+
+        Defaults:
+        * `1`.
+
+        Exceptions:
+        * `TypeError`, if the type is not `str` or `None`.
+        * `ValueError`, if the value is not in range `[0; 255]`.
         '''
 
     @code.setter

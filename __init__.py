@@ -819,7 +819,18 @@ class CallError(RuntimeError):
 
     @code.setter
     def code(self, v: 'int | None') -> 'None':
-        self.__code = v
+        # Validate.
+        V = 'CallError.code'
+        _raise_t(v, (int, type(None)), V)
+        if v is not None:
+            _raise_v(
+                v,
+                v >= 0 and v <= 255,
+                V,
+                'Must be from 0 to 255.',
+            )
+        # Set.
+        self.__code = 1 if v is None else v
 
     def __init__(
         self,
@@ -827,7 +838,7 @@ class CallError(RuntimeError):
         code: 'int | None' = None,
     ) -> 'None':
         self.text = text
-        self.code = code or 1
+        self.code = code
 
 
 def main(
