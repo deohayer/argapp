@@ -44,7 +44,7 @@ class Arg:
     @name.setter
     def name(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'Arg.name')
+        raise_t(v, (str, type(None)), 'Arg.name')
         # Set.
         self.___name = v or ''
         self.__name = self.___name or self.lopt.upper() or self.sopt.upper()
@@ -56,7 +56,7 @@ class Arg:
     @lopt.setter
     def lopt(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'Arg.lopt')
+        raise_t(v, (str, type(None)), 'Arg.lopt')
         # Set.
         self.__lopt = v or ''
         self.name = self.___name
@@ -71,11 +71,11 @@ class Arg:
     @sopt.setter
     def sopt(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'Arg.sopt')
-        _raise_v(v,
-                 v is None or len(v) < 2,
-                 'Arg.sopt',
-                 'Must not exceed one character.')
+        raise_t(v, (str, type(None)), 'Arg.sopt')
+        raise_v(f'"{v}"',
+                len(v or '') > 1,
+                'Arg.sopt',
+                'Must not exceed one character.')
         # Set.
         self.__sopt = v or ''
         self.name = self.___name
@@ -90,7 +90,7 @@ class Arg:
     @help.setter
     def help(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'Arg.help')
+        raise_t(v, (str, type(None)), 'Arg.help')
         # Set.
         self.__help = v or ''
 
@@ -101,7 +101,7 @@ class Arg:
     @helper.setter
     def helper(self, v: 'ArgHelper | None') -> 'None':
         # Validate.
-        _raise_t(v, (ArgHelper, type(None)), 'Arg.helper')
+        raise_t(v, (ArgHelper, type(None)), 'Arg.helper')
         # Set.
         self.__helper = v or ArgHelper()
 
@@ -113,15 +113,15 @@ class Arg:
     def type(self, v: 'type | None') -> 'None':
         # Validate.
         V = 'Arg.type'
-        _raise_t(v, (type, type(None)), V)
+        raise_t(v, (type, type(None)), V)
         if v is not None:
             M = f'Must match self.default:'
             if isinstance(self.default, list) and self.default:
-                M = f'{M} {_str(type(self.default[0]))}.'
-                _raise_v(v, isinstance(self.default[0], v), V, M)
+                M = f'{M} {type(self.default[0]).__name__}.'
+                raise_v(v.__name__, not isinstance(self.default[0], v), V, M)
             elif not isinstance(self.default, list) and self.default is not None:
-                M = f'{M} {_str(type(self.default))}.'
-                _raise_v(v, isinstance(self.default, v), V, M)
+                M = f'{M} {type(self.default).__name__}.'
+                raise_v(v.__name__, not isinstance(self.default, v), V, M)
         # Set.
         self.___type = v
         self.__type = self.___type
@@ -145,29 +145,29 @@ class Arg:
     def count(self, v: 'int | str | None') -> 'None':
         # Validate.
         V = 'Arg.count'
-        _raise_t(v, (int, str, type(None)), V)
+        raise_t(v, (int, str, type(None)), V)
         if self.optional:
             if isinstance(v, int):
                 M = f'Must be non-negative for optional.'
-                _raise_v(v, v >= 0, V, M)
+                raise_v(v, v < 0, V, M)
             if isinstance(v, str):
                 M = f'Must be "?", "*" or "+" for optional.'
-                _raise_v(v, v in ['?', '*', '+'], V, M)
+                raise_v(f'"{v}"', v not in ['?', '*', '+'], V, M)
         if self.positional:
             if isinstance(v, int):
                 M = f'Must be positive for positional.'
-                _raise_v(v, v > 0, V, M)
+                raise_v(v, v <= 0, V, M)
             if isinstance(v, str):
                 M = f'Must be "?", "*", "+" or "~" for positional.'
-                _raise_v(v, v in ['?', '*', '+', '~'], V, M)
+                raise_v(f'"{v}"', v not in ['?', '*', '+', '~'], V, M)
         if isinstance(self.default, list):
             l = len(self.default)
             if v == '+':
                 M = f'Must allow zero values, self.default is empty.'
-                _raise_v(v, l != 0, V, M)
+                raise_v(f'"{v}"', l == 0, V, M)
             if isinstance(v, int):
                 M = f'Must match the number of values in self.default: {l}.'
-                _raise_v(v, v == l, V, M)
+                raise_v(v, v != l, V, M)
         # Set.
         self.___count = v
         v = self.__count
@@ -192,9 +192,9 @@ class Arg:
         if self.___type is not None:
             if isinstance(v, list):
                 for i in range(len(v)):
-                    _raise_t(v[i], self.type, f'{V}[{i}]')
+                    raise_t(v[i], self.type, f'{V}[{i}]')
             else:
-                _raise_t(v, (self.type, type(None)), V)
+                raise_t(v, (self.type, type(None)), V)
         if self.___count is not None:
             if isinstance(v, list):
                 if self.single:
@@ -203,12 +203,12 @@ class Arg:
                 if isinstance(self.count, int):
                     M = f'Must match self.count: {self.count}.'
                     O = Exception(f'len() is {len(v)}')
-                    _raise_v(O, len(v) == self.count, V, M)
+                    raise_v(O, len(v) != self.count, V, M)
                 elif self.count == '+':
                     M = 'Must have at least one item, self.count is "+".'
-                    _raise_v(v, bool(v), V, M)
+                    raise_v(v, not v, V, M)
             elif self.multiple:
-                _raise_t(v, (list, type(None)), V)
+                raise_t(v, (list, type(None)), V)
         # Set.
         self.___default = v
         self.__default = self.___default
@@ -229,7 +229,7 @@ class Arg:
     @choices.setter
     def choices(self, v: 'list | dict | None') -> 'None':
         # Validate.
-        _raise_t(v, (Iterable, type(None)), 'Arg.choices')
+        raise_t(v, (Iterable, type(None)), 'Arg.choices')
         # Set.
         self.__choices = {}
         if isinstance(v, dict):
@@ -246,7 +246,7 @@ class Arg:
     @restrict.setter
     def restrict(self, v: 'bool | None') -> 'None':
         # Validate.
-        _raise_t(v, (bool, type(None)), 'Arg.restrict')
+        raise_t(v, (bool, type(None)), 'Arg.restrict')
         # Set.
         self.__restrict = True if v is None else v
 
@@ -257,7 +257,7 @@ class Arg:
     @suppress.setter
     def suppress(self, v: 'bool | None') -> 'None':
         # Validate.
-        _raise_t(v, (bool, type(None)), 'Arg.suppress')
+        raise_t(v, (bool, type(None)), 'Arg.suppress')
         # Set.
         self.__suppress = False if self.positional else bool(v)
 
@@ -268,7 +268,7 @@ class Arg:
     @required.setter
     def required(self, v: 'bool | None') -> 'None':
         # Validate.
-        _raise_t(v, (bool, type(None)), 'Arg.required')
+        raise_t(v, (bool, type(None)), 'Arg.required')
         # Set.
         self.__required = self.positional or bool(v)
 
@@ -279,7 +279,7 @@ class Arg:
     @append.setter
     def append(self, v: 'bool | None') -> 'None':
         # Validate.
-        _raise_t(v, (bool, type(None)), 'Arg.append')
+        raise_t(v, (bool, type(None)), 'Arg.append')
         # Set.
         self.__append = False if self.positional else bool(v)
 
@@ -290,7 +290,7 @@ class Arg:
     @completer.setter
     def completer(self, v: 'Completer | None') -> 'None':
         # Validate.
-        _raise_t(v, (Completer, type(None)), 'Arg.completer')
+        raise_t(v, (Completer, type(None)), 'Arg.completer')
         # Set.
         self.___completer = v
         self.__completer = self.___completer
@@ -470,7 +470,7 @@ class App:
     @name.setter
     def name(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'App.name')
+        raise_t(v, (str, type(None)), 'App.name')
         # Set.
         self.__name = v or ''
 
@@ -481,7 +481,7 @@ class App:
     @help.setter
     def help(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'App.help')
+        raise_t(v, (str, type(None)), 'App.help')
         # Set.
         self.__help = v or ''
 
@@ -492,7 +492,7 @@ class App:
     @prolog.setter
     def prolog(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'App.prolog')
+        raise_t(v, (str, type(None)), 'App.prolog')
         # Set.
         self.__prolog = v or self.help
 
@@ -503,7 +503,7 @@ class App:
     @epilog.setter
     def epilog(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'App.epilog')
+        raise_t(v, (str, type(None)), 'App.epilog')
         # Set.
         self.__epilog = v or ''
 
@@ -514,7 +514,7 @@ class App:
     @helper.setter
     def helper(self, v: 'AppHelper | None') -> 'None':
         # Validate.
-        _raise_t(v, (AppHelper, type(None)), 'App.helper')
+        raise_t(v, (AppHelper, type(None)), 'App.helper')
         # Set.
         self.__helper = v or AppHelper()
 
@@ -563,7 +563,7 @@ class ArgHelper:
     @choices.setter
     def choices(self, v: 'bool | None') -> 'None':
         # Validate.
-        _raise_t(v, (bool, type(None)), 'ArgHelper.choices')
+        raise_t(v, (bool, type(None)), 'ArgHelper.choices')
         # Set.
         self.__choices = True if v is None else v
 
@@ -574,7 +574,7 @@ class ArgHelper:
     @default.setter
     def default(self, v: 'bool | None') -> 'None':
         # Validate.
-        _raise_t(v, (bool, type(None)), 'ArgHelper.default')
+        raise_t(v, (bool, type(None)), 'ArgHelper.default')
         # Set.
         self.__default = True if v is None else v
 
@@ -651,7 +651,7 @@ class AppHelper:
     @lopt.setter
     def lopt(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'AppHelper.lopt')
+        raise_t(v, (str, type(None)), 'AppHelper.lopt')
         # Set.
         self.__lopt = v or ''
 
@@ -663,11 +663,11 @@ class AppHelper:
     def sopt(self, v: 'str | None') -> 'None':
         # Validate.
         V = 'AppHelper.sopt'
-        _raise_t(v, (str, type(None)), V)
-        _raise_v(v,
-                 v is None or len(v) < 2,
-                 V,
-                 'Must not exceed one character.')
+        raise_t(v, (str, type(None)), V)
+        raise_v(f'"{v}"',
+                len(v or '') > 1,
+                V,
+                'Must not exceed one character.')
         # Set.
         self.__sopt = v or ''
 
@@ -678,7 +678,7 @@ class AppHelper:
     @help.setter
     def help(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'AppHelper.help')
+        raise_t(v, (str, type(None)), 'AppHelper.help')
         # Set.
         self.__help = v or ''
 
@@ -809,7 +809,7 @@ class CallError(RuntimeError):
     @text.setter
     def text(self, v: 'str | None') -> 'None':
         # Validate.
-        _raise_t(v, (str, type(None)), 'CallError.text')
+        raise_t(v, (str, type(None)), 'CallError.text')
         # Set.
         self.__text = v or ''
 
@@ -821,11 +821,11 @@ class CallError(RuntimeError):
     def code(self, v: 'int | None') -> 'None':
         # Validate.
         V = 'CallError.code'
-        _raise_t(v, (int, type(None)), V)
+        raise_t(v, (int, type(None)), V)
         if v is not None:
-            _raise_v(
+            raise_v(
                 v,
-                v >= 0 and v <= 255,
+                v < 0 or v > 255,
                 V,
                 'Must be from 0 to 255.',
             )
@@ -848,36 +848,34 @@ def main(
     ...
 
 
-def _str(o: 'object') -> 'str':
-    if isinstance(o, str):
-        return f'"{o}"'
-    if isinstance(o, type):
-        return 'None' if o is type(None) else o.__name__
-    if o is Iterable:
-        return 'Iterable'
-    return str(o)
-
-
-def _raise_t(
-    o: 'object',
-    t: 'type | tuple[type]',
-    v: 'str',
+def raise_t(
+    value: 'object',
+    types: 'type | tuple[type]',
+    topic: 'str',
 ) -> 'None':
-    if isinstance(t, type):
-        t = (t,)
-    if isinstance(o, t):
+    if isinstance(types, type):
+        types = (types,)
+    if isinstance(value, types):
         return
-    types = ', '.join(_str(x) for x in t)
+    names = []
+    for x in types:
+        if x is type(None):
+            names.append('None')
+        else:
+            names.append(x.__name__.split('.')[-1])
+    name = type(value).__name__.split('.')[-1]
     raise TypeError(
-        f'{v}: Invalid type: {type(o).__name__}. Must be: {types}.')
+        f'{topic}: Invalid type: {name}. '
+        f'Must be: {", ".join(names)}.'
+    )
 
 
-def _raise_v(
-    o: 'object',
-    c: 'bool',
-    v: 'str',
-    m: 'str',
+def raise_v(
+    value: 'object',
+    error: 'bool',
+    topic: 'str',
+    extra: 'str',
 ) -> 'None':
-    if c:
+    if not error:
         return
-    raise ValueError(f'{v}: Invalid value: {_str(o)}. {m}')
+    raise ValueError(f'{topic}: Invalid value: {value}. {extra}')

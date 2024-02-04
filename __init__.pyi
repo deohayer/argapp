@@ -1023,39 +1023,39 @@ def _str(o: 'object') -> 'str':
     '''
 
 
-def _raise_t(
-    o: 'object',
-    t: 'type | tuple[type]',
-    v: 'str',
+def raise_t(
+    value: 'object',
+    types: 'type | tuple[type]',
+    topic: 'str',
 ) -> 'None':
     '''
-    Raise a consistently formatted `TypeError`, if the object is not one of the types.
+    Raise a consistently formatted `TypeError`.
 
     Parameters:
-    * `o` - object to check.
-    * `t` - types to check against.
-    * `v` - name of the value that is being checked.
+    * `value` - an `object` to check.
+    * `types` - types to check against.
+    * `topic` - a name or description of `value` that is being checked.
 
     Exceptions:
-    * `TypeError`, if the type of `o` does not match any in `t`.
+    * `TypeError`, if `type(value)` is not in `types`.
     '''
 
 
-def _raise_v(
-    o: 'object',
-    c: 'bool',
-    v: 'str',
-    m: 'str',
+def raise_v(
+    value: 'object',
+    error: 'bool',
+    topic: 'str',
+    extra: 'str',
 ) -> 'None':
     '''
-    Raise a consistently formatted `ValueError`, if the condition is `False`.
+    Raise a consistently formatted `ValueError`.
 
     Parameters:
-    * `o` - object, will be mentioned in the error message.
-    * `c` - condition, `True` or `False`.
-    * `v` - name of the value that is being checked.
-    * `m` - message with more datails.
+    * `value` - an `object` to mention as the actual value.
+    * `error` - whether to raise, `True` or `False`.
+    * `topic` - a name or description of `value` that is being checked.
+    * `extra` - extra information, must be provided.
 
     Exceptions:
-    * `ValueError`, if `c` is `False`.
+    * `ValueError`, if `error` is `True`.
     '''
