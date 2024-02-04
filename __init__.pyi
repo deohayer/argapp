@@ -979,6 +979,11 @@ class CallError:
         code: 'int | None' = None,
     ) -> 'None':
         '''
+        The constructor. Sets each field in the declaration order.
+
+        Parameters:
+        * `text` - corresponds to `self.text`.
+        * `code` - corresponds to `self.code`.
         '''
 
 

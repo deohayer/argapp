@@ -823,8 +823,8 @@ class CallError(RuntimeError):
         text: 'str | None' = None,
         code: 'int | None' = None,
     ) -> 'None':
-        self.__text = text
-        self.__code = code
+        self.text = text or ''
+        self.code = code or 1
 
 
 def main(
