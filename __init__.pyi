@@ -958,6 +958,13 @@ class CallError:
     @property
     def text(self) -> 'str':
         '''
+        The error text.
+
+        Defaults:
+        * `''`.
+
+        Exceptions:
+        * `TypeError`, if the type is not `str` or `None`.
         '''
 
     @text.setter

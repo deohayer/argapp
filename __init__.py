@@ -808,7 +808,10 @@ class CallError(RuntimeError):
 
     @text.setter
     def text(self, v: 'str | None') -> 'None':
-        self.__text = v
+        # Validate.
+        _raise_t(v, (str, type(None)), 'CallError.text')
+        # Set.
+        self.__text = v or ''
 
     @property
     def code(self) -> 'int':
@@ -823,7 +826,7 @@ class CallError(RuntimeError):
         text: 'str | None' = None,
         code: 'int | None' = None,
     ) -> 'None':
-        self.text = text or ''
+        self.text = text
         self.code = code or 1
 
 
