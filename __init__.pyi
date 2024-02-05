@@ -1009,20 +1009,6 @@ def main(
     '''
 
 
-def _str(o: 'object') -> 'str':
-    '''
-    Convert to a printable `str`.
-
-    Parameters:
-    * `o` - object to convert to `str`.
-
-    Returns:
-    * `f'"{o}"'`, if the type is `str`.
-    * `o.__name__`, if the type is `type`.
-    * `str(o)`.
-    '''
-
-
 def raise_t(
     value: 'object',
     types: 'type | tuple[type]',
