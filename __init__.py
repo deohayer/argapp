@@ -174,8 +174,7 @@ class Arg:
         self.__count = self.___count
         if self.__count is None:
             self.__count = '*' if isinstance(self.default, list) else 1
-        if self.___type is None:
-            self.type = None
+        self.type = self.___type
         if self.___default is None and self.__count is not v:
             self.default = None
 
@@ -853,6 +852,10 @@ def raise_t(
     types: 'type | tuple[type]',
     topic: 'str',
 ) -> 'None':
+    def _name(t: 'type') -> 'str':
+        name = getattr(t, '__name__', str(t))
+        return name.split('.')[-1]
+
     if isinstance(types, type):
         types = (types,)
     if isinstance(value, types):
@@ -862,8 +865,8 @@ def raise_t(
         if x is type(None):
             names.append('None')
         else:
-            names.append(x.__name__.split('.')[-1])
-    name = type(value).__name__.split('.')[-1]
+            names.append(_name(x))
+    name = _name(type(value))
     raise TypeError(
         f'{topic}: Invalid type: {name}. '
         f'Must be: {", ".join(names)}.'
