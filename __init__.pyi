@@ -1006,6 +1006,36 @@ def main(
     argv: 'list[str]' = sys.argv,
 ) -> 'None':
     '''
+    A complete runtime of the command. It does the following:
+    * Construction. `app` is translated to `argparse.ArgumentParser` and sanity checks are performed.
+      `app.name` is set to `os.path.basename(argv[0])` if empty.
+    * Parsing. `argv` is translated to `args` and `apps` for `App.__call__()`.
+    * Execution. `sys.exit()` is always called, so there is no return. The flow depends on the presence of the help option:
+       * If mentioned, only the text is printed to stdout.
+       * If not mentioned, `x(args, apps)` is called for each `x` in `apps`.
+
+    Parameters:
+    * `app`  - an `App` to translate to `argparse.ArgumentParser`.
+    * `argv` - the command line including the command name, defaults to `sys.argv`.
+
+    Exceptions:
+    * Construction. All exceptions are not intercepted.
+       * `ValueError`, if any `App` has empty `App.name`.
+       * `ValueError`, if any `App` have the same `App.name`.
+       * `ValueError`, if any positional `Arg` has empty `Arg.name`.
+       * `ValueError`, if any positional `Arg` have the same `Arg.name`.
+       * `ValueError`, if any optional `Arg` or `App.helper` have the same `lopt` or `sopt`.
+    * Parsing. `CallError` is intercepted and printed with the usage to stderr, followed by `sys.exit()`. Other exceptions are not intercepted.
+       * `SystemExit`, on a custom `CallError` from `App.__call__()`, code `CallError.code`.
+       * `SystemExit`, on a missing subcommand, code `1`.
+       * `SystemExit`, on an unknown subcommand, code `1`.
+       * `SystemExit`, on a missing argument, code `1`.
+       * `SystemExit`, on an unknown argument, code `1`.
+       * `SystemExit`, if there are less values, code `1`.
+    * Execution. `CallError` is intercepted and printed to stderr, followed by `sys.exit()`. Other exceptions are not intercepted.
+       * `SystemExit`, on a custom `CallError` from `App.__call__()`, code `CallError.code`.
+       * `SystemExit`, on the help command, code `0`.
+       * `SystemExit`, on execution without errors, code `0`.
     '''
 
 

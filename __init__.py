@@ -1,11 +1,15 @@
+import os
 import sys
+from argparse import Action, ArgumentParser, REMAINDER, SUPPRESS
 from typing import Iterable
+
 
 try:
     from argcomplete.completers import BaseCompleter as Completer
     from argcomplete.completers import SuppressCompleter as CompleterNone
     from argcomplete.completers import ChoicesCompleter as CompleterList
     from argcomplete.completers import FilesCompleter as CompleterPath
+    from argcomplete import autocomplete
 except:
     class Completer:
         def __init__(self) -> 'None':
@@ -34,6 +38,9 @@ except:
 
         def __call__(self, *args, **kwds) -> 'list[str]':
             ...
+
+    def autocomplete(*args, **kwds) -> 'None':
+        ...
 
 
 class Arg:
@@ -840,11 +847,263 @@ class CallError(RuntimeError):
         self.code = code
 
 
+class Help(Action):
+    def __init__(self, *args, **kwds) -> 'None':
+        self.apps: 'list[App]' = kwds.pop('apps')
+        super().__init__(*args, **kwds)
+
+    def __call__(self, *args, **kwds) -> 'None':
+        print(self.apps[-1].helper.text_help(self.apps, ''))
+        sys.exit(0)
+
+
+class Parser(ArgumentParser):
+    def __init__(self, *args, **kwds) -> 'None':
+        apps: 'list[App]' = [x for x in kwds.pop('apps')]
+        self.apps = apps
+        super().__init__(*args, **kwds)
+        self.app = self.apps[-1]
+        # Validate.
+        for i in range(len(self.app.apps)):
+            self.init_validate_app(i)
+        for i in range(len(self.app.args)):
+            self.init_validate_arg(i)
+        # Add help.
+        args = []
+        if self.app.helper.sopt:
+            args.append(f'-{self.app.helper.sopt}')
+        if self.app.helper.lopt:
+            args.append(f'--{self.app.helper.lopt}')
+        if args:
+            self.add_argument(*args, action=Help, nargs=0, apps=self.apps)
+        # Add args.
+        for arg in self.app.args:
+            self.init_add_arg(arg)
+        # Add apps.
+        if self.app.apps:
+            self.sub = self.add_subparsers(
+                dest=str(id(self.app)),
+                metavar='{...}',
+            )
+            self.sub.required = True
+            for app in self.app.apps:
+                self.init_add_app(app)
+
+    def parse(self, argv: 'list[str]') -> 'tuple[dict[Arg], list[App]]':
+        ns = self.parse_args(argv[1:])
+        # apps
+        apps: 'list[App]' = []
+        cmd = self.app
+        while True:
+            apps.append(cmd)
+            name = getattr(ns, str(id(cmd)), None)
+            if name is None:
+                break
+            for app in cmd.apps:
+                if app.name == name:
+                    cmd = app
+                    break
+        # args
+        args: 'dict[Arg]' = {}
+        for app in apps:
+            for arg in app.args:
+                vid = str(id(arg))
+                if not hasattr(ns, vid):
+                    continue
+                v = getattr(ns, vid)
+                try:
+                    if arg.append:
+                        if arg.flag:
+                            args[arg] = arg(v or 0)
+                        else:
+                            args[arg] = arg(v or [])
+                    else:
+                        if arg.flag:
+                            args[arg] = arg(bool(v))
+                        else:
+                            args[arg] = arg(v if v != [] else None)
+                except CallError as e:
+                    self.error(e)
+        # Return the result.
+        return (args, apps)
+
+    def error(self, message: 'str | CallError') -> 'None':
+        usage = self.app.helper.text_usage(self.apps, '')
+        code = 1
+        if isinstance(message, CallError):
+            code = message.code
+            message = message.text
+        elif 'arguments are required' in message:
+            message = self.error_missing(message)
+        elif 'unrecognized arguments' in message:
+            message = self.error_unknown(message)
+        elif 'invalid choice' in message:
+            message = self.error_choices(message)
+        elif 'expected' in message:
+            message = self.error_values(message)
+        raise CallError(f'{usage}\n\n{message}', code)
+
+    def init_validate_app(self, i: 'int') -> 'None':
+        topic = 'main'
+        app = self.app.apps[i]
+        raise_v(
+            value=self.app.name,
+            error=bool(not app.name),
+            topic=topic,
+            extra=f'apps[{i}].name is empty.',
+        )
+        for j in range(i + 1, len(self.app.apps)):
+            raise_v(
+                value=self.app.name,
+                error=(app.name == self.app.apps[j].name),
+                topic=topic,
+                extra=f'apps[{i}] and apps[{j}] have the same name: "{app.name}".',
+            )
+
+    def init_validate_arg(self, i: 'int') -> 'None':
+        topic = 'main'
+        arg = self.app.args[i]
+        raise_v(
+            value=self.app.name,
+            error=bool(not arg.name),
+            topic=topic,
+            extra=f'args[{i}].name is empty.',
+        )
+        raise_v(
+            value=self.app.name,
+            error=(arg.lopt == self.app.helper.lopt and arg.lopt),
+            topic=topic,
+            extra=f'args[{i}] and help have the same lopt: "{arg.lopt}".',
+        )
+        raise_v(
+            value=self.app.name,
+            error=(arg.sopt == self.app.helper.sopt and arg.sopt),
+            topic=topic,
+            extra=f'args[{i}] and help have the same sopt: "{arg.sopt}".',
+        )
+        for j in range(i + 1, len(self.app.args)):
+            if arg.positional:
+                raise_v(
+                    value=self.app.name,
+                    error=(arg.name == self.app.args[j].name),
+                    topic=topic,
+                    extra=f'args[{i}] and args[{j}] have the same name: "{arg.name}".',
+                )
+                continue
+            raise_v(
+                value=self.app.name,
+                error=(arg.lopt == self.app.args[j].lopt and arg.lopt),
+                topic=topic,
+                extra=f'args[{i}] and args[{j}] have the same lopt: "{arg.lopt}".',
+            )
+
+            raise_v(
+                value=self.app.name,
+                error=(arg.sopt == self.app.args[j].sopt and arg.sopt),
+                topic=topic,
+                extra=f'args[{i}] and args[{j}] have the same sopt: "{arg.sopt}".',
+            )
+
+    def init_add_arg(self, arg: 'Arg') -> 'None':
+        args = []
+        kwds = {'dest': str(id(arg))}
+        # lopt and sopt
+        if arg.sopt:
+            args.append(f'-{arg.sopt}')
+        if arg.lopt:
+            args.append(f'--{arg.lopt}')
+        # metavar
+        if not arg.flag:
+            kwds['metavar'] = arg.name
+        # nargs
+        if arg.count == '~':
+            kwds['nargs'] = REMAINDER
+        elif arg.count != 1 and arg.count != 0:
+            kwds['nargs'] = arg.count
+        # action
+        if arg.flag:
+            kwds['action'] = 'count' if arg.append else 'store_true'
+        elif arg.append:
+            kwds['action'] = 'append'
+        # suppress
+        if arg.suppress:
+            kwds['default'] = SUPPRESS
+        # required
+        if arg.optional and arg.required:
+            kwds['required'] = True
+        # Add argument and set the completer.
+        self.add_argument(*args, **kwds).completer = arg.completer
+
+    def init_add_app(self, app: 'App') -> 'None':
+        self.apps.append(app)
+        self.sub.add_parser(
+            app.name,
+            apps=self.apps,
+            allow_abbrev=False,
+            add_help=False,
+        )
+        self.apps.pop()
+
+    def error_missing(self, message: 'str') -> 'str':
+        names = message.split(':')[1].split(',')
+        names = [x.strip() for x in names]
+        if '{...}' in names:
+            names.remove('{...}')
+            if not names:
+                message = '\n * '.join(x.name for x in self.app.apps)
+                return f'Missing subcommand. Choose from:\n * {message}'
+        return f'Missing arguments: {", ".join(names)}.'
+
+    def error_choices(self, message: 'str') -> 'str':
+        message = '\n * '.join(x.name for x in self.app.apps)
+        return f'Invalid subcommand. Choose from:\n * {message}'
+
+    def error_unknown(self, message: 'str') -> 'str':
+        names = message.split(':')[1].split(' ')[1:]
+        names = [x.strip() for x in names]
+        return f'Unknown arguments: {", ".join(names)}.'
+
+    def error_values(self, message: 'str') -> 'str':
+        parts = message.split(' ')
+        parts.pop(0)
+        parts[-1] = 'value' if parts[-1] == 'argument' else 'values'
+        return ' '.join(parts) + '.'
+
+
 def main(
     app: 'App',
-    argv: 'list[str]' = sys.argv,
+    argv: 'list[str]' = None,
 ) -> 'None':
-    ...
+    argv = argv or sys.argv
+    argv = [str(x) for x in argv]
+    if not app.name:
+        app.name = os.path.basename(argv[0])
+    # Construction.
+    parser = Parser(
+        app.name,
+        apps=[app],
+        allow_abbrev=False,
+        add_help=False,
+    )
+    # Completion.
+    autocomplete(
+        argument_parser=parser,
+        always_complete_options=False,
+    )
+    # Parsing.
+    try:
+        args, apps = parser.parse(argv)
+    except CallError as e:
+        print(e.text, file=sys.stderr)
+        sys.exit(e.code)
+    # Execution.
+    try:
+        for x in apps:
+            x(args, apps)
+    except CallError as e:
+        print(e.text, file=sys.stderr)
+        sys.exit(e.code)
+    sys.exit(0)
 
 
 def raise_t(
