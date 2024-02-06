@@ -728,7 +728,7 @@ class AppHelper:
             result += ' ' + ' '.join(
                 [x.helper.text_usage(x) for x in args_pos])
         if apps[-1].apps:
-            result += ' (...)'
+            result += ' {...}'
         return result
 
     def section_prolog(
