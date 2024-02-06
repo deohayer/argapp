@@ -6,7 +6,7 @@ argapp is an OOP wrapper for [argparse](https://docs.python.org/3/library/argpar
  * Allows writing CLI applications using OOP - encapsulates [argparse](https://docs.python.org/3/library/argparse.html) API.
  * Provides limited support for the shell completion via [argcomplete](https://pypi.org/project/argcomplete).
 
-Full documentation is available at https://deohayer.github.io/argapp
+Full documentation is available at https://deohayer.github.io/argapp-ws.
 
 ## Features
 
