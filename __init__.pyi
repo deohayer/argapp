@@ -840,11 +840,11 @@ class AppHelper:
         Returns:
         * A `str`, combination of the following:
            * `self.text_usage(apps, name)`.
-           * `self.section_prolog("Description", apps[-1])`.
+           * `apps[-1].prolog`.
            * `self.section_apps("Commands", apps[-1].apps)`.
            * `self.section_args("Positional arguments", args)`, where `args` - positional arguments from `apps[-1].args`.
            * `self.section_args("Optional arguments", args)`, where `args` - optional arguments from `apps[-1].args` and the help option, if set.
-           * `self.section_epilog("Notes", apps[-1])`.
+           * `apps[-1].epilog`.
         '''
 
     def text_usage(
@@ -864,44 +864,6 @@ class AppHelper:
            * All the commands from the command line (the arguments omitted).
            * The last command's optional arguments with `required` set to `True`.
            * The last command's positional arguments.
-        '''
-
-    def section_prolog(
-        self,
-        title: 'str',
-        app: 'App',
-    ) -> 'str':
-        '''
-        Generate the command's text before arguments.
-
-        Parameters:
-        * `title` - a title for the section.
-        * `app`   - an `App` to generate the text for.
-
-        Returns:
-        * `''` if `app.prolog` is not set.
-        * A `str` that combines:
-           * `title`.
-           * `app.prolog`.
-        '''
-
-    def section_epilog(
-        self,
-        title: 'str',
-        app: 'App',
-    ) -> 'str':
-        '''
-        Generate the command's text after arguments.
-
-        Parameters:
-        * `title` - a title for the section.
-        * `app`   - an `App` to generate the text for.
-
-        Returns:
-        * `''`, if `app.epilog` is not set.
-        * A `str` that combines:
-           * `title`.
-           * `app.epilog`.
         '''
 
     def section_apps(

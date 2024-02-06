@@ -694,7 +694,7 @@ class AppHelper:
         name: 'str',
     ) -> 'str':
         parts = [self.text_usage(apps, name)]
-        parts.append(self.section_prolog('Description', apps[-1]))
+        parts.append(apps[-1].prolog)
         parts.append(self.section_apps('Commands', apps[-1].apps))
         args = [x for x in apps[-1].args if x.positional]
         parts.append(self.section_args('Positional arguments', args))
@@ -707,7 +707,7 @@ class AppHelper:
                 count=0,
             ))
         parts.append(self.section_args('Optional arguments', args))
-        parts.append(self.section_epilog('Notes', apps[-1]))
+        parts.append(apps[-1].epilog)
         parts = [x for x in parts if x]
         return '\n\n'.join(parts) + '\n'
 
@@ -730,28 +730,6 @@ class AppHelper:
         if apps[-1].apps:
             result += ' {...}'
         return result
-
-    def section_prolog(
-        self,
-        title: 'str',
-        app: 'App',
-    ) -> 'str':
-        if not app.prolog:
-            return ''
-        if not title:
-            return app.prolog
-        return f'{title}:\n{app.prolog}'
-
-    def section_epilog(
-        self,
-        title: 'str',
-        app: 'App',
-    ) -> 'str':
-        if not app.epilog:
-            return ''
-        if not title:
-            return app.epilog
-        return f'{title}:\n{app.epilog}'
 
     def section_apps(
         self,
