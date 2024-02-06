@@ -76,6 +76,7 @@ except:
 
 class Arg:
     '''
+    Represents a command line argument.
     '''
 
     @property
@@ -551,6 +552,7 @@ class Arg:
 
 class App:
     '''
+    Represents a command.
     '''
 
     @property
@@ -689,6 +691,7 @@ class App:
 
 class ArgHelper:
     '''
+    An argument description generator.
     '''
 
     @property
@@ -771,6 +774,7 @@ class ArgHelper:
 
 class AppHelper:
     '''
+    A command description generator.
     '''
 
     @property
@@ -952,6 +956,7 @@ class AppHelper:
 
 class CallError:
     '''
+    An exception to raise when there is an error during parsing or execution.
     '''
 
     @property
