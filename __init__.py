@@ -490,6 +490,7 @@ class App:
         raise_t(v, (str, type(None)), 'App.help')
         # Set.
         self.__help = v or ''
+        self.prolog = self.__prolog
 
     @property
     def prolog(self) -> 'str':
